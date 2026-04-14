@@ -1,0 +1,18 @@
+spring:
+  application:
+    name: klubly-backend
+
+  datasource:
+    url: jdbc:postgresql://localhost:5432/klubly_db
+    username: admin
+    password: password123
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
