@@ -35,12 +35,14 @@ public class User extends BaseEntity {
     @Column(length = 20)
     private String phone;
 
+    // Este campo aquí es estático y profesional, o sea, es para ver el cargo o puesto general en la estructura.
     @Column(length = 50)
     private String position;
 
     @Column(length = 500)
     private String avatarURL;
 
+    //La mayoría de veces necesitaremos saber el rol a la vez, por lo que usamos EAGER.
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;

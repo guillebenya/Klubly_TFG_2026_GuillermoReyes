@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@Table(name = "roles", uniqueConstraints = { @UniqueConstraint(columnNames = {"name", "deletedAt"}) } )
+@Table(name = "teams", uniqueConstraints = { @UniqueConstraint(columnNames = {"name", "deletedAt"}) } )
 @Getter
 @Setter
 @NoArgsConstructor
