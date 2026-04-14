@@ -1,0 +1,22 @@
+# Java / Maven
+**/target/
+**/.mvn/
+**/mvnw
+**/mvnw.cmd
+**/*.jar
+**/*.class
+
+# Node / React
+**/node_modules/
+**/dist/
+.env.local
+.env.development.local
+
+# IDEs
+.vscode/
+.idea/
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db
