@@ -47,7 +47,7 @@ public class DataInitializer implements CommandLineRunner{
         if (!roleRepository.findByName(roleName).isPresent()) {
             Role role = new Role();
             role.setName(roleName);
-            role.setDescription("Rol de " + roleName + " con permioso para todo");
+            role.setDescription("Rol de: " + roleName);
             role.setActive(true);
             roleRepository.save(role);
             System.out.println("Rol '" + roleName + "' creado con éxito por el DataSeed.");
