@@ -16,3 +16,7 @@ spring:
     properties:
       hibernate:
         format_sql: true
+
+app:
+  jwt-secret: "ClaveSecretaMuyLargaParaQueSeaSegura2026!"
+  jwt-expiration-milliseconds: 3600000
