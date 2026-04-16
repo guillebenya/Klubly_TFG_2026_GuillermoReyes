@@ -32,10 +32,10 @@ public class User extends BaseEntity {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "first_name", nullable = false, length = 50)
     private String firstName;
 
-    @Column(nullable = false, length = 50)
+    @Column(name = "last_name", nullable = false, length = 50)
     private String lastName;
 
     @Column(length = 20)
@@ -45,7 +45,7 @@ public class User extends BaseEntity {
     @Column(length = 50)
     private String position;
 
-    @Column(length = 500)
+    @Column(name = "avatar_url", length = 500)
     private String avatarURL;
 
     //La mayoría de veces necesitaremos saber el rol a la vez, por lo que usamos EAGER.
