@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { authService } from '../features/auth/services/auth.service';
 
 const api = axios.create({
     baseURL: 'http://localhost:8080/api', //URL de mi backend en SpringBoot
@@ -7,7 +8,7 @@ const api = axios.create({
     },
 });
 
-// INTERCEPTOR: Se ejecuta antes de que cada petición salga hacia el backend
+// Interceptor de petición: Se ejecuta antes de que cada petición salga hacia el backend
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -21,5 +22,16 @@ api.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+
+//Interceptor de respuesta: Se ejecuta cuando recibimos una respuesta del backend
+api.interceptors.response.use(
+  (response) => response, // Si todo va bien, devolvemos la respuesta
+  (error) => {
+    // Si el servidor responde 401 (Token caducado o inválido)
+    if (error.response && error.response.status === 401) {
+      authService.logout(); // Limpiamos y mandamos al login
+    }
+    return Promise.reject(error);
+  });
 
 export default api;

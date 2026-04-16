@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { authService } from "../services/auth.service";
 import { Lock, User, AlertCircle } from "lucide-react";
+import logo from "../../../assets/Klubly_Logo.png";
 
 const LoginPage = () => {
   const [username, setUsername] = useState("");
@@ -26,14 +27,13 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="flex h-screen items-center justify-center bg-slate-900 px-4">
-      <div className="w-full max-w-md rounded-2xl bg-slate-800 p-8 shadow-2xl ring-1 ring-white/10">
+    <div className="flex h-screen items-center justify-center bg-indigo-500 px-4">
+      <div className="w-full max-w-md rounded-2xl bg-slate-50 p-8 shadow-2xl ring-1 ring-white/10">
         <div className="mb-8 text-center">
-          <h1 className="text-3xl font-bold text-white">
-            Bienvenido a <span className="text-sky-400">Klubly</span>
-          </h1>
-          <p className="mt-2 text-slate-400">
-            Gestión inteligente para tu club
+          <img src={logo} alt="Klubly Logo" className="mx-auto mb-4 w-32" />
+          <h1 className="text-2xl font-bold text-black">Iniciar sesión</h1>
+          <p className="mt-2 text-slate-500">
+            Por favor, introduce tu email y contraseña
           </p>
         </div>
 
@@ -46,39 +46,39 @@ const LoginPage = () => {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-300">
+            <label className="block text-sm font-medium text-slate-500">
               Usuario
             </label>
             <div className="relative mt-1">
               <User
-                className="absolute top-3 left-3 text-slate-500"
+                className="absolute top-3 left-3 text-slate-400"
                 size={18}
               />
               <input
                 type="text"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="w-full rounded-lg bg-slate-700 py-2.5 pr-4 pl-10 text-white placeholder-slate-500 outline-none ring-1 ring-slate-600 focus:ring-2 focus:ring-sky-500 transition-all"
-                placeholder="admin"
+                className="w-full rounded-lg bg-gray-200 py-2.5 pr-4 pl-10 text-slate-900 placeholder-slate-400 outline-none ring-1 ring-slate-300 focus:ring-2 focus:ring-sky-500 transition-all"
+                placeholder="email@example.com"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-300">
+            <label className="block text-sm font-medium text-slate-500">
               Contraseña
             </label>
             <div className="relative mt-1">
               <Lock
-                className="absolute top-3 left-3 text-slate-500"
+                className="absolute top-3 left-3 text-slate-400"
                 size={18}
               />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full rounded-lg bg-slate-700 py-2.5 pr-4 pl-10 text-white placeholder-slate-500 outline-none ring-1 ring-slate-600 focus:ring-2 focus:ring-sky-500 transition-all"
+                className="w-full rounded-lg bg-gray-200 py-2.5 pr-4 pl-10 text-slate-900 placeholder-slate-400 outline-none ring-1 ring-slate-300 focus:ring-2 focus:ring-sky-500 transition-all"
                 placeholder="••••••••"
                 required
               />
@@ -88,9 +88,9 @@ const LoginPage = () => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full rounded-lg bg-sky-500 py-3 font-semibold text-white hover:bg-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-800 disabled:opacity-50 transition-all cursor-pointer"
+            className="w-full rounded-lg bg-indigo-500 py-3 font-semibold text-white hover:bg-sky-400 focus:outline-none focus:ring-2 focus:ring-sky-500 focus:ring-offset-2 focus:ring-offset-slate-800 disabled:opacity-50 transition-all cursor-pointer"
           >
-            {loading ? "Entrando..." : "Iniciar Sesión"}
+            {loading ? "Entrando..." : "Entrar"}
           </button>
         </form>
       </div>
