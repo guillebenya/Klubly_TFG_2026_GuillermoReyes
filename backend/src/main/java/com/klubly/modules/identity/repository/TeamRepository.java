@@ -11,6 +11,5 @@ import com.klubly.modules.identity.entity.Team;
 @Repository
 public interface TeamRepository extends JpaRepository<Team, Long> {
     List<Team> findByDeletedAtIsNull();
-
     Optional<Team> findByIdAndDeletedAtIsNull(Long id);
 }
