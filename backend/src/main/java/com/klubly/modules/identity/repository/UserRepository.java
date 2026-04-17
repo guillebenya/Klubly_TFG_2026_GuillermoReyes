@@ -19,4 +19,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     //Para validar si el usuario existe al crear o editar
     boolean existsByUsernameAndDeletedAtIsNull(String username);
     boolean existsByEmailAndDeletedAtIsNull(String email);
+
+    // Para asegurar que al buscar por ID también respetamos el Soft Delete
+    Optional<User> findByIdAndDeletedAtIsNull(Long id);
 }
