@@ -24,17 +24,20 @@ public class DataInitializer implements CommandLineRunner{
         //Crear roles si no existen
         createRoleIfNotFound("ADMIN");
         createRoleIfNotFound("STAFF");
-        createRoleIfNotFound("USER");
+        createRoleIfNotFound("MEMBER");
 
         //Crear un usuario administrador por defecto
-        if (!userRepository.existsByUsername("admin")) {
-            Role adminRole = roleRepository.findByName("ADMIN").orElseThrow(() -> new RuntimeException("Error: El rol ADMIN no existe"));
+        if (!userRepository.existsByUsernameAndDeletedAtIsNull("admin")) {
+            Role adminRole = roleRepository.findByNameAndDeletedAtIsNull("ADMIN").orElseThrow(() -> new RuntimeException("Error: El rol ADMIN no existe"));
             User admin = new User();
             admin.setUsername("admin");
             admin.setEmail("admin@klubly.com");
             admin.setPassword(passwordEncoder.encode("admin123"));
             admin.setFirstName("Administrador");
             admin.setLastName("Sistema");
+            admin.setPhone("678901234");
+            admin.setClubPosition("Director General");
+            admin.setAvatarURL("urlInventada.es");
             admin.setRole(adminRole);
             admin.setActive(true);
 
@@ -44,7 +47,7 @@ public class DataInitializer implements CommandLineRunner{
     }
     
     private void createRoleIfNotFound(String roleName) {
-        if (!roleRepository.findByName(roleName).isPresent()) {
+        if (!roleRepository.findByNameAndDeletedAtIsNull(roleName).isPresent()) {
             Role role = new Role();
             role.setName(roleName);
             role.setDescription("Rol de: " + roleName);

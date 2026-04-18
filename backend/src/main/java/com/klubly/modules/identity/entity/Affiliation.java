@@ -28,7 +28,7 @@ public class Affiliation extends BaseEntity{
     @JoinColumn(name = "team_id", nullable = false)
     private Team team;
 
-    // Este campo aquí es dinámico y deportivo, es para ver la función específica en un equipo.
-    @Column(length = 50)
-    private String position;
+    // Posición del usuario en este equipo específico.
+    @Column(name = "team_position", nullable= false, length = 50)
+    private String teamPosition;
 }

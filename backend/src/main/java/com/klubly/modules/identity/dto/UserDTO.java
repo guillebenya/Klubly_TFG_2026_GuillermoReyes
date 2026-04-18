@@ -16,7 +16,7 @@ public class UserDTO {
     private String firstName;
     private String lastName;
     private String phone;
-    private String position;
+    private String clubPosition;
     private String avatarURL;
     private Boolean active;
 

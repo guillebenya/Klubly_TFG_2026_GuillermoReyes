@@ -16,6 +16,7 @@ import java.util.stream.Collectors;
 public class TeamService {
 
     private final TeamRepository teamRepository;
+    private static final String TEAM_NOT_FOUND_MSG = "Equipo no encontrado";
 
     public List<TeamDTO> getAllActiveTeams() {
         return teamRepository.findByDeletedAtIsNull()
@@ -27,7 +28,7 @@ public class TeamService {
     public TeamDTO getTeamById(Long id) {
         Team team = teamRepository.findById(id)
                 .filter(t -> t.getDeletedAt() == null)
-                .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
+                .orElseThrow(() -> new RuntimeException(TEAM_NOT_FOUND_MSG));
         return convertToDTO(team);
     }
 
@@ -46,7 +47,7 @@ public class TeamService {
     public TeamDTO updateTeam(Long id, TeamDTO teamDTO) {
         Team team = teamRepository.findById(id)
                 .filter(t -> t.getDeletedAt() == null)
-                .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
+                .orElseThrow(() -> new RuntimeException(TEAM_NOT_FOUND_MSG));
 
         team.setName(teamDTO.getName());
         team.setDescription(teamDTO.getDescription());
@@ -61,7 +62,7 @@ public class TeamService {
     @Transactional
     public void deleteTeam(Long id) {
         Team team = teamRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
+                .orElseThrow(() -> new RuntimeException(TEAM_NOT_FOUND_MSG));
         
         team.setDeletedAt(LocalDateTime.now());
         team.setActive(false);
