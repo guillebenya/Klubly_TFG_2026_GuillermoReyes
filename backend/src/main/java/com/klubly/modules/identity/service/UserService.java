@@ -15,9 +15,11 @@ import com.klubly.modules.identity.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserService {
 
     private final UserRepository userRepository;
@@ -66,6 +68,7 @@ public class UserService {
         user.setRole(role); // Asignar el rol al usuario
 
         User savedUser = userRepository.save(user);
+        log.info("Nuevo usuario creado con éxito: {}", userDTO.getUsername());
         return convertToDTO(savedUser);
     }
     

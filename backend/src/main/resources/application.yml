@@ -17,6 +17,20 @@ spring:
       hibernate:
         format_sql: true
 
+#Configuración del logger
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"
+  file:
+    name: logs/klubly.log
+  logback:
+    rollingpolicy:
+      max-file-size: 10MB #Tamaño máximo de cada archivo de log
+      max-history: 7 #Días para mantener los archivos de log antiguos
+  level:
+    root: INFO
+    com.klubly: DEBUG
+
 app:
   jwt-secret: "ClaveSecretaMuyLargaParaQueSeaSegura2026!"
   jwt-expiration-milliseconds: 3600000

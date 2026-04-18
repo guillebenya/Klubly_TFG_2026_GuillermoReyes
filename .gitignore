@@ -20,3 +20,28 @@
 # OS
 .DS_Store
 Thumbs.db
+
+# Logs
+/logs/
+
+# Extensiones de logs adicionales (por si acaso)
+*.log
+/logs/*
+
+# Archivos temporales de Spring Boot / JVM
+hs_err_pid*
+replay_pid*
+
+# Archivos de ayuda de Maven que a veces se generan
+.flattened-pom.xml
+pom.xml.tag
+pom.xml.releaseBackup
+release.properties
+
+# Entorno (Cualquier archivo .env, no solo los locales)
+.env
+.env.*
+
+# Pruebas
+/target/site/jacoco/
+jacoco.exec

@@ -13,9 +13,11 @@ import com.klubly.modules.identity.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AffiliationService {
 
     private final AffiliationRepository affiliationRepository;
@@ -33,7 +35,7 @@ public class AffiliationService {
 
     //Obtener afiliación por id
     public AffiliationDTO getAffiliationById(Long id) {
-        Affiliation affiliation = affiliationRepository.findById(id)
+        Affiliation affiliation = affiliationRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new RuntimeException(AFFILIATION_NOT_FOUND_MSG));
         return convertToDTO(affiliation);
     }
@@ -91,7 +93,13 @@ public class AffiliationService {
     public void deleteAffiliation(Long id) {
         Affiliation affiliation = affiliationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException(AFFILIATION_NOT_FOUND_MSG));
+        
+        log.info("Desvinculando usuario '{}' del equipo '{}'", 
+             affiliation.getUser().getUsername(), 
+             affiliation.getTeam().getName());
+        
         affiliation.setDeletedAt(java.time.LocalDateTime.now());
+        affiliation.setActive(false);
         affiliationRepository.save(affiliation);
     }
 

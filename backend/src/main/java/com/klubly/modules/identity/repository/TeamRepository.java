@@ -14,4 +14,7 @@ public interface TeamRepository extends JpaRepository<Team, Long> {
     List<Team> findByDeletedAtIsNull();
     // Para asegurar que al buscar por ID también respetamos el Soft Delete
     Optional<Team> findByIdAndDeletedAtIsNull(Long id);
+    Optional<Team> findByNameAndDeletedAtIsNull(String name);
+    // Para validar si el equipo existe al crear o editar
+    boolean existsByNameAndDeletedAtIsNull(String name);
 }
