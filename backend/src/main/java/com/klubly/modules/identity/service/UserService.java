@@ -7,13 +7,14 @@ import java.util.stream.Collectors;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.klubly.modules.identity.dto.AffiliationDTO;
 import com.klubly.modules.identity.dto.UserDTO;
 import com.klubly.modules.identity.entity.Role;
 import com.klubly.modules.identity.entity.User;
 import com.klubly.modules.identity.repository.RoleRepository;
 import com.klubly.modules.identity.repository.UserRepository;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,6 +28,7 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private static final String USER_NOT_FOUND_MSG = "Usuario no encontrado";
 
+    @Transactional(readOnly = true)
     public List<UserDTO> getAllActiveUsers() {
         return userRepository.findByDeletedAtIsNull()
                 .stream()
@@ -34,6 +36,7 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public UserDTO getUserById(Long id) {
         User user = userRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND_MSG));
@@ -133,10 +136,25 @@ public class UserService {
         dto.setClubPosition(user.getClubPosition());
         dto.setAvatarURL(user.getAvatarURL());
         dto.setActive(user.getActive());
+        dto.setCreatedAt(user.getCreatedAt());
+        dto.setUpdatedAt(user.getUpdatedAt());
+        dto.setDeletedAt(user.getDeletedAt());
         if (user.getRole() != null) {
             dto.setRoleId(user.getRole().getId());
             dto.setRoleName(user.getRole().getName());
         }
+        if (user.getAffiliations() != null) {
+        dto.setAffiliations(user.getAffiliations().stream()
+            .map(aff -> {
+                AffiliationDTO affDto = new AffiliationDTO();
+                affDto.setId(aff.getId());
+                affDto.setTeamId(aff.getTeam().getId());
+                affDto.setTeamName(aff.getTeam().getName());
+                affDto.setTeamPosition(aff.getTeamPosition());
+                return affDto;
+            })
+            .collect(Collectors.toList()));
+    }
         return dto;
     }
 }

@@ -1,6 +1,8 @@
 package com.klubly.modules.identity.repository;
 
 import com.klubly.modules.identity.entity.User;
+
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -10,6 +12,7 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long> {
     //Listado general (solo usuarios activos)
+    @EntityGraph(attributePaths = {"affiliations", "role"})
     List<User> findByDeletedAtIsNull();
 
     //Para el login y para buscar perfiles (solo activos)
@@ -21,5 +24,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     boolean existsByEmailAndDeletedAtIsNull(String email);
 
     // Para asegurar que al buscar por ID también respetamos el Soft Delete
+    @EntityGraph(attributePaths = {"affiliations", "role"})
     Optional<User> findByIdAndDeletedAtIsNull(Long id);
 }

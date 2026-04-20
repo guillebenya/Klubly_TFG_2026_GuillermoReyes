@@ -11,7 +11,7 @@ import com.klubly.modules.identity.repository.AffiliationRepository;
 import com.klubly.modules.identity.repository.TeamRepository;
 import com.klubly.modules.identity.repository.UserRepository;
 
-import jakarta.transaction.Transactional;
+import org.springframework.transaction.annotation.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

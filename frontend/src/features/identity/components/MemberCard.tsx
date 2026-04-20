@@ -36,7 +36,7 @@ const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
   
   return (
     <Card className="flex items-center gap-4 py-3 px-6 hover:border-indigo-300 transition-all shadow-sm">
-      {/* 1. Avatar (Más pequeño para ahorrar espacio) */}
+      {/* 1. Avatar */}
       <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center overflow-hidden border border-indigo-50 shrink-0">
         {member.avatarUrl ? (
           <img
@@ -51,7 +51,7 @@ const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
 
       {/* 2. Información en Fila (Flex-1 para ocupar el resto) */}
       <div className="flex items-center justify-between flex-1 min-w-0 gap-4">
-        {/* Nombre y Email - No rompe línea */}
+        {/* Nombre y Email */}
         <div className="flex flex-col min-w-[180px]">
           <p className="text-sm font-bold text-gray-900 truncate">
             {member.firstName} {member.lastName}
@@ -60,6 +60,22 @@ const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
             <Mail size={12} />
             <span className="text-xs truncate">{member.email}</span>
           </div>
+        </div>
+
+        {/* Username */}
+        <div className="hidden md:flex flex-col items-start min-w-[100px]">
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Nombre Usuario</span>
+          <p className="text-xs font-semibold text-gray-600 truncate">
+            {member.username}
+          </p>
+        </div>
+
+        {/* Teléfono */}
+        <div className="hidden md:flex flex-col items-start min-w-[100px]">
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Teléfono</span>
+          <p className="text-xs font-semibold text-gray-600 truncate">
+            {member.phone || 'No disponible'}
+          </p>
         </div>
 
         {/* Rol con Icono Dinámico */}
