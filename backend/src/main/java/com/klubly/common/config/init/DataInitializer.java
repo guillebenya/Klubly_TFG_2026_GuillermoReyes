@@ -63,7 +63,6 @@ public class DataInitializer implements CommandLineRunner{
             staff.setFirstName("Staff");
             staff.setLastName("Técnico");
             staff.setPhone("678901235");
-            staff.setClubPosition("Miembro del Staff");
             staff.setAvatarURL("urlInventada.com");
             staff.setRole(staffRole);
             staff.setActive(true);
@@ -82,7 +81,6 @@ public class DataInitializer implements CommandLineRunner{
             member.setFirstName("Member");
             member.setLastName("Socio");
             member.setPhone("678901236");
-            member.setClubPosition("Miembro del Club");
             member.setAvatarURL("urlInventada.net");
             member.setRole(memberRole);
             member.setActive(true);

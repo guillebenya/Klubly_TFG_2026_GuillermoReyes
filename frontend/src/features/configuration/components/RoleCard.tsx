@@ -42,7 +42,7 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
         </div>
 
         {/* BOTONES DE ACCIÓN (A la derecha) */}
-        <div className="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1">
           <Button
             variant="ghost"
             size="sm"

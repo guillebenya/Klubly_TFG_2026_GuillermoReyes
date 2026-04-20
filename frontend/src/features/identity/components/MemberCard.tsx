@@ -108,10 +108,10 @@ const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
           </Badge>
         </div>
 
-        {/* Cargo Club - Texto corto */}
+        {/* Cargo Club */}
         <div className="hidden lg:flex flex-col min-w-[120px]">
           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
-            Cargo
+            Cargo Institucional
           </span>
           <p className="text-xs font-semibold text-gray-600 truncate">
             {member.clubPosition || "Socio"}
@@ -121,7 +121,7 @@ const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
         {/* Equipos - Resumen Dinámico */}
         <div className="hidden xl:flex flex-col min-w-[110px]">
           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight mb-1">
-            Equipos
+            Nº Equipos
           </span>
           <div className="flex items-center gap-1.5">
             {member.affiliations && member.affiliations.length > 0 ? (
@@ -149,7 +149,7 @@ const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
           size="sm"
           icon={<Eye size={16} />}
           onClick={() => onView(member)}
-          className="!text-blue-600 hover:!bg-blue-50" // El ! asegura que gane este color
+          className="!text-blue-600 hover:!bg-blue-50"
         />
         <Button
           variant="ghost"

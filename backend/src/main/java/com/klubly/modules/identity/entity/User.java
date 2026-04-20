@@ -48,7 +48,7 @@ public class User extends BaseEntity {
 
     // Este campo aquí es estático y profesional, o sea, es para ver el cargo o puesto general en la estructura.
     @Column(name = "club_position", length = 50)
-    private String clubPosition;
+    private String clubPosition = "Ninguno"; // Valor por defecto
 
     @Column(name = "avatar_url", length = 500)
     private String avatarURL;

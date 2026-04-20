@@ -108,21 +108,21 @@ const TeamsSection = () => {
             <Users2 size={20} />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-gray-800 uppercase tracking-tight">
-              Gestión de Equipos
+            <h3 className="text-lg font-bold text-gray-800 uppercase tracking-tight">
+              Listado de Equipos
             </h3>
             <p className="text-[10px] text-gray-400 font-medium">
-              Administra los grupos deportivos del club.
+              Administra los equipos del club.
             </p>
           </div>
         </div>
         <Button
-          variant="primary"
+          variant="add"
           size="sm"
           icon={<Plus size={18} />}
           onClick={handleAddNew}
         >
-          Nuevo Equipo
+          Añadir Equipo
         </Button>
       </div>
 

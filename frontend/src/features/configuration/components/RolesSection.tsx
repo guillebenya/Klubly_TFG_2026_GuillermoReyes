@@ -137,21 +137,21 @@ const RolesSection = () => {
             <Shield size={20} />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-gray-800 uppercase tracking-tight">
+            <h3 className="text-lg font-bold text-gray-800 uppercase tracking-tight">
               Listado de Roles
             </h3>
             <p className="text-[10px] text-gray-400 font-medium">
-              Gestiona los niveles de acceso y etiquetas del club.
+              Administra los roles del club.
             </p>
           </div>
         </div>
         <Button
-          variant="primary"
+          variant="add"
           size="sm"
           icon={<Plus size={18} />}
           onClick={handleAddNew}
         >
-          Nuevo Rol
+          Añadir Rol
         </Button>
       </div>
 

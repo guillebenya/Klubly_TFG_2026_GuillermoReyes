@@ -79,7 +79,7 @@ const MemberTeamsManager = ({ member, onRefresh }: MemberTeamsManagerProps) => {
         setNewAffiliation({ teamId: "", teamPosition: "" });
         setSuccessConfig({
           isOpen: true,
-          title: "Fichaje realizado",
+          title: "Afiliación realizada",
           desc: "El miembro ha sido vinculado al equipo correctamente.",
         });
       } else {
@@ -191,7 +191,7 @@ const MemberTeamsManager = ({ member, onRefresh }: MemberTeamsManagerProps) => {
           isLoading={loading}
           disabled={!newAffiliation.teamId || !newAffiliation.teamPosition}
         >
-          Confirmar Fichaje
+          Confirmar Afiliación
         </Button>
       </div>
 
@@ -209,7 +209,7 @@ const MemberTeamsManager = ({ member, onRefresh }: MemberTeamsManagerProps) => {
         }
         confirmLabel={
           confirmConfig.type === "add"
-            ? "Confirmar Fichaje"
+            ? "Confirmar Afiliación"
             : "Eliminar Afiliación"
         }
         type={confirmConfig.type === "delete" ? "danger" : "info"}

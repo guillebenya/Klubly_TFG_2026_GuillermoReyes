@@ -31,7 +31,7 @@ const TeamDetails = ({ team }: TeamDetailsProps) => {
         <div className="flex flex-col items-end gap-2">
           <Badge variant={team.active ? "green" : "red"}>{team.active ? "ACTIVO" : "INACTIVO"}</Badge>
           <div className="px-3 py-1 bg-white border border-gray-200 rounded-lg text-[10px] font-black text-indigo-600 shadow-sm uppercase">
-            {team.memberCount || 0} Integrantes
+            {team.memberCount || 0} {team.memberCount === 1 ? 'Integrante' : 'Integrantes'}
           </div>
         </div>
       </div>
