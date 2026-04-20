@@ -11,15 +11,17 @@ import {
   AtSign,
   Trash2,
   Info,
+  Settings2,
   Image as ImageIcon,
 } from "lucide-react";
 import Badge from "../../../components/shared/Badge";
 
 interface MemberDetailsProps {
   member: any;
+  onManageTeams: (member: any) => void;
 }
 
-const MemberDetails = ({ member }: MemberDetailsProps) => {
+const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
   console.log("Datos del miembro recibidos:", member);
   const formatDate = (dateString: string) => {
     if (!dateString) return "---";
@@ -49,7 +51,7 @@ const MemberDetails = ({ member }: MemberDetailsProps) => {
             </h4>
             <div className="flex items-center gap-2 text-gray-500 mt-1">
               <AtSign size={14} />
-              <span className="text-sm font-bold">@{member.username}</span>
+              <span className="text-sm font-bold">{member.username}</span>
             </div>
           </div>
         </div>
@@ -100,6 +102,7 @@ const MemberDetails = ({ member }: MemberDetailsProps) => {
 
       {/* POSICIÓN Y EQUIPOS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+        {/* Bloque Cargo Club */}
         <div className="md:col-span-1 p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 mb-3">
             <Tag size={12} /> Cargo Club
@@ -109,27 +112,56 @@ const MemberDetails = ({ member }: MemberDetailsProps) => {
           </p>
         </div>
 
+        {/* Bloque Afiliaciones */}
         <div className="md:col-span-2 p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
-          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 mb-3">
-            <Users size={12} /> Afiliaciones actuales
-          </label>
+          {/* Cabecera del bloque: Título + Botón Gestionar alineados */}
+          <div className="flex items-center justify-between mb-4">
+            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
+              <Users size={12} /> Afiliaciones actuales
+            </label>
+
+            <button
+              onClick={() => onManageTeams(member)}
+              className="text-[9px] font-black flex items-center gap-1 px-2 py-1 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-600 hover:text-white transition-all duration-200"
+            >
+              <Settings2 size={12} />
+              GESTIONAR
+            </button>
+          </div>
+
           <div className="space-y-2">
             {member.affiliations && member.affiliations.length > 0 ? (
-              member.affiliations.map((aff: any) => (
-                <div
-                  key={aff.id}
-                  className="flex justify-between items-center p-2 bg-gray-50 rounded-lg border border-gray-100"
-                >
-                  <span className="text-xs font-bold text-gray-700">
-                    {aff.teamName}
+              <>
+                {/* Sub-cabeceras de la lista (Solo si hay datos) */}
+                <div className="flex justify-between px-2 mb-1">
+                  <span className="text-[11px] font-black text-gray-600 uppercase tracking-tighter">
+                    Equipo
                   </span>
-                  <span className="text-[10px] font-bold py-0.5 px-2 bg-indigo-100 text-indigo-700 rounded-md">
-                    {aff.teamPosition}
+                  <span className="text-[11px] font-black text-gray-600 uppercase tracking-tighter">
+                    Puesto
                   </span>
                 </div>
-              ))
+
+                {member.affiliations.map((aff: any) => (
+                  <div
+                    key={aff.id}
+                    className="flex justify-between items-center p-2 bg-gray-50 rounded-lg border border-gray-100 hover:bg-white hover:border-indigo-100 transition-colors group"
+                  >
+                    <span className="text-xs font-bold text-gray-700 group-hover:text-indigo-600">
+                      {aff.teamName}
+                    </span>
+                    <span className="text-[10px] font-bold py-0.5 px-2 bg-indigo-100 text-indigo-700 rounded-md shadow-sm">
+                      {aff.teamPosition}
+                    </span>
+                  </div>
+                ))}
+              </>
             ) : (
-              <p className="text-xs text-gray-400 italic">Sin equipos</p>
+              <div className="py-4 text-center border-2 border-dashed border-gray-200 rounded-xl">
+                <p className="text-xs text-gray-400 italic font-medium">
+                  Sin equipos asignados
+                </p>
+              </div>
             )}
           </div>
         </div>

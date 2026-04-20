@@ -7,7 +7,6 @@ import {
   Edit2,
   Trash2,
   ShieldCheck,
-  User,
   ClipboardList,
   CheckCircle2,
   XCircle,
@@ -30,7 +29,7 @@ const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
     switch (role?.toUpperCase()) {
       case 'ADMIN': return <ShieldCheck size={10} />;
       case 'STAFF': return <ClipboardList size={10} />;
-      default: return <User size={10} />;
+      default: return <UserIcon size={10} />;
     }
   };
   

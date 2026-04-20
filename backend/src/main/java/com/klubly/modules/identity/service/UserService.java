@@ -145,7 +145,8 @@ public class UserService {
         }
         if (user.getAffiliations() != null) {
         dto.setAffiliations(user.getAffiliations().stream()
-            .map(aff -> {
+        .filter(aff -> aff.getDeletedAt() == null)    
+        .map(aff -> {
                 AffiliationDTO affDto = new AffiliationDTO();
                 affDto.setId(aff.getId());
                 affDto.setTeamId(aff.getTeam().getId());
