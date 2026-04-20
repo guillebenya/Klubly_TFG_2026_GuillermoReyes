@@ -3,6 +3,9 @@ package com.klubly.modules.identity.controller;
 import com.klubly.common.security.JwtTokenProvider;
 import com.klubly.modules.identity.dto.JwtAuthResponse;
 import com.klubly.modules.identity.dto.LoginDto;
+import com.klubly.modules.identity.entity.User;
+import com.klubly.modules.identity.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -18,6 +21,7 @@ public class AuthController {
 
     private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
+    private final UserRepository userRepository;
 
     @PostMapping("/login")
     public ResponseEntity<JwtAuthResponse> login(@RequestBody LoginDto loginDto){
@@ -33,7 +37,17 @@ public class AuthController {
         //Generar el Token
         String token = tokenProvider.generateToken(authentication);
 
+        User user = userRepository.findByUsernameAndDeletedAtIsNull(loginDto.username())
+            .orElseThrow(() -> new RuntimeException("Error: Usuario no encontrado tras login"));
+
         //Devolver el DTO con el token
-        return ResponseEntity.ok(new JwtAuthResponse(token, "Bearer"));
+        return ResponseEntity.ok(new JwtAuthResponse(
+            token, 
+            "Bearer", 
+            user.getUsername(),
+            user.getFirstName(),
+            user.getLastName(),
+            user.getRole().getName() // Sacamos el nombre del rol (ADMIN, STAFF, etc)
+    ));
     }
 }

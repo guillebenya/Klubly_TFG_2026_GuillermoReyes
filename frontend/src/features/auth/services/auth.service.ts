@@ -1,17 +1,19 @@
 import api from "../../../api/axios.ts";
-import { jwtDecode } from "jwt-decode"; // Si la instalas
 
 export const authService = {
   login: async (username: string, password: string) => {
     const response = await api.post("/auth/login", { username, password });
 
+    // Ahora recibimos: accessToken, tokenType, username, firstName, lastName, roleName
     if (response.data.accessToken) {
       localStorage.setItem("token", response.data.accessToken);
-      // Opcional: Guardar los datos del usuario decodificados
-      const decoded: any = jwtDecode(response.data.accessToken);
+      
+      // Guardamos los datos directamente.
       localStorage.setItem("user", JSON.stringify({
-        username: decoded.sub,
-        role: decoded.role 
+        username: response.data.username,
+        firstName: response.data.firstName,
+        lastName: response.data.lastName,
+        roleName: response.data.roleName // <--- Asegúrate de usar roleName
       }));
     }
     return response.data;
