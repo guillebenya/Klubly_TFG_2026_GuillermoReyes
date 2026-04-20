@@ -33,7 +33,7 @@ const LoginPage = () => {
           <img src={logo} alt="Klubly Logo" className="mx-auto mb-4 w-32" />
           <h1 className="text-2xl font-bold text-black">Iniciar sesión</h1>
           <p className="mt-2 text-slate-500">
-            Por favor, introduce tu email y contraseña
+            Por favor, introduce tu usuario y contraseña
           </p>
         </div>
 
@@ -59,7 +59,7 @@ const LoginPage = () => {
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full rounded-lg bg-gray-200 py-2.5 pr-4 pl-10 text-slate-900 placeholder-slate-400 outline-none ring-1 ring-slate-300 focus:ring-2 focus:ring-sky-500 transition-all"
-                placeholder="email@example.com"
+                placeholder="usuario"
                 required
               />
             </div>

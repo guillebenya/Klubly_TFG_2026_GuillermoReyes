@@ -20,6 +20,9 @@ const MainLayout = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
+  const currentUser = authService.getCurrentUser();
+  console.log("CONTENIDO REAL DEL USER EN STORAGE:", currentUser); // <--- AÑADE ESTO
+
   useEffect(() => {
     const closeDropdown = () => setIsProfileOpen(false);
     if (isProfileOpen) {
@@ -28,17 +31,14 @@ const MainLayout = () => {
     return () => globalThis.removeEventListener("click", closeDropdown);
   }, [isProfileOpen]);
 
-  // NOTA: Por ahora lo dejamos así, pero en el siguiente paso
-  // lo sacaremos del token real que guardamos en el login.
-  const [user] = useState({
-    name: "Guillermo Reyes",
-    role: "ADMIN", // Prueba a cambiarlo aquí a "MEMBER" para ver la magia
-    avatar: null,
-  });
-
   const handleLogout = () => {
     authService.logout();
   };
+
+  const userRole = currentUser?.roleName?.replace("ROLE_", "") || "MEMBER";
+  const fullName = currentUser
+    ? `${currentUser.firstName} ${currentUser.lastName}`
+    : "Usuario";
 
   // Definimos todos los items posibles
   const allMenuItems = [
@@ -81,7 +81,7 @@ const MainLayout = () => {
     },
     {
       path: "/mispagos",
-      label: "Tesorería",
+      label: "Mis Pagos",
       icon: <EuroIcon size={20} />,
       roles: ["MEMBER"],
     },
@@ -96,7 +96,7 @@ const MainLayout = () => {
 
   // Filtramos los items según el rol del usuario actual
   const menuItems = allMenuItems.filter((item) =>
-    item.roles.includes(user.role),
+    item.roles.includes(userRole),
   );
 
   return (
@@ -116,9 +116,9 @@ const MainLayout = () => {
             className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
           >
             <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border border-gray-300">
-              {user.avatar ? (
+              {currentUser?.avatarUrl ? (
                 <img
-                  src={user.avatar}
+                  src={currentUser.avatarUrl}
                   alt="Avatar"
                   className="h-full w-full object-cover"
                 />
@@ -128,9 +128,9 @@ const MainLayout = () => {
             </div>
             <div className="text-left hidden sm:block">
               <p className="text-sm font-bold text-gray-800 leading-tight">
-                {user.name}
+                {fullName}
               </p>
-              <p className="text-xs font-medium text-gray-500">{user.role}</p>
+              <p className="text-xs font-medium text-gray-500">{userRole}</p>
             </div>
             <ChevronDown
               size={18}
