@@ -28,32 +28,76 @@ const MainLayout = () => {
     return () => globalThis.removeEventListener("click", closeDropdown);
   }, [isProfileOpen]);
 
-  const user = {
+  // NOTA: Por ahora lo dejamos así, pero en el siguiente paso
+  // lo sacaremos del token real que guardamos en el login.
+  const [user] = useState({
     name: "Guillermo Reyes",
-    role: "ADMIN",
+    role: "ADMIN", // Prueba a cambiarlo aquí a "MEMBER" para ver la magia
     avatar: null,
-  };
+  });
 
   const handleLogout = () => {
     authService.logout();
   };
 
-  const menuItems = [
-    { path: "/dashboard", label: "Inicio", icon: <Home size={20} /> },
-    { path: "/miembros", label: "Miembros", icon: <UserIcon size={20} /> },
-    { path: "/tesoreria", label: "Tesorería", icon: <EuroIcon size={20} /> },
-    { path: "/inventario", label: "Inventario", icon: <Package size={20} /> },
+  // Definimos todos los items posibles
+  const allMenuItems = [
+    {
+      path: "/dashboard",
+      label: "Inicio",
+      icon: <Home size={20} />,
+      roles: ["ADMIN", "STAFF", "MEMBER"],
+    },
+    {
+      path: "/miembros",
+      label: "Miembros",
+      icon: <UserIcon size={20} />,
+      roles: ["ADMIN", "STAFF"],
+    },
+    {
+      path: "/tesoreria",
+      label: "Tesorería",
+      icon: <EuroIcon size={20} />,
+      roles: ["ADMIN"],
+    },
+    {
+      path: "/inventario",
+      label: "Inventario",
+      icon: <Package size={20} />,
+      roles: ["ADMIN", "STAFF"],
+    },
     {
       path: "/actividades",
       label: "Actividades",
       icon: <Calendar size={20} />,
+      roles: ["ADMIN", "STAFF", "MEMBER"],
     },
+    // El ADMIN ve Configuración
     {
       path: "/configuracion",
       label: "Configuración",
       icon: <Settings size={20} />,
+      roles: ["ADMIN"],
+    },
+    {
+      path: "/mispagos",
+      label: "Tesorería",
+      icon: <EuroIcon size={20} />,
+      roles: ["MEMBER"],
+    },
+    // STAFF y MEMBER ven Mi Perfil
+    {
+      path: "/perfil",
+      label: "Mi Perfil",
+      icon: <Settings size={20} />,
+      roles: ["STAFF", "MEMBER"],
     },
   ];
+
+  // Filtramos los items según el rol del usuario actual
+  const menuItems = allMenuItems.filter((item) =>
+    item.roles.includes(user.role),
+  );
 
   return (
     <div className="flex h-screen flex-col bg-gray-100">
@@ -110,7 +154,7 @@ const MainLayout = () => {
 
       {/* 2. CONTENEDOR INFERIOR (Sidebar + Main) */}
       <div className="flex flex-1 overflow-hidden">
-        {/* SIDEBAR (Vertical, empieza debajo del Header) */}
+        {/* SIDEBAR VERTICAL */}
         <aside className="w-64 bg-white border-r border-gray-200 flex flex-col z-10">
           <nav className="flex-1 py-4 space-y-2">
             {menuItems.map((item) => {
@@ -126,11 +170,9 @@ const MainLayout = () => {
                         : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
                     }`}
                 >
-                  {/* Barra vertical de indicador activo */}
                   {isActive && (
                     <div className="absolute left-0 top-0 h-full w-1.5 bg-indigo-600" />
                   )}
-
                   <span
                     className={`mr-3 ${isActive ? "text-indigo-600" : "text-gray-400 group-hover:text-gray-600"}`}
                   >
@@ -143,7 +185,7 @@ const MainLayout = () => {
           </nav>
         </aside>
 
-        {/* CONTENIDO PRINCIPAL */}
+        {/* CONTENEDOR PRINCIPAL */}
         <main className="flex-1 overflow-y-auto p-8 bg-gray-100">
           <Outlet />
         </main>
