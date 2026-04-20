@@ -27,9 +27,12 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response, // Si todo va bien, devolvemos la respuesta
   (error) => {
+
+    console.error("DEBUG - Axios Interceptor: Error detectado", error.response?.status);
     // Si el servidor responde 401 (Token caducado o inválido)
     if (error.response && error.response.status === 401) {
-      authService.logout(); // Limpiamos y mandamos al login
+      console.error("DEBUG - Axios Interceptor: Error 401, ejecutando logout");
+      //authService.logout(); // Limpiamos y mandamos al login
     }
     return Promise.reject(error);
   });
