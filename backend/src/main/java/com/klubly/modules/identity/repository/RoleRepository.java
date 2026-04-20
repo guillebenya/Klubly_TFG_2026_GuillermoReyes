@@ -15,4 +15,5 @@ public interface RoleRepository extends JpaRepository<Role, Long> {
 
     // Para asegurar que al buscar por ID también respetamos el Soft Delete
     Optional<Role> findByIdAndDeletedAtIsNull(Long id);
+    boolean existsByNameAndDeletedAtIsNull(String name);
 }

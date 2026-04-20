@@ -24,5 +24,6 @@ public interface AffiliationRepository extends JpaRepository<Affiliation, Long> 
 
     // Para validar si una afiliación específica existe al crear o editar
     boolean existsByUserIdAndTeamIdAndDeletedAtIsNull(Long userId, Long teamId);
+    void deleteByTeamId(Long teamId);
     
 }

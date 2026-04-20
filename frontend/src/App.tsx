@@ -2,7 +2,8 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import LoginPage from "./features/auth/pages/LoginPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import MainLayout from "./layouts/MainLayout";
-import MembersPage from "./features/identity/pages/MembersPage"; // <--- 1. Importa la página
+import MembersPage from "./features/identity/pages/MembersPage";
+import ConfigurationPage from './features/configuration/pages/ConfigurationPage';
 
 const DashboardContent = () => (
   <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -36,10 +37,8 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<DashboardContent />} />
           <Route path="/miembros" element={<MembersPage />} />{" "}
-          {/* <--- 2. AÑADE ESTA LÍNEA */}
           <Route path="/equipos" element={<EquiposContent />} />
-          {/* Añade también las otras si quieres que no te redirijan al login al pinchar */}
-          <Route path="/configuracion" element={<div>Configuración</div>} />
+          <Route path="/configuracion" element={<ConfigurationPage />} />
           <Route path="/perfil" element={<div>Mi Perfil</div>} />
         </Route>
       </Route>

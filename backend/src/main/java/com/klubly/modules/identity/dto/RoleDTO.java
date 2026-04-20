@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import lombok.Data;
 
 @Data
-public class TeamDTO {
+public class RoleDTO {
     private Long id;
     private String name;
     private String description;
@@ -13,5 +13,4 @@ public class TeamDTO {
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
-    private Integer memberCount; // Para mostrar el número de miembros en el equipo
 }

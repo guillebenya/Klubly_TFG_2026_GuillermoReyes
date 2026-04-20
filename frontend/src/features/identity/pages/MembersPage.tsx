@@ -49,7 +49,7 @@ const MembersPage = () => {
     desc: "",
   });
 
-  // 1. Cargar miembros y equipos
+  //Cargar miembros y equipos
   useEffect(() => {
     fetchMembers();
     fetchTeams();
@@ -72,9 +72,9 @@ const MembersPage = () => {
     setAllTeams(resp.data);
   };
 
-  // --- HANDLERS QUE DISPARAN LA CONFIRMACIÓN ---
+  //HANDLERS QUE DISPARAN LA CONFIRMACIÓN
 
-  // Para Borrar: Ya no usa window.confirm, usa nuestro ConfirmDialog
+  // Para Borrar
   const handleDeleteTrigger = (id: number) => {
     setConfirmConfig({
       isOpen: true,
@@ -83,7 +83,7 @@ const MembersPage = () => {
     });
   };
 
-  // Para Guardar (Crear/Editar): Viene del formulario, lo "pausamos" aquí
+  // Para Guardar (Crear/Editar)
   const handleSaveTrigger = (formData: any) => {
     setConfirmConfig({
       isOpen: true,
@@ -92,7 +92,7 @@ const MembersPage = () => {
     });
   };
 
-  // --- EL "EJECUTOR" REAL DE LAS ACCIONES ---
+  //EJECUCIÓN DE LA CONFIRMACIÓN (Borrado o Guardado, según el tipo)
   const executeAction = async () => {
     try {
       setFormLoading(true);
@@ -130,7 +130,7 @@ const MembersPage = () => {
     }
   };
 
-  // --- OTROS HANDLERS ---
+  //OTROS HANDLERS
   const handleView = (member: any) => {
     setSelectedMember(member);
     setIsViewOpen(true);
@@ -159,27 +159,27 @@ const MembersPage = () => {
     fetchMembers(); // Refrescamos la lista
   };
 
-  // --- FILTRADO ---
-  // Esta constante se recalcula CADA VEZ que cambia el searchTerm O los activeFilters
+  //FILTRADO
+  // Esta constante se recalcula cada vez que cambia el searchTerm O los activeFilters
   const filteredMembers = members.filter((m) => {
-    // 1. Filtro de la Barra Buscadora (Texto)
+    //Filtro de la Barra Buscadora (Texto)
     const searchString =
       `${m.firstName} ${m.lastName} ${m.email} ${m.username}`.toLowerCase();
     const matchesSearch = searchString.includes(searchTerm.toLowerCase());
 
-    // 2. Filtro de Roles (Multiselección)
-    // Si el array está vacío, pasan todos (true). Si hay algo, debe incluir el rol del usuario.
+    //Filtro de Roles (Multiselección)
+    //Si el array está vacío, pasan todos (true). Si hay algo, debe incluir el rol del usuario.
     const matchesRole =
       activeFilters.roles.length === 0 ||
       activeFilters.roles.includes(m.roleName);
 
-    // 3. Filtro de Estado (Activo/Inactivo)
+    //Filtro de Estado (Activo/Inactivo)
     const matchesStatus =
       activeFilters.status.length === 0 ||
       activeFilters.status.includes(m.active);
 
-    // 4. Filtro de Equipos (Multiselección)
-    // Comprobamos si el usuario tiene alguna afiliación cuyo teamId esté en nuestra lista de filtros
+    //Filtro de Equipos (Multiselección)
+    //Comprobamos si el usuario tiene alguna afiliación cuyo teamId esté en nuestra lista de filtros
     const matchesTeam =
       activeFilters.teams.length === 0 ||
       m.affiliations?.some((aff: any) =>
@@ -217,7 +217,7 @@ const MembersPage = () => {
                 `(${activeFilters.roles.length + activeFilters.status.length + activeFilters.teams.length})`}
             </Button>
             <Button
-              variant="primary"
+              variant="add"
               icon={<Plus size={18} />}
               onClick={handleAddNew}
             >
