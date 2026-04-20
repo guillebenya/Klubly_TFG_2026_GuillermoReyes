@@ -23,16 +23,18 @@ interface MemberCardProps {
 }
 
 const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
-
   // Lógica para elegir el icono del Rol
   const getRoleIcon = (role: string) => {
     switch (role?.toUpperCase()) {
-      case 'ADMIN': return <ShieldCheck size={10} />;
-      case 'STAFF': return <ClipboardList size={10} />;
-      default: return <UserIcon size={10} />;
+      case "ADMIN":
+        return <ShieldCheck size={10} />;
+      case "STAFF":
+        return <ClipboardList size={10} />;
+      default:
+        return <UserIcon size={10} />;
     }
   };
-  
+
   return (
     <Card className="flex items-center gap-4 py-3 px-6 hover:border-indigo-300 transition-all shadow-sm">
       {/* 1. Avatar */}
@@ -63,7 +65,9 @@ const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
 
         {/* Username */}
         <div className="hidden md:flex flex-col items-start min-w-[100px]">
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Nombre Usuario</span>
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
+            Nombre Usuario
+          </span>
           <p className="text-xs font-semibold text-gray-600 truncate">
             {member.username}
           </p>
@@ -71,31 +75,36 @@ const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
 
         {/* Teléfono */}
         <div className="hidden md:flex flex-col items-start min-w-[100px]">
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Teléfono</span>
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
+            Teléfono
+          </span>
           <p className="text-xs font-semibold text-gray-600 truncate">
-            {member.phone || 'No disponible'}
+            {member.phone || "No disponible"}
           </p>
         </div>
 
         {/* Rol con Icono Dinámico */}
         <div className="hidden md:flex flex-col items-start min-w-[100px]">
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Rol</span>
-          <Badge 
-            variant="indigo" 
-            icon={getRoleIcon(member.roleName)}
-          >
-            {member.roleName || 'MEMBER'}
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
+            Rol
+          </span>
+          <Badge variant="indigo" icon={getRoleIcon(member.roleName)}>
+            {member.roleName || "MEMBER"}
           </Badge>
         </div>
 
         {/* Estado con Icono de Check o X */}
         <div className="hidden sm:flex flex-col items-start min-w-[90px]">
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Estado</span>
-          <Badge 
-            variant={member.active ? 'green' : 'red'}
-            icon={member.active ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
+            Estado
+          </span>
+          <Badge
+            variant={member.active ? "green" : "red"}
+            icon={
+              member.active ? <CheckCircle2 size={10} /> : <XCircle size={10} />
+            }
           >
-            {member.active ? 'ACTIVO' : 'INACTIVO'}
+            {member.active ? "ACTIVO" : "INACTIVO"}
           </Badge>
         </div>
 
@@ -109,14 +118,26 @@ const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
           </p>
         </div>
 
-        {/* Equipos - Resumen */}
-        <div className="hidden xl:flex flex-col min-w-[100px]">
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
+        {/* Equipos - Resumen Dinámico */}
+        <div className="hidden xl:flex flex-col min-w-[110px]">
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight mb-1">
             Equipos
           </span>
-          <div className="flex items-center gap-1 text-gray-500">
-            <Users size={12} />
-            <span className="text-xs font-medium">Ver más...</span>
+          <div className="flex items-center gap-1.5">
+            {member.affiliations && member.affiliations.length > 0 ? (
+              <div className="flex items-center gap-1 px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full">
+                <Users size={10} className="text-indigo-500" />
+                <span className="text-[10px] font-black">
+                  {member.affiliations.length}{" "}
+                  {member.affiliations.length === 1 ? "EQUIPO" : "EQUIPOS"}
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 px-2 py-0.5 bg-gray-50 text-gray-400 border border-gray-100 rounded-full">
+                <Users size={10} />
+                <span className="text-[10px] font-bold uppercase">Ninguno</span>
+              </div>
+            )}
           </div>
         </div>
       </div>
