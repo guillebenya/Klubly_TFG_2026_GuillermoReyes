@@ -1,76 +1,134 @@
-import React from 'react';
-import { User as UserIcon, Mail, Shield, Briefcase, Users, Eye, Edit2, Trash2 } from 'lucide-react';
-import Card from '../../../components/shared/Card';
-import Badge from '../../../components/shared/Badge';
-import Button from '../../../components/shared/Button';
+import React from "react";
+import {
+  User as UserIcon,
+  Mail,
+  Users,
+  Eye,
+  Edit2,
+  Trash2,
+  ShieldCheck,
+  User,
+  ClipboardList,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
+import Card from "../../../components/shared/Card";
+import Badge from "../../../components/shared/Badge";
+import Button from "../../../components/shared/Button";
 
 interface MemberCardProps {
-  member: any; // Luego definiremos una Interface propia para UserDTO
+  member: any;
   onView: (member: any) => void;
   onEdit: (member: any) => void;
   onDelete: (id: number) => void;
 }
 
 const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
+
+  // Lógica para elegir el icono del Rol
+  const getRoleIcon = (role: string) => {
+    switch (role?.toUpperCase()) {
+      case 'ADMIN': return <ShieldCheck size={10} />;
+      case 'STAFF': return <ClipboardList size={10} />;
+      default: return <User size={10} />;
+    }
+  };
+  
   return (
-    <Card className="flex flex-col md:flex-row items-center gap-6 py-4 px-6 hover:border-indigo-200 transition-colors">
-      
-      {/* 1. Avatar / Imagen */}
-      <div className="h-16 w-16 rounded-full bg-indigo-100 flex items-center justify-center overflow-hidden border-2 border-indigo-50 shrink-0">
+    <Card className="flex items-center gap-4 py-3 px-6 hover:border-indigo-300 transition-all shadow-sm">
+      {/* 1. Avatar (Más pequeño para ahorrar espacio) */}
+      <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center overflow-hidden border border-indigo-50 shrink-0">
         {member.avatarUrl ? (
-          <img src={member.avatarUrl} alt={member.username} className="h-full w-full object-cover" />
+          <img
+            src={member.avatarUrl}
+            alt={member.username}
+            className="h-full w-full object-cover"
+          />
         ) : (
-          <UserIcon className="text-indigo-400" size={32} />
+          <UserIcon className="text-indigo-400" size={24} />
         )}
       </div>
 
-      {/* 2. Información Principal (Grid) */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 flex-1 w-full">
-        
-        {/* Nombre y Email */}
-        <div className="flex flex-col">
-          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Miembro</span>
-          <p className="text-sm font-bold text-gray-900">{member.firstName} {member.lastName}</p>
-          <div className="flex items-center gap-1.5 text-gray-500 mt-1">
-            <Mail size={14} />
-            <span className="text-xs">{member.email}</span>
+      {/* 2. Información en Fila (Flex-1 para ocupar el resto) */}
+      <div className="flex items-center justify-between flex-1 min-w-0 gap-4">
+        {/* Nombre y Email - No rompe línea */}
+        <div className="flex flex-col min-w-[180px]">
+          <p className="text-sm font-bold text-gray-900 truncate">
+            {member.firstName} {member.lastName}
+          </p>
+          <div className="flex items-center gap-1 text-gray-400 whitespace-nowrap">
+            <Mail size={12} />
+            <span className="text-xs truncate">{member.email}</span>
           </div>
         </div>
 
-        {/* Estado y Rol */}
-        <div className="flex flex-col">
-          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Identidad</span>
-          <div className="flex gap-2 mt-1">
-            <Badge variant={member.active ? 'green' : 'red'}>
-              {member.active ? 'ACTIVO' : 'INACTIVO'}
-            </Badge>
-            <Badge variant="indigo">{member.roleName || 'MEMBER'}</Badge>
-          </div>
+        {/* Rol con Icono Dinámico */}
+        <div className="hidden md:flex flex-col items-start min-w-[100px]">
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Rol</span>
+          <Badge 
+            variant="indigo" 
+            icon={getRoleIcon(member.roleName)}
+          >
+            {member.roleName || 'MEMBER'}
+          </Badge>
         </div>
 
-        {/* Puesto en Club y Equipo */}
-        <div className="flex flex-col">
-          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Cargo Club</span>
-          <p className="text-sm font-medium text-gray-600 mt-0.5">
-            {member.clubPosition || 'Sin cargo'}
+        {/* Estado con Icono de Check o X */}
+        <div className="hidden sm:flex flex-col items-start min-w-[90px]">
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">Estado</span>
+          <Badge 
+            variant={member.active ? 'green' : 'red'}
+            icon={member.active ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
+          >
+            {member.active ? 'ACTIVO' : 'INACTIVO'}
+          </Badge>
+        </div>
+
+        {/* Cargo Club - Texto corto */}
+        <div className="hidden lg:flex flex-col min-w-[120px]">
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
+            Cargo
+          </span>
+          <p className="text-xs font-semibold text-gray-600 truncate">
+            {member.clubPosition || "Socio"}
           </p>
         </div>
 
-        {/* Resumen de Afiliación (Lo que hablamos) */}
-        <div className="flex flex-col">
-          <span className="text-xs font-bold text-gray-400 uppercase tracking-wider">Equipos</span>
-          <div className="flex items-center gap-1.5 text-gray-600 mt-0.5">
-            <Users size={14} />
-            <span className="text-xs font-medium">Ver afiliaciones...</span>
+        {/* Equipos - Resumen */}
+        <div className="hidden xl:flex flex-col min-w-[100px]">
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
+            Equipos
+          </span>
+          <div className="flex items-center gap-1 text-gray-500">
+            <Users size={12} />
+            <span className="text-xs font-medium">Ver más...</span>
           </div>
         </div>
       </div>
 
-      {/* 3. Acciones (Botones) */}
-      <div className="flex items-center gap-2 shrink-0">
-        <Button variant="ghost" size="sm" icon={<Eye size={16} />} onClick={() => onView(member)} className="text-blue-600 hover:bg-blue-50" />
-        <Button variant="ghost" size="sm" icon={<Edit2 size={16} />} onClick={() => onEdit(member)} className="text-amber-600 hover:bg-amber-50" />
-        <Button variant="ghost" size="sm" icon={<Trash2 size={16} />} onClick={() => onDelete(member.id)} className="text-red-600 hover:bg-red-50" />
+      {/* 3. Acciones con los colores solicitados */}
+      <div className="flex items-center gap-1 shrink-0 ml-4">
+        <Button
+          variant="ghost"
+          size="sm"
+          icon={<Eye size={16} />}
+          onClick={() => onView(member)}
+          className="!text-blue-600 hover:!bg-blue-50" // El ! asegura que gane este color
+        />
+        <Button
+          variant="ghost"
+          size="sm"
+          icon={<Edit2 size={16} />}
+          onClick={() => onEdit(member)}
+          className="!text-amber-500 hover:!bg-amber-50"
+        />
+        <Button
+          variant="ghost"
+          size="sm"
+          icon={<Trash2 size={16} />}
+          onClick={() => onDelete(member.id)}
+          className="!text-red-500 hover:!bg-red-50"
+        />
       </div>
     </Card>
   );

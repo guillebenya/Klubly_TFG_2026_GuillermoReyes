@@ -3,9 +3,10 @@ import React from 'react';
 interface BadgeProps {
   children: React.ReactNode;
   variant?: 'indigo' | 'gray' | 'green' | 'red' | 'amber';
+  icon?: React.ReactNode;
 }
 
-const Badge = ({ children, variant = 'gray' }: BadgeProps) => {
+const Badge = ({ children, variant = 'gray', icon }: BadgeProps) => {
   const styles = {
     indigo: "bg-indigo-50 text-indigo-700 border-indigo-100",
     gray: "bg-gray-50 text-gray-600 border-gray-100",
@@ -15,7 +16,9 @@ const Badge = ({ children, variant = 'gray' }: BadgeProps) => {
   };
 
   return (
-    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-bold border ${styles[variant]}`}>
+    // Reducimos px, py y el tamaño de la fuente a 10px (text-[10px])
+    <span className={`inline-flex items-center px-1.5 py-0 shadow-sm rounded-md text-[10px] font-bold border leading-4 ${styles[variant]}`}>
+      {icon && <span className="mr-1">{icon}</span>}
       {children}
     </span>
   );
