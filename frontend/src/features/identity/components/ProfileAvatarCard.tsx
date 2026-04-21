@@ -1,5 +1,5 @@
 import React from "react";
-import { User, Pencil } from "lucide-react";
+import { User, Pencil, UserIcon } from "lucide-react";
 import Card from "../../../components/shared/Card";
 import Badge from "../../../components/shared/Badge";
 
@@ -21,7 +21,7 @@ const ProfileAvatarCard = ({ user, onEditAvatar }: ProfileAvatarCardProps) => {
         
         {/* Contenedor del Avatar */}
         <div className="relative group">
-          <div className="h-32 w-32 rounded-3xl bg-gray-600 flex items-center justify-center text-white shadow-2xl shadow-indigo-100 overflow-hidden transition-transform duration-300 group-hover:scale-[1.02]">
+          <div className="h-32 w-32 rounded-full bg-gray-200 flex items-center justify-center text-white shadow-2xl shadow-indigo-100 overflow-hidden transition-transform duration-300 group-hover:scale-[1.02]">
             {user?.avatarURL ? (
               <img 
                 src={user.avatarURL} 
@@ -29,14 +29,14 @@ const ProfileAvatarCard = ({ user, onEditAvatar }: ProfileAvatarCardProps) => {
                 className="h-full w-full object-cover"
               />
             ) : (
-              <User size={80} strokeWidth={1.5} />
+              <UserIcon className="text-gray-500" size={80} strokeWidth={1.5} />
             )}
           </div>
           
           {/* Botón de lápiz para editar avatar */}
           <button 
             onClick={onEditAvatar}
-            className="absolute -bottom-2 -right-2 p-3 bg-yellow-50 text-yellow-600 rounded-3xl shadow-xl border border-gray-100 hover:bg-yellow-600 hover:text-white transition-all active:scale-90"
+            className="absolute -bottom-2 -right-2 p-2 bg-yellow-50 text-yellow-600 rounded-3xl shadow-xl border border-gray-100 hover:bg-yellow-600 hover:text-white transition-all active:scale-90"
             title="Cambiar foto de perfil"
           >
             <Pencil size={20} strokeWidth={2.5} />

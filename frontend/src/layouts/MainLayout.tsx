@@ -103,52 +103,64 @@ const MainLayout = () => {
     <div className="flex h-screen flex-col bg-gray-100">
       {/* HEADER (Ocupa todo el ancho superior) */}
       <header className="h-20 w-full bg-white border-b border-gray-200 flex items-center justify-between px-8 shadow-sm z-20">
-        <div className="flex items-center">
-          <img src={logo} alt="Klubly Logo" className="h-12 w-auto" />
+        {/* LOGO */}
+        <div className="flex items-center w-64">
+          <img src={logo} alt="Klubly Logo" className="h-14 w-auto" />
         </div>
 
-        <div className="relative">
-          <button
-            onClick={(e) => {
-              e.stopPropagation();
-              setIsProfileOpen(!isProfileOpen);
-            }}
-            className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
-          >
-            <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border border-gray-300">
-              {currentUser?.avatarURL ? (
-                <img
-                  src={currentUser.avatarURL}
-                  alt="Avatar"
-                  className="h-full w-full object-cover"
-                />
-              ) : (
-                <UserIcon className="text-gray-500" size={24} />
-              )}
-            </div>
-            <div className="text-left hidden sm:block">
-              <p className="text-sm font-bold text-gray-800 leading-tight">
-                {fullName}
-              </p>
-              <p className="text-xs font-medium text-gray-500">{userRole}</p>
-            </div>
-            <ChevronDown
-              size={18}
-              className={`text-gray-400 transition-transform ${isProfileOpen ? "rotate-180" : ""}`}
-            />
-          </button>
+        {/* CONTENEDOR CENTRAL - Ahora es flexible */}
+        <div className="flex-1 flex flex-col items-center justify-center min-w-0">
+          <h1 className="text-2xl font-black text-blue-950 tracking-tighter leading-none">
+            KLUBLY
+          </h1>
+          <p className="text-[10px] font-bold text-indigo-500 tracking-[0.2em] uppercase mt-1 whitespace-nowrap">
+            Gestor de Entidades Deportivas
+          </p>
+        </div>
 
-          {isProfileOpen && (
-            <div className="absolute right-0 mt-2 w-48 rounded-xl bg-white py-2 shadow-xl ring-1 ring-black/5 z-50">
-              <button
-                onClick={handleLogout}
-                className="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
-              >
-                <LogOut size={16} />
-                Cerrar Sesión
-              </button>
-            </div>
-          )}
+        <div className="flex justify-end w-64">
+          <div className="relative">
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsProfileOpen(!isProfileOpen);
+              }}
+              className="flex items-center gap-3 p-2 rounded-lg hover:bg-gray-50 transition-colors cursor-pointer"
+            >
+              <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border border-gray-300">
+                {currentUser?.avatarURL ? (
+                  <img
+                    src={currentUser.avatarURL}
+                    alt="Avatar"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <UserIcon className="text-gray-500" size={24} />
+                )}
+              </div>
+              <div className="text-left hidden sm:block">
+                <p className="text-sm font-bold text-gray-800 leading-tight">
+                  {fullName}
+                </p>
+                <p className="text-xs font-medium text-gray-500">{userRole}</p>
+              </div>
+              <ChevronDown
+                size={18}
+                className={`text-gray-400 transition-transform ${isProfileOpen ? "rotate-180" : ""}`}
+              />
+            </button>
+            {isProfileOpen && (
+              <div className="absolute right-0 mt-2 w-48 rounded-xl bg-white py-2 shadow-xl ring-1 ring-black/5 z-50">
+                <button
+                  onClick={handleLogout}
+                  className="flex w-full items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50 transition-colors"
+                >
+                  <LogOut size={16} />
+                  Cerrar Sesión
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 

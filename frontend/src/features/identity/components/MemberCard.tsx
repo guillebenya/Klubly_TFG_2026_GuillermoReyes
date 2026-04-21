@@ -51,8 +51,8 @@ const MemberCard = ({
 
   return (
     <Card className="flex items-center gap-4 py-3 px-6 hover:border-indigo-300 transition-all shadow-sm">
-      {/* 1. Avatar */}
-      <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center overflow-hidden border border-indigo-50 shrink-0">
+      {/* Avatar */}
+      <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border border-indigo-50 shrink-0">
         {member.avatarURL ? (
           <img
             src={member.avatarURL}
@@ -60,11 +60,11 @@ const MemberCard = ({
             className="h-full w-full object-cover"
           />
         ) : (
-          <UserIcon className="text-indigo-400" size={24} />
+          <UserIcon className="text-gray-500" size={24} />
         )}
       </div>
 
-      {/* 2. Información en Fila (Flex-1 para ocupar el resto) */}
+      {/* Información en Fila */}
       <div className="flex items-center justify-between flex-1 min-w-0 gap-4">
         {/* Nombre y Email */}
         <div className="flex flex-col min-w-[180px]">
