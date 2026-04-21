@@ -2,6 +2,7 @@
 import React from "react";
 import { Shield, Activity, Users, RotateCcw } from "lucide-react";
 import Button from "../../../components/shared/Button";
+import { authService } from "../../auth/services/auth.service";
 
 interface MemberFiltersProps {
   filters: {
@@ -37,6 +38,10 @@ const MemberFilters = ({
     setFilters({ roles: [], status: [], teams: [] });
   };
 
+  //Para comprobar si el usuario actual es Admin y mostrar los estados y el rol admin solo a ellos
+  const currentUser = authService.getCurrentUser();
+  const isAdmin = currentUser?.roleName === "Admin";
+
   return (
     <div className="space-y-6">
       {/* SECCIÓN ROLES */}
@@ -62,6 +67,7 @@ const MemberFilters = ({
       </div>
 
       {/* SECCIÓN ESTADO */}
+      {isAdmin && (
       <div className="space-y-3">
         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
           <Activity size={14} /> Estado de cuenta
@@ -89,6 +95,7 @@ const MemberFilters = ({
           </button>
         </div>
       </div>
+      )}
 
       {/* SECCIÓN EQUIPOS (Si hay equipos disponibles) */}
       <div className="space-y-3">
