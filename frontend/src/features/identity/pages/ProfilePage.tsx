@@ -2,12 +2,14 @@ import React, { useEffect, useState } from "react";
 import { Loader2 } from "lucide-react";
 import { authService } from "../../auth/services/auth.service";
 import { userService } from "../services/user.service";
+import ProfileAvatarCard from "../components/ProfileAvatarCard";
+import ProfilePersonalInfoCard from "../components/ProfilePersonalInfoCard";
 
 const ProfilePage = () => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // Estados para los modales de edición (los haremos en los siguientes pasos)
+  // Estados para los modales de edición
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isEditAvatarOpen, setIsEditAvatarOpen] = useState(false);
 
@@ -16,21 +18,24 @@ const ProfilePage = () => {
   }, []);
 
   const fetchProfile = async () => {
-    try {
-      setLoading(true);
-      // Suponemos que el backend permite obtener el perfil del usuario actual
-      // o usamos el ID que ya tenemos en el localStorage
-      const currentUser = authService.getCurrentUser();
-      if (currentUser?.username) {
-        const response = await userService.getByUsername(currentUser.username);
-        setProfile(response.data);
-      }
-    } catch (error) {
-      console.error("Error al cargar el perfil:", error);
-    } finally {
-      setLoading(false);
+  try {
+    setLoading(true);
+    const currentUser = authService.getCurrentUser();
+    console.log("1. Usuario en LocalStorage:", currentUser); // <--- LOG 1
+
+    if (currentUser?.username) {
+      const response = await userService.getByUsername(currentUser.username);
+      console.log("2. Respuesta del Servidor:", response.data); // <--- LOG 2
+      setProfile(response.data);
+    } else {
+      console.warn("No se encontró username en el LocalStorage");
     }
-  };
+  } catch (error) {
+    console.error("Error al cargar el perfil:", error);
+  } finally {
+    setLoading(false);
+  }
+};
 
   if (loading) {
     return (
@@ -44,32 +49,24 @@ const ProfilePage = () => {
   return (
     <div className="max-w-7xl mx-auto space-y-8">
       {/* Layout de 2 Columnas */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
         {/* COLUMNA IZQUIERDA */}
-        <div className="space-y-8">
+        <div className="space-y-10">
           {/* Aquí irán: Mi Perfil (Avatar), Inf. Personal e Inf. de Cuenta */}
           <section className="animate-in fade-in slide-in-from-left duration-500">
-            <h2 className="text-xl font-black text-gray-800 uppercase tracking-tight mb-4 ml-1">
-              Mi Perfil
-            </h2>
-            <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-              {/* Espacio para ProfileAvatarCard */}
-              <div className="h-40 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-400">
-                Componente Avatar
-              </div>
-            </div>
+            {/* 1. Bloque Mi Perfil */}
+            <ProfileAvatarCard 
+                user={profile} 
+                onEditAvatar={() => {
+                    console.log("Abrir modal de avatar");
+                    setIsEditAvatarOpen(true);
+                }} 
+            />
           </section>
 
           <section className="animate-in fade-in slide-in-from-left duration-700">
-            <h2 className="text-xl font-black text-gray-800 uppercase tracking-tight mb-4 ml-1">
-              Información Personal
-            </h2>
-            <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
-              {/* Espacio para PersonalInfoCard */}
-              <div className="h-32 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-200 flex items-center justify-center text-gray-400">
-                Componente Info Personal
-              </div>
-            </div>
+            {/* 2. Bloque Información Personal */}
+            <ProfilePersonalInfoCard user={profile} />
           </section>
 
           <section className="animate-in fade-in slide-in-from-left duration-1000">
@@ -90,7 +87,7 @@ const ProfilePage = () => {
           {/* Aquí irán: Cambiar Contraseña y Mis Equipos */}
           <section className="animate-in fade-in slide-in-from-right duration-500">
             <h2 className="text-xl font-black text-gray-800 uppercase tracking-tight mb-4 ml-1">
-              Seguridad
+              Cambiar Contraseña
             </h2>
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
               {/* Espacio para ChangePasswordCard */}
@@ -102,7 +99,7 @@ const ProfilePage = () => {
 
           <section className="animate-in fade-in slide-in-from-right duration-700">
             <h2 className="text-xl font-black text-gray-800 uppercase tracking-tight mb-4 ml-1">
-              Mis Equipos
+              Equipos a los que pertenezco
             </h2>
             <div className="bg-white rounded-3xl p-6 shadow-sm border border-gray-100">
               {/* Espacio para MyTeamsTableCard */}

@@ -37,6 +37,7 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())    // Desactiva CSRF (necesario para APIs con JWT)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll() // Login público
+                .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/users/username/**").authenticated()
                 .anyRequest().authenticated()                // Todo lo demás protegido
             )
             // Le decimos a Spring que no guarde sesiones (Stateless)
