@@ -21,9 +21,18 @@ interface MemberCardProps {
   onView: (member: any) => void;
   onEdit: (member: any) => void;
   onDelete: (id: number) => void;
+  isStaffView?: boolean;
+  commonTeamsCount?: number;
 }
 
-const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
+const MemberCard = ({
+  member,
+  onView,
+  onEdit,
+  onDelete,
+  isStaffView = false,
+  commonTeamsCount = 0,
+}: MemberCardProps) => {
   // Lógica para elegir el icono del Rol
   const getRoleIcon = (role: string) => {
     switch (role?.toUpperCase()) {
@@ -37,8 +46,8 @@ const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
   };
 
   //Para comprobar si el usuario actual es Admin y mostrar el botón de editar y eliminar solo a ellos
-    const currentUser = authService.getCurrentUser();
-    const isAdmin = currentUser?.roleName === "ADMIN";
+  const currentUser = authService.getCurrentUser();
+  const isAdmin = currentUser?.roleName === "ADMIN";
 
   return (
     <Card className="flex items-center gap-4 py-3 px-6 hover:border-indigo-300 transition-all shadow-sm">
@@ -126,15 +135,21 @@ const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
         {/* Equipos - Resumen Dinámico */}
         <div className="hidden xl:flex flex-col min-w-[110px]">
           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight mb-1">
-            Nº Equipos
+            {isStaffView ? "Equipos en común" : "Nº Equipos"}
           </span>
           <div className="flex items-center gap-1.5">
-            {member.affiliations && member.affiliations.length > 0 ? (
+            {/* Verificamos el conteo según el rol: commonTeamsCount para Staff, affiliations para Admin */}
+            {((isStaffView ? commonTeamsCount : member.affiliations?.length) ||
+              0) > 0 ? (
               <div className="flex items-center gap-1 px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full">
                 <Users size={10} className="text-indigo-500" />
                 <span className="text-[10px] font-black">
-                  {member.affiliations.length}{" "}
-                  {member.affiliations.length === 1 ? "EQUIPO" : "EQUIPOS"}
+                  {isStaffView ? commonTeamsCount : member.affiliations.length}{" "}
+                  {(isStaffView
+                    ? commonTeamsCount
+                    : member.affiliations.length) === 1
+                    ? "EQUIPO"
+                    : "EQUIPOS"}
                 </span>
               </div>
             ) : (
@@ -157,22 +172,23 @@ const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
           className="!text-blue-600 hover:!bg-blue-50"
         />
         {isAdmin && (
-        <Button
-          variant="ghost"
-          size="sm"
-          icon={<Edit2 size={16} />}
-          onClick={() => onEdit(member)}
-          className="!text-amber-500 hover:!bg-amber-50"
-        />)}
-         {isAdmin && (
-        <Button
-          variant="ghost"
-          size="sm"
-          icon={<Trash2 size={16} />}
-          onClick={() => onDelete(member.id)}
-          className="!text-red-500 hover:!bg-red-50"
-        />
-         )}
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={<Edit2 size={16} />}
+            onClick={() => onEdit(member)}
+            className="!text-amber-500 hover:!bg-amber-50"
+          />
+        )}
+        {isAdmin && (
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={<Trash2 size={16} />}
+            onClick={() => onDelete(member.id)}
+            className="!text-red-500 hover:!bg-red-50"
+          />
+        )}
       </div>
     </Card>
   );

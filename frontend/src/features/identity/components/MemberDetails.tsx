@@ -36,9 +36,8 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
   };
 
   //Para comprobar si el usuario actual es Admin y mostrar el botón de gestionar afiliaciones solo a ellos
-      const currentUser = authService.getCurrentUser();
-      const isAdmin = currentUser?.roleName === "ADMIN";
-  
+  const currentUser = authService.getCurrentUser();
+  const isAdmin = currentUser?.roleName === "ADMIN";
 
   const renderValue = (value: any) =>
     value || <span className="text-gray-300 italic">No definido</span>;
@@ -94,16 +93,18 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
         </div>
 
         {/* Campo de Avatar URL */}
-        <div className="p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
-          <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 mb-2">
-            <ImageIcon size={12} /> Avatar URL (String)
-          </label>
-          <div className="bg-gray-50 p-2.5 rounded-lg border border-gray-200">
-            <p className="text-xs font-mono text-indigo-600 break-all leading-relaxed">
-              {member.avatarUrl || "N/A"}
-            </p>
+        {isAdmin && (
+          <div className="p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
+            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 mb-2">
+              <ImageIcon size={12} /> Avatar URL (String)
+            </label>
+            <div className="bg-gray-50 p-2.5 rounded-lg border border-gray-200">
+              <p className="text-xs font-mono text-indigo-600 break-all leading-relaxed">
+                {member.avatarUrl || "N/A"}
+              </p>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
       {/* POSICIÓN Y EQUIPOS */}
@@ -127,13 +128,13 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
             </label>
 
             {isAdmin && (
-            <button
-              onClick={() => onManageTeams(member)}
-              className="text-[9px] font-black flex items-center gap-1 px-2 py-1 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-600 hover:text-white transition-all duration-200"
-            >
-              <Settings2 size={12} />
-              GESTIONAR
-            </button>
+              <button
+                onClick={() => onManageTeams(member)}
+                className="text-[9px] font-black flex items-center gap-1 px-2 py-1 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-600 hover:text-white transition-all duration-200"
+              >
+                <Settings2 size={12} />
+                GESTIONAR
+              </button>
             )}
           </div>
 
@@ -177,36 +178,36 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
 
       {/* CAMPOS AUDITORÍA */}
       {isAdmin && (
-      <div className="p-4 bg-slate-900 rounded-2xl grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="flex flex-col">
-          <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
-            <Calendar size={10} /> Registrado el
-          </span>
-          <span className="text-[11px] font-medium text-white mt-1">
-            {formatDate(member.createdAt)}
-          </span>
+        <div className="p-4 bg-slate-900 rounded-2xl grid grid-cols-1 sm:grid-cols-3 gap-4">
+          <div className="flex flex-col">
+            <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
+              <Calendar size={10} /> Registrado el
+            </span>
+            <span className="text-[11px] font-medium text-white mt-1">
+              {formatDate(member.createdAt)}
+            </span>
+          </div>
+          <div className="flex flex-col border-t border-slate-800 sm:border-t-0 sm:border-l sm:pl-4 pt-3 sm:pt-0">
+            <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
+              <Clock size={10} /> Último cambio
+            </span>
+            <span className="text-[11px] font-medium text-white mt-1">
+              {formatDate(member.updatedAt)}
+            </span>
+          </div>
+          <div className="flex flex-col border-t border-slate-800 sm:border-t-0 sm:border-l sm:pl-4 pt-3 sm:pt-0">
+            <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
+              <Trash2 size={10} /> Baja del sistema
+            </span>
+            <span
+              className={`text-[11px] font-medium mt-1 ${member.deletedAt ? "text-red-400" : "text-slate-500 italic"}`}
+            >
+              {member.deletedAt
+                ? formatDate(member.deletedAt)
+                : "Activo actualmente"}
+            </span>
+          </div>
         </div>
-        <div className="flex flex-col border-t border-slate-800 sm:border-t-0 sm:border-l sm:pl-4 pt-3 sm:pt-0">
-          <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
-            <Clock size={10} /> Último cambio
-          </span>
-          <span className="text-[11px] font-medium text-white mt-1">
-            {formatDate(member.updatedAt)}
-          </span>
-        </div>
-        <div className="flex flex-col border-t border-slate-800 sm:border-t-0 sm:border-l sm:pl-4 pt-3 sm:pt-0">
-          <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
-            <Trash2 size={10} /> Baja del sistema
-          </span>
-          <span
-            className={`text-[11px] font-medium mt-1 ${member.deletedAt ? "text-red-400" : "text-slate-500 italic"}`}
-          >
-            {member.deletedAt
-              ? formatDate(member.deletedAt)
-              : "Activo actualmente"}
-          </span>
-        </div>
-      </div>
       )}
     </div>
   );

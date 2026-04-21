@@ -67,7 +67,7 @@ const MembersPage = () => {
       setLoading(false);
     }
   };
-  
+
   //Para comprobar si el usuario actual es Admin y mostrar el botón de añadir miembro solo a ellos
   const currentUser = authService.getCurrentUser();
   const isAdmin = currentUser?.roleName === "ADMIN";
@@ -164,34 +164,41 @@ const MembersPage = () => {
     fetchMembers(); // Refrescamos la lista
   };
 
-  //FILTRADO
-  // Esta constante se recalcula cada vez que cambia el searchTerm O los activeFilters
+  // 1. Preparamos los IDs de equipo del Staff para comparar
+  const staffTeamIds = currentUser?.teamIds || [];
+
   const filteredMembers = members.filter((m) => {
-    //Filtro de la Barra Buscadora (Texto)
+    // --- A. FILTROS EXISTENTES (Buscador, Roles, Estado, Equipos seleccionados) ---
     const searchString =
       `${m.firstName} ${m.lastName} ${m.email} ${m.username}`.toLowerCase();
     const matchesSearch = searchString.includes(searchTerm.toLowerCase());
-
-    //Filtro de Roles (Multiselección)
-    //Si el array está vacío, pasan todos (true). Si hay algo, debe incluir el rol del usuario.
     const matchesRole =
       activeFilters.roles.length === 0 ||
       activeFilters.roles.includes(m.roleName);
-
-    //Filtro de Estado (Activo/Inactivo)
     const matchesStatus =
       activeFilters.status.length === 0 ||
       activeFilters.status.includes(m.active);
-
-    //Filtro de Equipos (Multiselección)
-    //Comprobamos si el usuario tiene alguna afiliación cuyo teamId esté en nuestra lista de filtros
     const matchesTeam =
       activeFilters.teams.length === 0 ||
       m.affiliations?.some((aff: any) =>
         activeFilters.teams.includes(aff.teamId),
       );
 
-    // IMPORTANTE: El usuario debe cumplir las CUATRO condiciones a la vez
+    // --- B. RESTRICCIONES DE ROL STAFF (Seguridad de visibilidad) ---
+    if (!isAdmin) {
+      // 1. Un Staff nunca ve a un ADMIN en esta lista
+      if (m.roleName === "ADMIN") return false;
+
+      // 2. Un Staff solo ve a gente con la que comparte al menos UN equipo
+      const hasCommonTeam = m.affiliations?.some((aff: any) =>
+        staffTeamIds.includes(aff.teamId),
+      );
+      if (!hasCommonTeam) return false;
+
+      // 3. (Opcional) Un Staff no suele ver usuarios inactivos
+      if (!m.active) return false;
+    }
+
     return matchesSearch && matchesRole && matchesStatus && matchesTeam;
   });
   return (
@@ -227,8 +234,8 @@ const MembersPage = () => {
                 icon={<Plus size={18} />}
                 onClick={handleAddNew}
               >
-              Añadir miembro
-            </Button>
+                Añadir miembro
+              </Button>
             )}
           </>
         }
@@ -244,15 +251,25 @@ const MembersPage = () => {
       ) : (
         <div className="flex flex-col gap-2">
           {filteredMembers.length > 0 ? (
-            filteredMembers.map((member) => (
-              <MemberCard
-                key={member.id}
-                member={member}
-                onView={handleView}
-                onEdit={handleEdit}
-                onDelete={handleDeleteTrigger}
-              />
-            ))
+            filteredMembers.map((member) => {
+              // 1. Calculamos cuántos equipos tienen en común el Staff actual y el miembro de la tarjeta
+              const commonTeamsCount =
+                member.affiliations?.filter((aff: any) =>
+                  staffTeamIds.includes(aff.teamId),
+                ).length || 0;
+
+              return (
+                <MemberCard
+                  key={member.id}
+                  member={member}
+                  onView={handleView}
+                  onEdit={handleEdit}
+                  onDelete={handleDeleteTrigger}
+                  isStaffView={!isAdmin} // Si no es admin, es vista de staff
+                  commonTeamsCount={commonTeamsCount}
+                />
+              );
+            })
           ) : (
             <div className="bg-white rounded-2xl p-12 text-center border-2 border-dashed border-gray-100">
               <p className="text-gray-500">
