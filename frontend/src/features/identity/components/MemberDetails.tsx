@@ -1,3 +1,4 @@
+// src/features/identity/components/MemberDetails.tsx
 import React from "react";
 import {
   Calendar,
@@ -10,7 +11,6 @@ import {
   Phone,
   AtSign,
   Trash2,
-  Info,
   Settings2,
   Image as ImageIcon,
 } from "lucide-react";
@@ -23,7 +23,6 @@ interface MemberDetailsProps {
 }
 
 const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
-  console.log("Datos del miembro recibidos:", member);
   const formatDate = (dateString: string) => {
     if (!dateString) return "---";
     return new Date(dateString).toLocaleDateString("es-ES", {
@@ -35,9 +34,17 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
     });
   };
 
-  //Para comprobar si el usuario actual es Admin y mostrar el botón de gestionar afiliaciones solo a ellos
+  // 1. Lógica de Identidad y Seguridad
   const currentUser = authService.getCurrentUser();
   const isAdmin = currentUser?.roleName === "ADMIN";
+  const staffTeamIds = currentUser?.teamIds || [];
+
+  // 2. Filtrado de Afiliaciones: Si es Staff, solo ve las comunes
+  const displayedAffiliations = isAdmin
+    ? member.affiliations || []
+    : (member.affiliations || []).filter((aff: any) =>
+        staffTeamIds.includes(aff.teamId)
+      );
 
   const renderValue = (value: any) =>
     value || <span className="text-gray-300 italic">No definido</span>;
@@ -72,7 +79,6 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
 
       {/* BLOQUE DE DATOS TÉCNICOS Y CONTACTO */}
       <div className="grid grid-cols-1 gap-4">
-        {/* Fila de Email y Teléfono */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 mb-2">
@@ -92,7 +98,6 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
           </div>
         </div>
 
-        {/* Campo de Avatar URL */}
         {isAdmin && (
           <div className="p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 mb-2">
@@ -109,7 +114,6 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
 
       {/* POSICIÓN Y EQUIPOS */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Bloque Cargo Club */}
         <div className="md:col-span-1 p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 mb-3">
             <Tag size={12} /> Cargo Club
@@ -119,12 +123,12 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
           </p>
         </div>
 
-        {/* Bloque Afiliaciones */}
         <div className="md:col-span-2 p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
-          {/* Cabecera del bloque: Título + Botón Gestionar alineados */}
           <div className="flex items-center justify-between mb-4">
             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
-              <Users size={12} /> Afiliaciones actuales
+              <Users size={12} /> 
+              {/* Texto dinámico según el rol del que mira */}
+              {isAdmin ? "Afiliaciones actuales" : "Equipos en común"}
             </label>
 
             {isAdmin && (
@@ -139,9 +143,8 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
           </div>
 
           <div className="space-y-2">
-            {member.affiliations && member.affiliations.length > 0 ? (
+            {displayedAffiliations.length > 0 ? (
               <>
-                {/* Sub-cabeceras de la lista (Solo si hay datos) */}
                 <div className="flex justify-between px-2 mb-1">
                   <span className="text-[11px] font-black text-gray-600 uppercase tracking-tighter">
                     Equipo
@@ -151,7 +154,7 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
                   </span>
                 </div>
 
-                {member.affiliations.map((aff: any) => (
+                {displayedAffiliations.map((aff: any) => (
                   <div
                     key={aff.id}
                     className="flex justify-between items-center p-2 bg-gray-50 rounded-lg border border-gray-100 hover:bg-white hover:border-indigo-100 transition-colors group"
@@ -168,7 +171,7 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
             ) : (
               <div className="py-4 text-center border-2 border-dashed border-gray-200 rounded-xl">
                 <p className="text-xs text-gray-400 italic font-medium">
-                  Sin equipos asignados
+                  {isAdmin ? "Sin equipos asignados" : "Sin equipos compartidos"}
                 </p>
               </div>
             )}
@@ -176,7 +179,7 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
         </div>
       </div>
 
-      {/* CAMPOS AUDITORÍA */}
+      {/* CAMPOS AUDITORÍA (Solo ADMIN) */}
       {isAdmin && (
         <div className="p-4 bg-slate-900 rounded-2xl grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div className="flex flex-col">
