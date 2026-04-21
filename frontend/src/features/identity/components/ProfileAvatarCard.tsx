@@ -22,9 +22,9 @@ const ProfileAvatarCard = ({ user, onEditAvatar }: ProfileAvatarCardProps) => {
         {/* Contenedor del Avatar */}
         <div className="relative group">
           <div className="h-32 w-32 rounded-3xl bg-gray-600 flex items-center justify-center text-white shadow-2xl shadow-indigo-100 overflow-hidden transition-transform duration-300 group-hover:scale-[1.02]">
-            {user?.avatarUrl ? (
+            {user?.avatarURL ? (
               <img 
-                src={user.avatarUrl} 
+                src={user.avatarURL} 
                 alt="Foto de perfil" 
                 className="h-full w-full object-cover"
               />

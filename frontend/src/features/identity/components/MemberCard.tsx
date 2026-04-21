@@ -53,10 +53,10 @@ const MemberCard = ({
     <Card className="flex items-center gap-4 py-3 px-6 hover:border-indigo-300 transition-all shadow-sm">
       {/* 1. Avatar */}
       <div className="h-12 w-12 rounded-full bg-indigo-100 flex items-center justify-center overflow-hidden border border-indigo-50 shrink-0">
-        {member.avatarUrl ? (
+        {member.avatarURL ? (
           <img
-            src={member.avatarUrl}
-            alt={member.username}
+            src={member.avatarURL}
+            alt={"Avatar"}
             className="h-full w-full object-cover"
           />
         ) : (

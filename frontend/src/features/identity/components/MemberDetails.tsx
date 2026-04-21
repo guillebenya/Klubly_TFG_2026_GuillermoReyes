@@ -43,7 +43,7 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
   const displayedAffiliations = isAdmin
     ? member.affiliations || []
     : (member.affiliations || []).filter((aff: any) =>
-        staffTeamIds.includes(aff.teamId)
+        staffTeamIds.includes(aff.teamId),
       );
 
   const renderValue = (value: any) =>
@@ -55,7 +55,15 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
       <div className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl border border-gray-100">
         <div className="flex items-center gap-4">
           <div className="h-14 w-14 rounded-xl bg-indigo-600 flex items-center justify-center text-white shadow-lg shadow-indigo-100">
-            <UserIcon size={28} />
+            {member.avatarURL ? (
+              <img
+                src={member.avatarURL}
+                alt={"Avatar"}
+                className="h-full w-full object-cover"
+              />
+            ) : (
+              <UserIcon className="text-indigo-400" size={24} />
+            )}
           </div>
           <div>
             <h4 className="text-xl font-black text-gray-900 leading-tight">
@@ -101,11 +109,11 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
         {isAdmin && (
           <div className="p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 mb-2">
-              <ImageIcon size={12} /> Avatar URL (String)
+              <ImageIcon size={12} /> Avatar URL
             </label>
             <div className="bg-gray-50 p-2.5 rounded-lg border border-gray-200">
               <p className="text-xs font-mono text-indigo-600 break-all leading-relaxed">
-                {member.avatarUrl || "N/A"}
+                {member.avatarURL || "N/A"}
               </p>
             </div>
           </div>
@@ -126,7 +134,7 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
         <div className="md:col-span-2 p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
           <div className="flex items-center justify-between mb-4">
             <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5">
-              <Users size={12} /> 
+              <Users size={12} />
               {/* Texto dinámico según el rol del que mira */}
               {isAdmin ? "Afiliaciones actuales" : "Equipos en común"}
             </label>
@@ -171,7 +179,9 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
             ) : (
               <div className="py-4 text-center border-2 border-dashed border-gray-200 rounded-xl">
                 <p className="text-xs text-gray-400 italic font-medium">
-                  {isAdmin ? "Sin equipos asignados" : "Sin equipos compartidos"}
+                  {isAdmin
+                    ? "Sin equipos asignados"
+                    : "Sin equipos compartidos"}
                 </p>
               </div>
             )}

@@ -45,7 +45,6 @@ public class DataInitializer implements CommandLineRunner{
             admin.setLastName("Sistema");
             admin.setPhone("678901234");
             admin.setClubPosition("Director General");
-            admin.setAvatarURL("urlInventada.es");
             admin.setRole(adminRole);
             admin.setActive(true);
 
@@ -63,7 +62,6 @@ public class DataInitializer implements CommandLineRunner{
             staff.setFirstName("Staff");
             staff.setLastName("Técnico");
             staff.setPhone("678901235");
-            staff.setAvatarURL("urlInventada.com");
             staff.setRole(staffRole);
             staff.setActive(true);
 
@@ -81,7 +79,7 @@ public class DataInitializer implements CommandLineRunner{
             member.setFirstName("Member");
             member.setLastName("Socio");
             member.setPhone("678901236");
-            member.setAvatarURL("urlInventada.net");
+            member.setAvatarURL("https://i.pinimg.com/736x/7f/dc/ff/7fdcff5a6fda8eaf7656f3c5e9084d7f.jpg");
             member.setRole(memberRole);
             member.setActive(true);
 

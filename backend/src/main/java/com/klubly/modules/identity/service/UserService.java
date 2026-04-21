@@ -8,6 +8,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import com.klubly.modules.identity.dto.AffiliationDTO;
+import com.klubly.modules.identity.dto.ChangePasswordRequest;
 import com.klubly.modules.identity.dto.UserDTO;
 import com.klubly.modules.identity.entity.Role;
 import com.klubly.modules.identity.entity.User;
@@ -84,6 +85,22 @@ public class UserService {
     
     @Transactional
     public UserDTO updateUser(Long id, UserDTO userDTO){
+        //OBTENER USUARIO ACTUAL DEL CONTEXTO DE SEGURIDAD
+        String currentUsername = org.springframework.security.core.context.SecurityContextHolder
+                .getContext().getAuthentication().getName();
+        
+        //BUSCAR AL USUARIO QUE ESTÁ REALIZANDO LA ACCIÓN
+        User actor = userRepository.findByUsernameAndDeletedAtIsNull(currentUsername)
+                .orElseThrow(() -> new RuntimeException("Usuario autenticado no encontrado"));
+
+        //VALIDAR PERMISOS: Solo puede editar si es ADMIN o si es su propio ID
+        boolean isAdmin = actor.getRole().getName().equals("ADMIN");
+        boolean isOwner = actor.getId().equals(id);
+
+    if (!isAdmin && !isOwner) {
+        throw new RuntimeException("No tienes permiso para editar este perfil");
+    }
+
         User user = userRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND_MSG));
 
@@ -129,6 +146,34 @@ public class UserService {
         user.setDeletedAt(LocalDateTime.now());
         user.setActive(false);
         userRepository.save(user);
+    }
+
+    @Transactional
+    public void changePassword(ChangePasswordRequest request) {
+        // Obtenemos el username del "Contexto de Seguridad" (quien está logueado)
+        String currentUsername = org.springframework.security.core.context.SecurityContextHolder
+                                    .getContext().getAuthentication().getName();
+
+        // Buscamos al usuario en la BD
+        User user = userRepository.findByUsernameAndDeletedAtIsNull(currentUsername)
+                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+
+        // Comprobar si la contraseña actual es correcta
+        // Usamos passwordEncoder.matches(plana, encriptada)
+        if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
+            throw new RuntimeException("La contraseña actual no es correcta");
+        }
+
+        // Comprobar que las nuevas coinciden
+        if (!request.newPassword().equals(request.confirmPassword())) {
+            throw new RuntimeException("Las nuevas contraseñas no coinciden");
+        }
+
+        // Encriptar la nueva y guardar
+        user.setPassword(passwordEncoder.encode(request.newPassword()));
+        userRepository.save(user);
+        
+        log.info("Usuario {} ha cambiado su contraseña", currentUsername);
     }
 
     // MÉTODO DE CONVERSIÓN PARA MAPEO MANUAL

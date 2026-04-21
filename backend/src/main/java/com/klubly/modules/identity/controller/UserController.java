@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.klubly.modules.identity.dto.ChangePasswordRequest;
 import com.klubly.modules.identity.dto.UserDTO;
 import com.klubly.modules.identity.service.UserService;
 
@@ -45,6 +46,12 @@ public class UserController {
     @PostMapping
     public ResponseEntity<UserDTO> create(@RequestBody UserDTO userDTO) {
         return new ResponseEntity<>(userService.createUser(userDTO), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/change-password")
+    public ResponseEntity<String> changePassword(@RequestBody ChangePasswordRequest request) {
+        userService.changePassword(request);
+        return ResponseEntity.ok("Contraseña actualizada con éxito");
     }
 
     @PutMapping("/{id}")
