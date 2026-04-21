@@ -21,14 +21,10 @@ const ProfilePage = () => {
   try {
     setLoading(true);
     const currentUser = authService.getCurrentUser();
-    console.log("1. Usuario en LocalStorage:", currentUser); // <--- LOG 1
 
     if (currentUser?.username) {
       const response = await userService.getByUsername(currentUser.username);
-      console.log("2. Respuesta del Servidor:", response.data); // <--- LOG 2
       setProfile(response.data);
-    } else {
-      console.warn("No se encontró username en el LocalStorage");
     }
   } catch (error) {
     console.error("Error al cargar el perfil:", error);
@@ -52,9 +48,8 @@ const ProfilePage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
         {/* COLUMNA IZQUIERDA */}
         <div className="space-y-10">
-          {/* Aquí irán: Mi Perfil (Avatar), Inf. Personal e Inf. de Cuenta */}
           <section className="animate-in fade-in slide-in-from-left duration-500">
-            {/* 1. Bloque Mi Perfil */}
+            {/* Mi Perfil */}
             <ProfileAvatarCard 
                 user={profile} 
                 onEditAvatar={() => {
@@ -65,8 +60,11 @@ const ProfilePage = () => {
           </section>
 
           <section className="animate-in fade-in slide-in-from-left duration-700">
-            {/* 2. Bloque Información Personal */}
-            <ProfilePersonalInfoCard user={profile} />
+            {/* Información Personal */}
+            <ProfilePersonalInfoCard user={profile} onEditPersonal={() => {
+              console.log("Abrir modal de información personal");
+              setIsEditProfileOpen(true);
+            }} />
           </section>
 
           <section className="animate-in fade-in slide-in-from-left duration-1000">
