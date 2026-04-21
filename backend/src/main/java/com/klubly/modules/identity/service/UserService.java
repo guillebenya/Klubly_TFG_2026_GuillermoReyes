@@ -43,6 +43,13 @@ public class UserService {
         return convertToDTO(user);
     }
 
+    @Transactional(readOnly = true)
+    public UserDTO getUserByUsername(String username) {
+        User user = userRepository.findByUsernameAndDeletedAtIsNull(username)
+                .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND_MSG));
+        return convertToDTO(user);
+    }
+
     @Transactional
     public UserDTO createUser(UserDTO userDTO){
 

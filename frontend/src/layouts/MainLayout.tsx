@@ -87,7 +87,7 @@ const MainLayout = () => {
     },
     // STAFF y MEMBER ven Mi Perfil
     {
-      path: "/perfil",
+      path: "/mi-perfil",
       label: "Mi Perfil",
       icon: <Settings size={20} />,
       roles: ["STAFF", "MEMBER"],
@@ -101,7 +101,7 @@ const MainLayout = () => {
 
   return (
     <div className="flex h-screen flex-col bg-gray-100">
-      {/* 1. HEADER (Ocupa todo el ancho superior) */}
+      {/* HEADER (Ocupa todo el ancho superior) */}
       <header className="h-20 w-full bg-white border-b border-gray-200 flex items-center justify-between px-8 shadow-sm z-20">
         <div className="flex items-center">
           <img src={logo} alt="Klubly Logo" className="h-12 w-auto" />
@@ -152,7 +152,7 @@ const MainLayout = () => {
         </div>
       </header>
 
-      {/* 2. CONTENEDOR INFERIOR (Sidebar + Main) */}
+      {/* CONTENEDOR INFERIOR (Sidebar + Main) */}
       <div className="flex flex-1 overflow-hidden">
         {/* SIDEBAR VERTICAL */}
         <aside className="w-64 bg-white border-r border-gray-200 flex flex-col z-10">

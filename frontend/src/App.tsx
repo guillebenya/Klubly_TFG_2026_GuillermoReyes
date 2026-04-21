@@ -3,7 +3,8 @@ import LoginPage from "./features/auth/pages/LoginPage";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import MainLayout from "./layouts/MainLayout";
 import MembersPage from "./features/identity/pages/MembersPage";
-import ConfigurationPage from './features/configuration/pages/ConfigurationPage';
+import ConfigurationPage from "./features/configuration/pages/ConfigurationPage";
+import ProfilePage from "./features/identity/pages/ProfilePage";
 
 const DashboardContent = () => (
   <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -39,7 +40,7 @@ function App() {
           <Route path="/miembros" element={<MembersPage />} />{" "}
           <Route path="/equipos" element={<EquiposContent />} />
           <Route path="/configuracion" element={<ConfigurationPage />} />
-          <Route path="/mi-perfil" element={<div>Mi Perfil</div>} />
+          <Route path="/mi-perfil" element={<ProfilePage />} />
         </Route>
       </Route>
 
