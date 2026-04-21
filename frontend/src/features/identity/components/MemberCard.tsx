@@ -38,7 +38,7 @@ const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
 
   //Para comprobar si el usuario actual es Admin y mostrar el botón de editar y eliminar solo a ellos
     const currentUser = authService.getCurrentUser();
-    const isAdmin = currentUser?.roleName === "Admin";
+    const isAdmin = currentUser?.roleName === "ADMIN";
 
   return (
     <Card className="flex items-center gap-4 py-3 px-6 hover:border-indigo-300 transition-all shadow-sm">

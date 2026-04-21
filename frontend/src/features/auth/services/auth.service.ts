@@ -7,14 +7,18 @@ export const authService = {
     // Ahora recibimos: accessToken, tokenType, username, firstName, lastName, roleName
     if (response.data.accessToken) {
       localStorage.setItem("token", response.data.accessToken);
-      
+
       // Guardamos los datos directamente.
-      localStorage.setItem("user", JSON.stringify({
-        username: response.data.username,
-        firstName: response.data.firstName,
-        lastName: response.data.lastName,
-        roleName: response.data.roleName // <--- Asegúrate de usar roleName
-      }));
+      localStorage.setItem(
+        "user",
+        JSON.stringify({
+          username: response.data.username,
+          firstName: response.data.firstName,
+          lastName: response.data.lastName,
+          roleName: response.data.roleName,
+          teamIds: response.data.teamIds,
+        }),
+      );
     }
     return response.data;
   },

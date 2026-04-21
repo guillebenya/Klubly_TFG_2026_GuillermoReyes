@@ -37,7 +37,7 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
 
   //Para comprobar si el usuario actual es Admin y mostrar el botón de gestionar afiliaciones solo a ellos
       const currentUser = authService.getCurrentUser();
-      const isAdmin = currentUser?.roleName === "Admin";
+      const isAdmin = currentUser?.roleName === "ADMIN";
   
 
   const renderValue = (value: any) =>

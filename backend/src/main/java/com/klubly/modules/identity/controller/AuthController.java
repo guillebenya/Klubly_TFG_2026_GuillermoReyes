@@ -7,11 +7,16 @@ import com.klubly.modules.identity.entity.User;
 import com.klubly.modules.identity.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,6 +29,7 @@ public class AuthController {
     private final UserRepository userRepository;
 
     @PostMapping("/login")
+    @Transactional(readOnly = true)
     public ResponseEntity<JwtAuthResponse> login(@RequestBody LoginDto loginDto){
 
         //Validar las credenciales
@@ -40,6 +46,11 @@ public class AuthController {
         User user = userRepository.findByUsernameAndDeletedAtIsNull(loginDto.username())
             .orElseThrow(() -> new RuntimeException("Error: Usuario no encontrado tras login"));
 
+        // Obtenemos los IDs de los equipos desde las afiliaciones del usuario
+        List<Long> teamIds = user.getAffiliations().stream()
+                .map(affiliation -> affiliation.getTeam().getId())
+                .collect(Collectors.toList());
+
         //Devolver el DTO con el token
         return ResponseEntity.ok(new JwtAuthResponse(
             token, 
@@ -47,7 +58,8 @@ public class AuthController {
             user.getUsername(),
             user.getFirstName(),
             user.getLastName(),
-            user.getRole().getName() // Sacamos el nombre del rol (ADMIN, STAFF, etc)
+            user.getRole().getName(), // Sacamos el nombre del rol (ADMIN, STAFF, etc)
+            teamIds // Sacamos la lista de IDs de los equipos a los que el usuario está afiliado
     ));
     }
 }

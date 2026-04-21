@@ -70,7 +70,7 @@ const MembersPage = () => {
   
   //Para comprobar si el usuario actual es Admin y mostrar el botón de añadir miembro solo a ellos
   const currentUser = authService.getCurrentUser();
-  const isAdmin = currentUser?.roleName === "Admin";
+  const isAdmin = currentUser?.roleName === "ADMIN";
 
   const fetchTeams = async () => {
     const resp = await teamService.getAll();
