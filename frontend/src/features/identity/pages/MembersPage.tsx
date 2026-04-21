@@ -12,6 +12,7 @@ import { userService } from "../services/user.service.ts";
 import MemberTeamsManager from "../components/MemberTeamsManager.tsx";
 import { teamService } from "../services/team.service.ts";
 import MemberFilters from "../components/MemberFilters.tsx";
+import { authService } from "../../auth/services/auth.service.ts";
 
 const MembersPage = () => {
   // --- ESTADOS DE DATOS ---
@@ -66,6 +67,10 @@ const MembersPage = () => {
       setLoading(false);
     }
   };
+  
+  //Para comprobar si el usuario actual es Admin y mostrar el botón de añadir miembro solo a ellos
+  const currentUser = authService.getCurrentUser();
+  const isAdmin = currentUser?.roleName === "Admin";
 
   const fetchTeams = async () => {
     const resp = await teamService.getAll();
@@ -216,13 +221,15 @@ const MembersPage = () => {
                 0 &&
                 `(${activeFilters.roles.length + activeFilters.status.length + activeFilters.teams.length})`}
             </Button>
-            <Button
-              variant="add"
-              icon={<Plus size={18} />}
-              onClick={handleAddNew}
-            >
+            {isAdmin && (
+              <Button
+                variant="add"
+                icon={<Plus size={18} />}
+                onClick={handleAddNew}
+              >
               Añadir miembro
             </Button>
+            )}
           </>
         }
       />

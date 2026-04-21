@@ -39,7 +39,7 @@ function App() {
           <Route path="/miembros" element={<MembersPage />} />{" "}
           <Route path="/equipos" element={<EquiposContent />} />
           <Route path="/configuracion" element={<ConfigurationPage />} />
-          <Route path="/perfil" element={<div>Mi Perfil</div>} />
+          <Route path="/mi-perfil" element={<div>Mi Perfil</div>} />
         </Route>
       </Route>
 

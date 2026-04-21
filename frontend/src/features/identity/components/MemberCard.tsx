@@ -14,6 +14,7 @@ import {
 import Card from "../../../components/shared/Card";
 import Badge from "../../../components/shared/Badge";
 import Button from "../../../components/shared/Button";
+import { authService } from "../../auth/services/auth.service";
 
 interface MemberCardProps {
   member: any;
@@ -34,6 +35,10 @@ const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
         return <UserIcon size={10} />;
     }
   };
+
+  //Para comprobar si el usuario actual es Admin y mostrar el botón de editar y eliminar solo a ellos
+    const currentUser = authService.getCurrentUser();
+    const isAdmin = currentUser?.roleName === "Admin";
 
   return (
     <Card className="flex items-center gap-4 py-3 px-6 hover:border-indigo-300 transition-all shadow-sm">
@@ -151,13 +156,15 @@ const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
           onClick={() => onView(member)}
           className="!text-blue-600 hover:!bg-blue-50"
         />
+        {isAdmin && (
         <Button
           variant="ghost"
           size="sm"
           icon={<Edit2 size={16} />}
           onClick={() => onEdit(member)}
           className="!text-amber-500 hover:!bg-amber-50"
-        />
+        />)}
+         {isAdmin && (
         <Button
           variant="ghost"
           size="sm"
@@ -165,6 +172,7 @@ const MemberCard = ({ member, onView, onEdit, onDelete }: MemberCardProps) => {
           onClick={() => onDelete(member.id)}
           className="!text-red-500 hover:!bg-red-50"
         />
+         )}
       </div>
     </Card>
   );

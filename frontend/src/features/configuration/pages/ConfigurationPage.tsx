@@ -16,13 +16,13 @@ const ConfigurationPage = () => {
 
   return (
     <div className="space-y-6">
-      {/* 1. Header principal de la sección */}
+      {/* Header principal de la sección */}
       <PageHeader 
         title="Configuración del Club" 
         subtitle="Administra los roles, equipos e inventario."
       />
 
-      {/* 2. Barra de Navegación de Pestañas */}
+      {/* Barra de Navegación de Pestañas */}
       <div className="flex border-b border-gray-200">
         {tabs.map((tab) => (
           <button
@@ -40,7 +40,7 @@ const ConfigurationPage = () => {
         ))}
       </div>
 
-      {/* 3. Renderizado Condicional del Contenido */}
+      {/* Renderizado Condicional del Contenido */}
       <div className="pt-2">
         {activeTab === 'roles' && <RolesSection />}
         {activeTab === 'teams' && <TeamsSection />}

@@ -15,6 +15,7 @@ import {
   Image as ImageIcon,
 } from "lucide-react";
 import Badge from "../../../components/shared/Badge";
+import { authService } from "../../auth/services/auth.service";
 
 interface MemberDetailsProps {
   member: any;
@@ -33,6 +34,11 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
       minute: "2-digit",
     });
   };
+
+  //Para comprobar si el usuario actual es Admin y mostrar el botón de gestionar afiliaciones solo a ellos
+      const currentUser = authService.getCurrentUser();
+      const isAdmin = currentUser?.roleName === "Admin";
+  
 
   const renderValue = (value: any) =>
     value || <span className="text-gray-300 italic">No definido</span>;
@@ -120,6 +126,7 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
               <Users size={12} /> Afiliaciones actuales
             </label>
 
+            {isAdmin && (
             <button
               onClick={() => onManageTeams(member)}
               className="text-[9px] font-black flex items-center gap-1 px-2 py-1 bg-indigo-50 text-indigo-600 rounded-lg hover:bg-indigo-600 hover:text-white transition-all duration-200"
@@ -127,6 +134,7 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
               <Settings2 size={12} />
               GESTIONAR
             </button>
+            )}
           </div>
 
           <div className="space-y-2">
@@ -168,6 +176,7 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
       </div>
 
       {/* CAMPOS AUDITORÍA */}
+      {isAdmin && (
       <div className="p-4 bg-slate-900 rounded-2xl grid grid-cols-1 sm:grid-cols-3 gap-4">
         <div className="flex flex-col">
           <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
@@ -198,6 +207,7 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
           </span>
         </div>
       </div>
+      )}
     </div>
   );
 };
