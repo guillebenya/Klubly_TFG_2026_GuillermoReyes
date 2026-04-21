@@ -26,18 +26,16 @@ const MemberFilters = ({
   const isAdmin = currentUser?.roleName === "ADMIN";
 
   // Lógica de filtrado de Roles: Solo ADMIN ve a otros ADMINs
-  const rolesToDisplay = isAdmin 
-    ? ["ADMIN", "STAFF", "MEMBER"] 
+  const rolesToDisplay = isAdmin
+    ? ["ADMIN", "STAFF", "MEMBER"]
     : ["STAFF", "MEMBER"];
 
-  // Lógica de filtrado de Equipos: 
+  // Lógica de filtrado de Equipos:
   // El Staff solo ve los equipos a los que pertenece
   // Si es ADMIN, ve todos.
-  const displayedTeams = isAdmin 
-  ? availableTeams 
-  : availableTeams.filter((team) => 
-      currentUser?.teamIds?.includes(team.id)
-    );
+  const displayedTeams = isAdmin
+    ? availableTeams
+    : availableTeams.filter((team) => currentUser?.teamIds?.includes(team.id));
 
   const toggleFilter = (category: "roles" | "status" | "teams", value: any) => {
     const current = [...filters[category]];
@@ -53,7 +51,7 @@ const MemberFilters = ({
   };
 
   const clearFilters = () => {
-    setFilters({ roles: [], status: [true], teams: [] });
+    setFilters({ roles: [], status: [], teams: [] });
   };
 
   return (
@@ -116,7 +114,7 @@ const MemberFilters = ({
         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
           <Users size={14} /> Mis Equipos
         </label>
-        
+
         <div className="max-h-40 overflow-y-auto pr-2 space-y-1 custom-scrollbar">
           {displayedTeams.length > 0 ? (
             displayedTeams.map((team) => (
@@ -127,7 +125,9 @@ const MemberFilters = ({
               >
                 <span
                   className={`text-xs font-bold ${
-                    filters.teams.includes(team.id) ? "text-indigo-600" : "text-gray-600"
+                    filters.teams.includes(team.id)
+                      ? "text-indigo-600"
+                      : "text-gray-600"
                   }`}
                 >
                   {team.name}
