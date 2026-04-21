@@ -242,14 +242,14 @@ const MembersPage = () => {
       />
 
       {/* LISTADO: Usa la constante 'filteredMembers' que acabamos de definir arriba */}
-      {/* CONTENIDO PRINCIPAL (Sustituye todo lo que había entre el Header y el Modal de Filtros por esto) */}
+      {/* CONTENIDO PRINCIPAL */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 text-gray-500">
           <Loader2 className="animate-spin mb-2" size={40} />
           <p className="font-medium italic">Sincronizando base de datos...</p>
         </div>
       ) : (
-        <div className="flex flex-col gap-2">
+        <div className="flex flex-col gap-3">
           {filteredMembers.length > 0 ? (
             filteredMembers.map((member) => {
               // 1. Calculamos cuántos equipos tienen en común el Staff actual y el miembro de la tarjeta
