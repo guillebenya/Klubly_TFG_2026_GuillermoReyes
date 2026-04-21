@@ -59,6 +59,7 @@ public class AuthController {
             user.getFirstName(),
             user.getLastName(),
             user.getRole().getName(), // Sacamos el nombre del rol (ADMIN, STAFF, etc)
+            user.getAvatarURL(),
             teamIds // Sacamos la lista de IDs de los equipos a los que el usuario está afiliado
     ));
     }

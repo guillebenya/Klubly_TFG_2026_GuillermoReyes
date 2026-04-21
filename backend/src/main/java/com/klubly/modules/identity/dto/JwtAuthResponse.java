@@ -6,4 +6,5 @@ public record JwtAuthResponse(String accessToken, String tokenType, String usern
     String firstName,
     String lastName,
     String roleName,
+    String avatarURL,
     List<Long> teamIds) {}

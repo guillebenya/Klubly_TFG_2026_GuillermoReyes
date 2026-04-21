@@ -16,6 +16,7 @@ export const authService = {
           firstName: response.data.firstName,
           lastName: response.data.lastName,
           roleName: response.data.roleName,
+          avatarURL: response.data.avatarURL,
           teamIds: response.data.teamIds,
         }),
       );
