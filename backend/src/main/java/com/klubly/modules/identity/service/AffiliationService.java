@@ -3,6 +3,7 @@ package com.klubly.modules.identity.service;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import com.klubly.modules.identity.dto.AffiliationDTO;
@@ -59,6 +60,7 @@ public class AffiliationService {
     //Crear Afiliación
     @Transactional
     public AffiliationDTO createAffiliation(AffiliationDTO affiliationDTO) {
+        checkAdminRole();
         // Validar que el usuario y el equipo existen
         var user = userRepository.findByIdAndDeletedAtIsNull(affiliationDTO.getUserId())
                 .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
@@ -81,6 +83,7 @@ public class AffiliationService {
     //Actualizar Afiliación (solo la posición en el equipo, no se puede cambiar usuario o equipo)
     @Transactional
     public AffiliationDTO updateAffiliation(Long id, AffiliationDTO affiliationDTO) {
+        checkAdminRole();
         Affiliation affiliation = affiliationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException(AFFILIATION_NOT_FOUND_MSG));
         affiliation.setTeamPosition(affiliationDTO.getTeamPosition()); // Actualizar solo la posición específica en el equipo
@@ -91,6 +94,7 @@ public class AffiliationService {
     //Eliminar Afiliación
     @Transactional
     public void deleteAffiliation(Long id) {
+        checkAdminRole();
         Affiliation affiliation = affiliationRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException(AFFILIATION_NOT_FOUND_MSG));
         
@@ -114,5 +118,17 @@ public class AffiliationService {
         dto.setTeamName(affiliation.getTeam().getName()); // Para mostrar el nombre del equipo sin necesidad de otra consulta
         dto.setClubPosition(affiliation.getUser().getClubPosition()); // Para mostrar la posición del usuario en el club sin necesidad de otra consulta
         return dto;
+    }
+
+    //Métodos auxiliares
+    private String getContextRole() {
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+                .iterator().next().getAuthority();
+    }
+
+    private void checkAdminRole() {
+        if (!getContextRole().equals("ROLE_ADMIN")) {
+            throw new RuntimeException("Acceso denegado: Se requieren permisos de administrador");
+        }
     }
 }

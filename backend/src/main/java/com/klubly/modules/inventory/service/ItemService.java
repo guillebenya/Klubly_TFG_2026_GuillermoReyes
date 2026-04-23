@@ -31,6 +31,15 @@ public class ItemService {
     }
 
     @Transactional(readOnly = true)
+    public List<ItemDTO> getAllDeletedItems() {
+        checkAdminRole();
+        return itemRepository.findByDeletedAtIsNull()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public ItemDTO getItemById(Long id) {
         return itemRepository.findByIdAndDeletedAtIsNull(id)
                 .map(this::convertToDTO)
@@ -86,36 +95,40 @@ public class ItemService {
             throw new RuntimeException("El stock y el stock mínimo no pueden ser valores negativos");
         }
 
-
-        String role = getContextRole();
-        if (!role.equals("ROLE_ADMIN")){
-            itemDTO.setMinStock(item.getMinStock());
-            itemDTO.setActive(item.getActive());
-        }
-
-        if (!item.getName().equals(itemDTO.getName()) &&
-                itemRepository.existsByNameAndDeletedAtIsNull(itemDTO.getName())) {
-            throw new RuntimeException("El nombre de artículo ya existe");
-        }
-
-        item.setName(itemDTO.getName());
-        item.setDescription(itemDTO.getDescription());
-        item.setStockQuantity(itemDTO.getStockQuantity());
-        item.setMinStock(itemDTO.getMinStock());
-        item.setLocation(itemDTO.getLocation());
-        if (itemDTO.getActive() != null) {
-            item.setActive(itemDTO.getActive());
-        }
-
         if (itemDTO.getCategoryId() == null) {
-            throw new RuntimeException("El artículo debe tener una categoría asignada");
+        throw new RuntimeException("El artículo debe tener una categoría asignada");
+    }
+
+        boolean isAdmin = getContextRole().equals("ROLE_ADMIN");
+        boolean isStaff = getContextRole().equals("ROLE_STAFF");
+
+        if (isAdmin) {
+            // Solo el ADMIN puede cambiar el nombre y validamos unicidad
+            if (!item.getName().equals(itemDTO.getName())) {
+                if (itemRepository.existsByNameAndDeletedAtIsNull(itemDTO.getName())) {
+                    throw new RuntimeException("El nombre de artículo ya existe");
+                }
+                item.setName(itemDTO.getName());
+            }
+
+            item.setDescription(itemDTO.getDescription());
+            item.setMinStock(itemDTO.getMinStock());
+            
+            if (itemDTO.getActive() != null) {
+                item.setActive(itemDTO.getActive());
+            }
+
+            // Cambio de Categoría (Solo ADMIN)
+            if (item.getCategory() == null || !item.getCategory().getId().equals(itemDTO.getCategoryId())) {
+                Category category = categoryRepository.findByIdAndDeletedAtIsNull(itemDTO.getCategoryId())
+                        .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+                item.setCategory(category);
+            }
         }
 
-        if (item.getCategory() == null || !item.getCategory().getId().equals(itemDTO.getCategoryId())) {
-            Category category = categoryRepository.findByIdAndDeletedAtIsNull(itemDTO.getCategoryId())
-                    .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
-            item.setCategory(category);
-        }
+        //CAMPOS QUE CUALQUIERA PUEDE MODIFICAR (Staff / Admin)
+        item.setStockQuantity(itemDTO.getStockQuantity());
+        item.setLocation(itemDTO.getLocation());
 
         Item updatedItem = itemRepository.save(item);
         return convertToDTO(updatedItem);

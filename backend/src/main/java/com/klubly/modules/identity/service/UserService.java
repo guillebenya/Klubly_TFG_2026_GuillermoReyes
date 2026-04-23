@@ -4,6 +4,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -36,6 +37,14 @@ public class UserService {
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
+    
+    @Transactional(readOnly = true)
+    public List<UserDTO> getAllDeletedUsers() {
+        return userRepository.findByDeletedAtIsNotNull()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
 
     @Transactional(readOnly = true)
     public UserDTO getUserById(Long id) {
@@ -53,7 +62,7 @@ public class UserService {
 
     @Transactional
     public UserDTO createUser(UserDTO userDTO){
-
+        checkAdminRole();
         //Comprobamos si username o email ya existen (solo entre los activos)
         if (userRepository.existsByUsernameAndDeletedAtIsNull(userDTO.getUsername())) {
             throw new RuntimeException("El nombre de usuario ya existe");
@@ -86,8 +95,7 @@ public class UserService {
     @Transactional
     public UserDTO updateUser(Long id, UserDTO userDTO){
         //OBTENER USUARIO ACTUAL DEL CONTEXTO DE SEGURIDAD
-        String currentUsername = org.springframework.security.core.context.SecurityContextHolder
-                .getContext().getAuthentication().getName();
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
         
         //BUSCAR AL USUARIO QUE ESTÁ REALIZANDO LA ACCIÓN
         User actor = userRepository.findByUsernameAndDeletedAtIsNull(currentUsername)
@@ -97,40 +105,54 @@ public class UserService {
         boolean isAdmin = actor.getRole().getName().equals("ADMIN");
         boolean isOwner = actor.getId().equals(id);
 
-    if (!isAdmin && !isOwner) {
-        throw new RuntimeException("No tienes permiso para editar este perfil");
-    }
+        if (!isAdmin && !isOwner) {
+            throw new RuntimeException("No tienes permiso para editar este perfil");
+        }
 
         User user = userRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND_MSG));
 
-        // Si el username o email están cambiando, comprobamos que el nuevo valor no exista ya entre los activos
-        if (!user.getUsername().equals(userDTO.getUsername()) && userRepository.existsByUsernameAndDeletedAtIsNull(userDTO.getUsername())) {
-            throw new RuntimeException("El nombre de usuario ya existe");
-        }
-        if (!user.getEmail().equals(userDTO.getEmail()) && userRepository.existsByEmailAndDeletedAtIsNull(userDTO.getEmail())) {
-            throw new RuntimeException("El correo electrónico ya existe");
+        if (isAdmin) {
+            // Username
+            if (!user.getUsername().equals(userDTO.getUsername())) {
+                if (userRepository.existsByUsernameAndDeletedAtIsNull(userDTO.getUsername())) {
+                    throw new RuntimeException("El nombre de usuario ya existe");
+                }
+                user.setUsername(userDTO.getUsername());
+            }
+            
+            // Email
+            if (!user.getEmail().equals(userDTO.getEmail())) {
+                if (userRepository.existsByEmailAndDeletedAtIsNull(userDTO.getEmail())) {
+                    throw new RuntimeException("El correo electrónico ya existe");
+                }
+                user.setEmail(userDTO.getEmail());
+            }
+
+            // Rol
+            if (userDTO.getRoleId() != null && !user.getRole().getId().equals(userDTO.getRoleId())) {
+                Role role = roleRepository.findByIdAndDeletedAtIsNull(userDTO.getRoleId())
+                        .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+                user.setRole(role);
+            }
+
+            // Otros campos administrativos
+            user.setClubPosition(userDTO.getClubPosition());
+            if (userDTO.getActive() != null) {
+                user.setActive(userDTO.getActive());
+            }
         }
 
-        // Si se está cambiando el rol, buscamos la nueva entidad de rol
-        if (!user.getRole().getId().equals(userDTO.getRoleId())) {
-            Role role = roleRepository.findByIdAndDeletedAtIsNull(userDTO.getRoleId())
-                    .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
-            user.setRole(role);
-        }
-
-        user.setUsername(userDTO.getUsername());
-        user.setEmail(userDTO.getEmail());
-        if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(userDTO.getPassword())); // Encriptar la nueva contraseña
-        }
+        // 4. CAMPOS COMUNES (ADMIN puede todo, STAFF/MEMBER solo los suyos)
+        // Estos campos se actualizan siempre (porque si no es Admin, ya validamos que es Owner)
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
         user.setPhone(userDTO.getPhone());
-        user.setClubPosition(userDTO.getClubPosition());
         user.setAvatarURL(userDTO.getAvatarURL());
-        if (userDTO.getActive() != null) {
-            user.setActive(userDTO.getActive());
+
+        if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
+            // Aquí podrías añadir tu lógica de validación de requisitos de password
+            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         }
 
         User updatedUser = userRepository.save(user);
@@ -140,6 +162,7 @@ public class UserService {
     
     @Transactional
     public void deleteUser(Long id){
+        checkAdminRole();
         User user = userRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND_MSG));
 
@@ -210,4 +233,17 @@ public class UserService {
     }
         return dto;
     }
+
+    //Métodos auxiliares
+    private String getContextRole() {
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+                .iterator().next().getAuthority();
+    }
+
+    private void checkAdminRole() {
+        if (!getContextRole().equals("ROLE_ADMIN")) {
+            throw new RuntimeException("Acceso denegado: Se requieren permisos de administrador");
+        }
+    }
+    
 }

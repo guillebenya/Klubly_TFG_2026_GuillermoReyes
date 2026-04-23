@@ -1,6 +1,6 @@
 import api from '../../../api/axios';
 
-const ENDPOINT = '/roles';
+const ENDPOINT = '/identity/roles';
 
 export interface Role {
   id: number;

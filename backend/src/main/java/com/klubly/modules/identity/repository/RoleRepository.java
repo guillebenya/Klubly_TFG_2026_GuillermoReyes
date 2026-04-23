@@ -11,6 +11,7 @@ import java.util.Optional;
 public interface RoleRepository extends JpaRepository<Role, Long> {
     //Listado de todos los roles (solo activos)
     List<Role> findByDeletedAtIsNull();
+    List<Role> findByDeletedAtIsNotNull();
     Optional<Role> findByNameAndDeletedAtIsNull(String name);
 
     // Para asegurar que al buscar por ID también respetamos el Soft Delete

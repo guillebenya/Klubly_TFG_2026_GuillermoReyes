@@ -210,14 +210,14 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
           </div>
           <div className="flex flex-col border-t border-slate-800 sm:border-t-0 sm:border-l sm:pl-4 pt-3 sm:pt-0">
             <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
-              <Trash2 size={10} /> Baja del sistema
+              <Trash2 size={10} /> Eliminado el
             </span>
             <span
               className={`text-[11px] font-medium mt-1 ${member.deletedAt ? "text-red-400" : "text-slate-500 italic"}`}
             >
               {member.deletedAt
                 ? formatDate(member.deletedAt)
-                : "Activo actualmente"}
+                : "Este usuario no ha sido eliminado"}
             </span>
           </div>
         </div>

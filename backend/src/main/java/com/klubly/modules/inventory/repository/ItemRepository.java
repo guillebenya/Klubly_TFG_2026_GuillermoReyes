@@ -11,6 +11,7 @@ import com.klubly.modules.inventory.entity.Item;
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findByDeletedAtIsNull();
+    List<Item> findByDeletedAtIsNotNull();
     Optional<Item> findByIdAndDeletedAtIsNull(Long id);
     Optional<Item> findByNameAndDeletedAtIsNull(String name);
     boolean existsByNameAndDeletedAtIsNull(String name);

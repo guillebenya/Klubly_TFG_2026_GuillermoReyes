@@ -1,6 +1,6 @@
 import api from "../../../api/axios";
 
-const ENDPOINT = "/users";
+const ENDPOINT = "/identity/users";
 
 export const userService = {
   getAll: () => api.get(ENDPOINT),

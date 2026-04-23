@@ -4,6 +4,8 @@ import com.klubly.modules.identity.dto.RoleDTO;
 import com.klubly.modules.identity.entity.Role;
 import com.klubly.modules.identity.repository.RoleRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -19,7 +21,17 @@ public class RoleService {
     private static final String ROLE_NOT_FOUND_MSG = "Rol no encontrado";
 
     public List<RoleDTO> getAllActiveRoles() {
+        //checkAdminRole();
         return roleRepository.findByDeletedAtIsNull()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public List<RoleDTO> getAllDeletedRoles() {
+        //checkAdminRole();
+        return roleRepository.findByDeletedAtIsNotNull()
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -34,6 +46,7 @@ public class RoleService {
 
     @Transactional
     public RoleDTO createRole(RoleDTO roleDTO) {
+        checkAdminRole();
         Role role = new Role();
         role.setName(roleDTO.getName());
         role.setDescription(roleDTO.getDescription());
@@ -45,6 +58,7 @@ public class RoleService {
 
     @Transactional
     public RoleDTO updateRole(Long id, RoleDTO roleDTO) {
+        checkAdminRole();
         Role role = roleRepository.findById(id)
                 .filter(t -> t.getDeletedAt() == null)
                 .orElseThrow(() -> new RuntimeException(ROLE_NOT_FOUND_MSG));
@@ -61,6 +75,7 @@ public class RoleService {
 
     @Transactional
     public void deleteRole(Long id) {
+        checkAdminRole();
         Role role = roleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException(ROLE_NOT_FOUND_MSG));
         
@@ -80,5 +95,17 @@ public class RoleService {
         dto.setUpdatedAt(role.getUpdatedAt());
         dto.setDeletedAt(role.getDeletedAt());
         return dto;
+    }
+
+    //Métodos auxiliares
+    private String getContextRole() {
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities()
+                .iterator().next().getAuthority();
+    }
+
+    private void checkAdminRole() {
+        if (!getContextRole().equals("ROLE_ADMIN")) {
+            throw new RuntimeException("Acceso denegado: Se requieren permisos de administrador");
+        }
     }
 }

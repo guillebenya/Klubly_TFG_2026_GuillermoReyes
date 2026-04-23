@@ -12,6 +12,7 @@ import com.klubly.modules.identity.entity.Team;
 public interface TeamRepository extends JpaRepository<Team, Long> {
     // Para listar solo los equipos activos
     List<Team> findByDeletedAtIsNull();
+    List<Team> findByDeletedAtIsNotNull();
     // Para asegurar que al buscar por ID también respetamos el Soft Delete
     Optional<Team> findByIdAndDeletedAtIsNull(Long id);
     Optional<Team> findByNameAndDeletedAtIsNull(String name);

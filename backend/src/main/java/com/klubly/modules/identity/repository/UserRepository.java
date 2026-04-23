@@ -14,7 +14,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
     //Listado general (solo usuarios activos)
     @EntityGraph(attributePaths = {"affiliations", "role"})
     List<User> findByDeletedAtIsNull();
-
+    List<User> findByDeletedAtIsNotNull();
     //Para el login y para buscar perfiles (solo activos)
     Optional<User> findByUsernameAndDeletedAtIsNull(String username);
     Optional<User> findByEmailAndDeletedAtIsNull(String email);

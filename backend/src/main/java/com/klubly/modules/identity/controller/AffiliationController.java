@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 
 @RestController
-@RequestMapping("/api/affiliations")
+@RequestMapping("/api/identity/affiliations")
 @RequiredArgsConstructor
 public class AffiliationController {
     

@@ -106,14 +106,16 @@ const RoleDetails = ({ role }: RoleDetailsProps) => {
 
         <div className="flex flex-col border-t border-slate-800 sm:border-t-0 sm:border-l sm:pl-4 pt-3 sm:pt-0">
           <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
-            <Trash2 size={10} /> Fecha de baja
+            <Trash2 size={10} /> Eliminado el
           </span>
           <span
             className={`text-[11px] font-medium mt-1 ${
               role.deletedAt ? "text-red-400" : "text-slate-500 italic"
             }`}
           >
-            {role.deletedAt ? formatDate(role.deletedAt) : "Activo actualmente"}
+            {role.deletedAt
+              ? formatDate(role.deletedAt)
+              : "Este rol no ha sido eliminado"}
           </span>
         </div>
       </div>

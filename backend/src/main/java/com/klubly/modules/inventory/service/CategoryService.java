@@ -28,6 +28,15 @@ public class CategoryService {
     }
 
     @Transactional(readOnly = true)
+    public List<CategoryDTO> getAllDeletedCategories() {
+        checkAdminRole();
+        return categoryRepository.findByDeletedAtIsNotNull()
+                .stream()
+                .map(this::convertToDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
     public CategoryDTO getCategoryById(Long id) {
         Category category = categoryRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new RuntimeException(CATEGORY_NOT_FOUND_MSG));
@@ -59,6 +68,7 @@ public class CategoryService {
 
     @Transactional
     public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) {
+        checkAdminRole();
         Category category = categoryRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new RuntimeException(CATEGORY_NOT_FOUND_MSG));
 

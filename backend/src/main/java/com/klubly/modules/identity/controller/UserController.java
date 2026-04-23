@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 
 
 @RestController
-@RequestMapping("/api/users")
+@RequestMapping("/api/identity/users")
 @RequiredArgsConstructor
 public class UserController {
     

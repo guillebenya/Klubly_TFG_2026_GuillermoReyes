@@ -1,6 +1,6 @@
 import api from '../../../api/axios';
 
-const ENDPOINT = '/teams';
+const ENDPOINT = '/identity/teams';
 
 export const teamService = {
   getAll: () => api.get(ENDPOINT),

@@ -1,6 +1,6 @@
 import api from '../../../api/axios';
 
-const ENDPOINT = '/affiliations';
+const ENDPOINT = '/identity/affiliations';
 
 export const affiliationService = {
   getAll: () => api.get(ENDPOINT),

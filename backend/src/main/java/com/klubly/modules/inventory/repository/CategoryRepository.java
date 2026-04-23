@@ -11,6 +11,7 @@ import com.klubly.modules.inventory.entity.Category;
 @Repository
 public interface CategoryRepository extends JpaRepository<Category, Long> {
     List<Category> findByDeletedAtIsNull();
+    List<Category> findByDeletedAtIsNotNull();
     Optional<Category> findByIdAndDeletedAtIsNull(Long id);
     Optional<Category> findByNameAndDeletedAtIsNull(String name);
     boolean existsByNameAndDeletedAtIsNull(String name);
