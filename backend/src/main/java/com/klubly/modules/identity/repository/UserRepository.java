@@ -1,5 +1,6 @@
 package com.klubly.modules.identity.repository;
 
+import com.klubly.modules.identity.entity.Role;
 import com.klubly.modules.identity.entity.User;
 
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -26,4 +27,6 @@ public interface UserRepository extends JpaRepository<User, Long> {
     // Para asegurar que al buscar por ID también respetamos el Soft Delete
     @EntityGraph(attributePaths = {"affiliations", "role"})
     Optional<User> findByIdAndDeletedAtIsNull(Long id);
+    // Cuenta cuántos usuarios activos tienen un rol específico
+    long countByRoleAndDeletedAtIsNull(Role role);
 }

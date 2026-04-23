@@ -1,5 +1,13 @@
 import React from "react";
-import { Shield, Edit2, Trash2, Lock, LockOpen, Eye } from "lucide-react";
+import {
+  Shield,
+  Edit2,
+  Trash2,
+  Lock,
+  LockOpen,
+  Eye,
+  Users,
+} from "lucide-react";
 import Button from "../../../components/shared/Button";
 import { type Role } from "../services/role.service";
 
@@ -11,16 +19,23 @@ interface RoleCardProps {
 }
 
 const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
-  const isSystemRole = ["ADMIN", "STAFF", "MEMBER"].includes(role.name.toUpperCase());
+  const isSystemRole = ["ADMIN", "STAFF", "MEMBER"].includes(
+    role.name.toUpperCase(),
+  );
+  const hasUsers = (role.userCount || 0) > 0;
 
   return (
     <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-      <div className={`absolute left-0 top-0 bottom-0 w-1 ${isSystemRole ? "bg-indigo-500" : "bg-gray-200"}`} />
+      <div
+        className={`absolute left-0 top-0 bottom-0 w-1 ${isSystemRole ? "bg-indigo-500" : "bg-gray-200"}`}
+      />
 
       {/* CABECERA: Título a la izquierda, Botones a la derecha */}
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-lg ${isSystemRole ? "bg-indigo-50 text-indigo-600" : "bg-gray-50 text-gray-400"}`}>
+          <div
+            className={`p-2 rounded-lg ${isSystemRole ? "bg-indigo-50 text-indigo-600" : "bg-gray-50 text-gray-400"}`}
+          >
             <Shield size={20} />
           </div>
           <div>
@@ -28,7 +43,16 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
               <h3 className="text-sm font-bold text-gray-800 uppercase tracking-tight line-clamp-1">
                 {role.name}
               </h3>
+
+              {/* BADGE DE USUARIOS: Visual y funcional */}
+              <div
+                className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${hasUsers ? "bg-blue-50 text-blue-600" : "bg-gray-50 text-gray-400"}`}
+              >
+                <Users size={10} />
+                {role.userCount || 0}
+              </div>
             </div>
+
             {isSystemRole ? (
               <span className="flex items-center gap-0.5 mt-1 text-indigo-600 text-[8px] font-black uppercase tracking-tighter">
                 <Lock size={8} /> Rol de Sistema
@@ -59,7 +83,11 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
             onClick={() => onEdit(role)}
             className="!text-amber-500 hover:!bg-amber-50"
             disabled={isSystemRole}
-            title={isSystemRole ? "Los roles de sistema no se pueden editar" : "Editar rol"}
+            title={
+              isSystemRole
+                ? "Los roles de sistema no se pueden editar"
+                : "Editar rol"
+            }
           >
             <Edit2 size={16} />
           </Button>
@@ -69,8 +97,12 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
             size="sm"
             onClick={() => onDelete(role.id)}
             className="!text-red-500 hover:!bg-red-50"
-            disabled={isSystemRole}
-            title={isSystemRole ? "Los roles de sistema no se pueden eliminar" : "Eliminar rol"}
+            disabled={isSystemRole || hasUsers}
+            title={
+              isSystemRole
+                ? "Los roles de sistema no se pueden eliminar"
+                : "No se puede eliminar un rol que aún tiene usuarios asociados"
+            }
           >
             <Trash2 size={16} />
           </Button>

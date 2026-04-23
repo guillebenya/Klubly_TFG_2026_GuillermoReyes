@@ -11,6 +11,7 @@ import {
   Home,
   Calendar,
   EuroIcon,
+  Info,
 } from "lucide-react";
 import logo from "../assets/Klubly_Logo.png";
 import { authService } from "../features/auth/services/auth.service";
@@ -39,6 +40,8 @@ const MainLayout = () => {
   const fullName = currentUser
     ? `${currentUser.firstName} ${currentUser.lastName}`
     : "Usuario";
+
+  const isSystemRole = ["ADMIN", "STAFF", "MEMBER"].includes(userRole);
 
   // Definimos todos los items posibles
   const allMenuItems = [
@@ -167,39 +170,62 @@ const MainLayout = () => {
       {/* CONTENEDOR INFERIOR (Sidebar + Main) */}
       <div className="flex flex-1 overflow-hidden">
         {/* SIDEBAR VERTICAL */}
-        <aside className="w-64 bg-white border-r border-gray-200 flex flex-col z-10">
-          <nav className="flex-1 py-4 space-y-2">
-            {menuItems.map((item) => {
-              const isActive = location.pathname === item.path;
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  className={`group flex items-center px-6 py-3 text-lg font-medium transition-all relative
+        {isSystemRole && (
+          <aside className="w-64 bg-white border-r border-gray-200 flex flex-col z-10">
+            <nav className="flex-1 py-4 space-y-2">
+              {menuItems.map((item) => {
+                const isActive = location.pathname === item.path;
+                return (
+                  <Link
+                    key={item.path}
+                    to={item.path}
+                    className={`group flex items-center px-6 py-3 text-lg font-medium transition-all relative
                     ${
                       isActive
                         ? "text-indigo-600 bg-indigo-50/50"
                         : "text-gray-400 hover:bg-gray-50 hover:text-gray-600"
                     }`}
-                >
-                  {isActive && (
-                    <div className="absolute left-0 top-0 h-full w-1.5 bg-indigo-600" />
-                  )}
-                  <span
-                    className={`mr-3 ${isActive ? "text-indigo-600" : "text-gray-400 group-hover:text-gray-600"}`}
                   >
-                    {item.icon}
-                  </span>
-                  {item.label}
-                </Link>
-              );
-            })}
-          </nav>
-        </aside>
+                    {isActive && (
+                      <div className="absolute left-0 top-0 h-full w-1.5 bg-indigo-600" />
+                    )}
+                    <span
+                      className={`mr-3 ${isActive ? "text-indigo-600" : "text-gray-400 group-hover:text-gray-600"}`}
+                    >
+                      {item.icon}
+                    </span>
+                    {item.label}
+                  </Link>
+                );
+              })}
+            </nav>
+          </aside>
+        )}
 
         {/* CONTENEDOR PRINCIPAL */}
         <main className="flex-1 overflow-y-auto p-8 bg-gray-100">
-          <Outlet />
+          {isSystemRole ? (
+            <Outlet />
+          ) : (
+            <div className="h-full flex flex-col items-center justify-center">
+              <div className="max-w-md w-full bg-white p-10 rounded-[2rem] border border-gray-200 shadow-sm text-center">
+                <div className="w-16 h-16 bg-indigo-50 text-indigo-500 rounded-2xl flex items-center justify-center mx-auto mb-6">
+                  <Info size={32} />
+                </div>
+                <h2 className="text-xl font-black text-blue-950 uppercase tracking-tight mb-3">
+                  Rol Informativo
+                </h2>
+                <p className="text-sm text-gray-500 leading-relaxed">
+                  Este es un rol informativo a modo de prueba sin funcionalidad
+                  alguna. Por ello,{" "}
+                  <span className="font-bold text-indigo-600">
+                    no se muestra el menú lateral ni acceso a módulos
+                  </span>
+                  .
+                </p>
+              </div>
+            </div>
+          )}
         </main>
       </div>
     </div>

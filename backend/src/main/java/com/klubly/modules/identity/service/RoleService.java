@@ -3,6 +3,8 @@ package com.klubly.modules.identity.service;
 import com.klubly.modules.identity.dto.RoleDTO;
 import com.klubly.modules.identity.entity.Role;
 import com.klubly.modules.identity.repository.RoleRepository;
+import com.klubly.modules.identity.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,10 +20,11 @@ import java.util.stream.Collectors;
 public class RoleService {
 
     private final RoleRepository roleRepository;
+    private final UserRepository userRepository;
     private static final String ROLE_NOT_FOUND_MSG = "Rol no encontrado";
 
+    @Transactional(readOnly = true)
     public List<RoleDTO> getAllActiveRoles() {
-        //checkAdminRole();
         return roleRepository.findByDeletedAtIsNull()
                 .stream()
                 .map(this::convertToDTO)
@@ -30,13 +33,13 @@ public class RoleService {
 
     @Transactional(readOnly = true)
     public List<RoleDTO> getAllDeletedRoles() {
-        //checkAdminRole();
         return roleRepository.findByDeletedAtIsNotNull()
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
     public RoleDTO getRoleById(Long id) {
         Role role = roleRepository.findById(id)
                 .filter(t -> t.getDeletedAt() == null)
@@ -76,8 +79,20 @@ public class RoleService {
     @Transactional
     public void deleteRole(Long id) {
         checkAdminRole();
+        if (id <= 3) {
+            throw new RuntimeException("No se pueden eliminar roles de sistema");
+        }
         Role role = roleRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException(ROLE_NOT_FOUND_MSG));
+        
+        //No borrar si hay usuarios asignados
+        long activeUsers = role.getUsers().stream()
+                .filter(u -> u.getDeletedAt() == null)
+                .count();
+
+        if (activeUsers > 0) {
+            throw new RuntimeException("No se puede eliminar un rol que tiene usuarios asignados");
+        }
         
         role.setDeletedAt(LocalDateTime.now());
         role.setActive(false);
@@ -94,6 +109,7 @@ public class RoleService {
         dto.setCreatedAt(role.getCreatedAt());
         dto.setUpdatedAt(role.getUpdatedAt());
         dto.setDeletedAt(role.getDeletedAt());
+        dto.setUserCount((int) userRepository.countByRoleAndDeletedAtIsNull(role));
         return dto;
     }
 

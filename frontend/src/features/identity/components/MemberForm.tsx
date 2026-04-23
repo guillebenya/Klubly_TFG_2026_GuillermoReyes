@@ -12,6 +12,7 @@ import {
   X,
 } from "lucide-react";
 import Button from "../../../components/shared/Button";
+import { roleService, type Role } from "../../configuration/services/role.service";
 
 interface MemberFormProps {
   initialData?: any;
@@ -30,6 +31,9 @@ const MemberForm = ({
   const [confirmPassword, setConfirmPassword] = useState(""); // Estado para repetir pass
   const [passwordError, setPasswordError] = useState(false);
 
+  const [roles, setRoles] = useState<Role[]>([]);
+  const [loadingRoles, setLoadingRoles] = useState(true);
+
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -44,6 +48,22 @@ const MemberForm = ({
   });
 
   useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        setLoadingRoles(true);
+        const response = await roleService.getAll();
+        setRoles(response.data);
+      } catch (error) {
+        console.error("Error cargando roles:", error);
+      } finally {
+        setLoadingRoles(false);
+      }
+    };
+
+    fetchRoles();
+  }, []);
+
+  useEffect(() => {
     if (initialData) {
       setFormData({ ...initialData, password: "" });
     }
@@ -54,7 +74,7 @@ const MemberForm = ({
   ) => {
     const { name, value, type } = e.target;
     const val =
-      type === "checkbox" ? (e.target as HTMLInputElement).checked : value;
+      type === "checkbox" ? (e.target as HTMLInputElement).checked : (name === "roleId" ? parseInt(value) : value);
     setFormData((prev) => ({ ...prev, [name]: val }));
 
     // Si estamos escribiendo en password, resetear el error
@@ -257,10 +277,18 @@ const MemberForm = ({
               value={formData.roleId}
               onChange={handleChange}
               className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm appearance-none"
+              disabled={loadingRoles}
+              required
             >
-              <option value={1}>ADMIN</option>
-              <option value={2}>STAFF</option>
-              <option value={3}>MEMBER</option>
+              {loadingRoles ? (
+                <option>Cargando roles...</option>
+              ) : (
+                roles.map((role) => (
+                  <option key={role.id} value={role.id}>
+                    {role.name.toUpperCase()}
+                  </option>
+                ))
+              )}
             </select>
           </div>
         </div>

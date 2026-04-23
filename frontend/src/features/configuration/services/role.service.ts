@@ -1,6 +1,6 @@
-import api from '../../../api/axios';
+import api from "../../../api/axios";
 
-const ENDPOINT = '/identity/roles';
+const ENDPOINT = "/identity/roles";
 
 export interface Role {
   id: number;
@@ -10,6 +10,7 @@ export interface Role {
   createdAt?: string;
   updatedAt?: string;
   deletedAt?: string | null;
+  userCount: number;
 }
 
 export const roleService = {
@@ -20,10 +21,11 @@ export const roleService = {
   getById: (id: number) => api.get<Role>(`${ENDPOINT}/${id}`),
 
   /* Crea un nuevo rol */
-  create: (roleData: Omit<Role, 'id'>) => api.post<Role>(ENDPOINT, roleData),
+  create: (roleData: Omit<Role, "id">) => api.post<Role>(ENDPOINT, roleData),
 
   /* Actualiza un rol existente */
-  update: (id: number, roleData: Partial<Role>) => api.put<Role>(`${ENDPOINT}/${id}`, roleData),
+  update: (id: number, roleData: Partial<Role>) =>
+    api.put<Role>(`${ENDPOINT}/${id}`, roleData),
 
   /* Elimina un rol (Soft Delete) */
   delete: (id: number) => api.delete(`${ENDPOINT}/${id}`),
