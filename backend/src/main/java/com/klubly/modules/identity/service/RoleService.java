@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 public class RoleService {
 
     private final RoleRepository roleRepository;
-    private static final String role_NOT_FOUND_MSG = "Rol no encontrado";
+    private static final String ROLE_NOT_FOUND_MSG = "Rol no encontrado";
 
     public List<RoleDTO> getAllActiveRoles() {
         return roleRepository.findByDeletedAtIsNull()
@@ -28,7 +28,7 @@ public class RoleService {
     public RoleDTO getRoleById(Long id) {
         Role role = roleRepository.findById(id)
                 .filter(t -> t.getDeletedAt() == null)
-                .orElseThrow(() -> new RuntimeException(role_NOT_FOUND_MSG));
+                .orElseThrow(() -> new RuntimeException(ROLE_NOT_FOUND_MSG));
         return convertToDTO(role);
     }
 
@@ -47,7 +47,7 @@ public class RoleService {
     public RoleDTO updateRole(Long id, RoleDTO roleDTO) {
         Role role = roleRepository.findById(id)
                 .filter(t -> t.getDeletedAt() == null)
-                .orElseThrow(() -> new RuntimeException(role_NOT_FOUND_MSG));
+                .orElseThrow(() -> new RuntimeException(ROLE_NOT_FOUND_MSG));
 
         role.setName(roleDTO.getName());
         role.setDescription(roleDTO.getDescription());
@@ -62,7 +62,7 @@ public class RoleService {
     @Transactional
     public void deleteRole(Long id) {
         Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(role_NOT_FOUND_MSG));
+                .orElseThrow(() -> new RuntimeException(ROLE_NOT_FOUND_MSG));
         
         role.setDeletedAt(LocalDateTime.now());
         role.setActive(false);
