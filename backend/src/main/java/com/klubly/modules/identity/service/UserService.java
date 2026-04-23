@@ -131,6 +131,9 @@ public class UserService {
 
             // Rol
             if (userDTO.getRoleId() != null && !user.getRole().getId().equals(userDTO.getRoleId())) {
+                if (isOwner) {
+                    throw new RuntimeException("Por seguridad, no puedes cambiar tu propio rol de Administrador");
+                }
                 Role role = roleRepository.findByIdAndDeletedAtIsNull(userDTO.getRoleId())
                         .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
                 user.setRole(role);
@@ -138,7 +141,12 @@ public class UserService {
 
             // Otros campos administrativos
             user.setClubPosition(userDTO.getClubPosition());
+
+
             if (userDTO.getActive() != null) {
+                if (isOwner && !userDTO.getActive()) {
+                    throw new RuntimeException("No puedes desactivar tu propia cuenta de Administrador");
+                }
                 user.setActive(userDTO.getActive());
             }
         }
@@ -163,6 +171,17 @@ public class UserService {
     @Transactional
     public void deleteUser(Long id){
         checkAdminRole();
+        //OBTENER USUARIO ACTUAL DEL CONTEXTO DE SEGURIDAD
+        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        
+        //BUSCAR AL USUARIO QUE ESTÁ REALIZANDO LA ACCIÓN
+        User actor = userRepository.findByUsernameAndDeletedAtIsNull(currentUsername)
+                .orElseThrow(() -> new RuntimeException("Usuario autenticado no encontrado"));
+
+        boolean isOwner = actor.getId().equals(id);
+        if (isOwner) {
+            throw new RuntimeException("Por seguridad, no puedes eliminar tu propio usuario");
+        }
         User user = userRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND_MSG));
 

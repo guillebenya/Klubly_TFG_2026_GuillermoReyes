@@ -12,6 +12,7 @@ export const authService = {
       localStorage.setItem(
         "user",
         JSON.stringify({
+          id: response.data.id,
           username: response.data.username,
           firstName: response.data.firstName,
           lastName: response.data.lastName,

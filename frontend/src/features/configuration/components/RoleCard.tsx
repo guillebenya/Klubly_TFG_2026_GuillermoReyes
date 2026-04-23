@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 import Button from "../../../components/shared/Button";
 import { type Role } from "../services/role.service";
+import Badge from "../../../components/shared/Badge";
 
 interface RoleCardProps {
   role: Role;
@@ -45,12 +46,13 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
               </h3>
 
               {/* BADGE DE USUARIOS: Visual y funcional */}
-              <div
-                className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium ${hasUsers ? "bg-blue-50 text-blue-600" : "bg-gray-50 text-gray-400"}`}
+              <Badge
+                variant={hasUsers ? "indigo" : "gray"}
+                icon={<Users size={10} />}
+                className="rounded-full" // Para mantener el estilo circular que tenías
               >
-                <Users size={10} />
                 {role.userCount || 0}
-              </div>
+              </Badge>
             </div>
 
             {isSystemRole ? (

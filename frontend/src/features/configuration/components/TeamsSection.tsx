@@ -175,6 +175,7 @@ const TeamsSection = () => {
               onChange={(e) =>
                 setFormData({ ...formData, name: e.target.value })
               }
+              placeholder="Escribe aquí el nombre del equipo"
               className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm"
             />
           </div>
@@ -187,6 +188,7 @@ const TeamsSection = () => {
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
               }
+              placeholder="Describe a este equipo..."
               className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm min-h-[100px]"
             />
           </div>

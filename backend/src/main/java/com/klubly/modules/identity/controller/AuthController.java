@@ -52,7 +52,7 @@ public class AuthController {
                 .collect(Collectors.toList());
 
         //Devolver el DTO con el token
-        return ResponseEntity.ok(new JwtAuthResponse(
+        return ResponseEntity.ok(new JwtAuthResponse(user.getId(),
             token, 
             "Bearer", 
             user.getUsername(),

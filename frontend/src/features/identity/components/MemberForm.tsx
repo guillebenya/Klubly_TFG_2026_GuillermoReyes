@@ -10,9 +10,14 @@ import {
   Eye,
   EyeOff,
   X,
+  AlertCircle,
 } from "lucide-react";
 import Button from "../../../components/shared/Button";
-import { roleService, type Role } from "../../configuration/services/role.service";
+import {
+  roleService,
+  type Role,
+} from "../../configuration/services/role.service";
+import { authService } from "../../auth/services/auth.service";
 
 interface MemberFormProps {
   initialData?: any;
@@ -33,6 +38,10 @@ const MemberForm = ({
 
   const [roles, setRoles] = useState<Role[]>([]);
   const [loadingRoles, setLoadingRoles] = useState(true);
+
+  const currentUser = authService.getCurrentUser();
+  const isSelf =
+    initialData && currentUser && initialData.id === currentUser.id;
 
   const [formData, setFormData] = useState({
     username: "",
@@ -74,7 +83,11 @@ const MemberForm = ({
   ) => {
     const { name, value, type } = e.target;
     const val =
-      type === "checkbox" ? (e.target as HTMLInputElement).checked : (name === "roleId" ? parseInt(value) : value);
+      type === "checkbox"
+        ? (e.target as HTMLInputElement).checked
+        : name === "roleId"
+          ? parseInt(value)
+          : value;
     setFormData((prev) => ({ ...prev, [name]: val }));
 
     // Si estamos escribiendo en password, resetear el error
@@ -98,6 +111,15 @@ const MemberForm = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
+      {isSelf && (
+        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center gap-3 mb-2">
+          <AlertCircle className="text-amber-500 shrink-0" size={18} />
+          <p className="text-[11px] text-amber-700 font-medium">
+            Estás editando tu propio perfil. Por seguridad, no puedes modificar
+            tu rol ni desactivar tu cuenta.
+          </p>
+        </div>
+      )}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Nombre de Usuario */}
         <div className="space-y-1">
@@ -268,7 +290,7 @@ const MemberForm = ({
         {/* Rol */}
         <div className="space-y-1">
           <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
-            Rol
+            Rol {isSelf && "(Bloqueado)"}
           </label>
           <div className="relative">
             <Shield className="absolute left-3 top-3 text-gray-400" size={18} />
@@ -277,7 +299,7 @@ const MemberForm = ({
               value={formData.roleId}
               onChange={handleChange}
               className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm appearance-none"
-              disabled={loadingRoles}
+              disabled={loadingRoles || isSelf}
               required
             >
               {loadingRoles ? (
@@ -300,10 +322,11 @@ const MemberForm = ({
             type="checkbox"
             checked={formData.active}
             onChange={handleChange}
+            disabled={isSelf}
             className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
           />
           <label className="text-sm font-bold text-gray-700 cursor-pointer">
-            Usuario Activo
+            Usuario Activo {isSelf && "(No puedes desactivarte)"}
           </label>
         </div>
       </div>

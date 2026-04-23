@@ -48,6 +48,7 @@ const MemberCard = ({
   //Para comprobar si el usuario actual es Admin y mostrar el botón de editar y eliminar solo a ellos
   const currentUser = authService.getCurrentUser();
   const isAdmin = currentUser?.roleName === "ADMIN";
+  const isSelf = currentUser && member.id === currentUser.id;
 
   return (
     <Card className="flex items-center gap-4 py-3 px-6 hover:border-indigo-300 transition-all shadow-sm">
@@ -186,7 +187,13 @@ const MemberCard = ({
             size="sm"
             icon={<Trash2 size={16} />}
             onClick={() => onDelete(member.id)}
+            disabled={isSelf}
             className="!text-red-500 hover:!bg-red-50"
+            title={
+              isSelf
+                ? "No puedes eliminar tu propia cuenta"
+                : "Eliminar miembro"
+            }
           />
         )}
       </div>
