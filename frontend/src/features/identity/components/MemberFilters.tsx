@@ -1,4 +1,3 @@
-// src/features/identity/components/MemberFilters.tsx
 import React from "react";
 import { Shield, Activity, Users, RotateCcw, AlertCircle } from "lucide-react";
 import Button from "../../../components/shared/Button";

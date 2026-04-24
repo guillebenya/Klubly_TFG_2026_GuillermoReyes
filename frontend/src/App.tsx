@@ -5,6 +5,7 @@ import MainLayout from "./layouts/MainLayout";
 import MembersPage from "./features/identity/pages/MembersPage";
 import ConfigurationPage from "./features/configuration/pages/ConfigurationPage";
 import ProfilePage from "./features/identity/pages/ProfilePage";
+import InventoryPage from "./features/inventory/pages/InventoryPage";
 
 const DashboardContent = () => (
   <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
@@ -38,7 +39,9 @@ function App() {
         <Route element={<MainLayout />}>
           <Route path="/dashboard" element={<DashboardContent />} />
           <Route path="/miembros" element={<MembersPage />} />{" "}
-          <Route path="/equipos" element={<EquiposContent />} />
+          <Route path="/tesoreria" element={<InventoryPage />} />
+          <Route path="/inventario" element={<InventoryPage />} />
+          <Route path="/actividades" element={<InventoryPage />} />
           <Route path="/configuracion" element={<ConfigurationPage />} />
           <Route path="/mi-perfil" element={<ProfilePage />} />
         </Route>

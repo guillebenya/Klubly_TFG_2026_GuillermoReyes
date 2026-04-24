@@ -33,7 +33,7 @@ public class ItemService {
     @Transactional(readOnly = true)
     public List<ItemDTO> getAllDeletedItems() {
         checkAdminRole();
-        return itemRepository.findByDeletedAtIsNull()
+        return itemRepository.findByDeletedAtIsNotNull()
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
