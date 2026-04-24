@@ -79,7 +79,7 @@ const CategoryCard = ({
               onClick={() => onDelete(category.id)}
               disabled={hasItems}
               className="!text-red-500 hover:!bg-red-50 disabled:opacity-30 disabled:cursor-not-allowed"
-              title={hasItems ? `No puedes eliminar una categoría con ${category.itemCount} productos` : "Eliminar categoría"}
+              title={hasItems ? "No puedes eliminar una categoría con productos asociados" : "Eliminar categoría"}
             />
           )}
         </div>

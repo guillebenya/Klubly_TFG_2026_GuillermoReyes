@@ -9,6 +9,12 @@ import com.klubly.modules.identity.repository.AffiliationRepository;
 import com.klubly.modules.identity.repository.RoleRepository;
 import com.klubly.modules.identity.repository.TeamRepository;
 import com.klubly.modules.identity.repository.UserRepository;
+import com.klubly.modules.identity.service.AffiliationService;
+import com.klubly.modules.inventory.entity.Category;
+import com.klubly.modules.inventory.entity.Item;
+import com.klubly.modules.inventory.repository.CategoryRepository;
+import com.klubly.modules.inventory.repository.ItemRepository;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -21,10 +27,14 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DataInitializer implements CommandLineRunner{
 
+    private final AffiliationService affiliationService;
+    private final AffiliationController affiliationController;
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final TeamRepository teamRepository;
     private final AffiliationRepository affiliationRepository;
+    private final CategoryRepository categoryRepository;
+    private final ItemRepository itemRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -33,6 +43,7 @@ public class DataInitializer implements CommandLineRunner{
         createRoleIfNotFound("ADMIN");
         createRoleIfNotFound("STAFF");
         createRoleIfNotFound("MEMBER");
+        createRoleIfNotFound("ROL INFORMATIVO");
 
         //Crear un usuario administrador por defecto
         if (!userRepository.existsByUsernameAndDeletedAtIsNull("admin")) {
@@ -112,8 +123,36 @@ public class DataInitializer implements CommandLineRunner{
             affiliationRepository.save(testAffiliation);
             log.info("Afiliación de prueba ('member' -> 'Equipo de Prueba') creada con éxito.");
         }
+
+        //Crear una categoría de inventario de prueba
+        if (!categoryRepository.existsByNameAndDeletedAtIsNull("Categoría de prueba")){
+            Category category = new Category();
+            category.setName("Categoría de prueba");
+            category.setDescription("Esto es una categoría de prueba");
+            category.setActive(true);
+            categoryRepository.save(category);
+            log.info("Categoría: 'Categoría de prueba' creada con éxito por el DataSeed.");
+        }
+
+        //Crear un item de prueba
+        Category testCategory = categoryRepository.findByNameAndDeletedAtIsNull("Categoría de prueba")
+            .orElseThrow(() -> new RuntimeException("Error: Categoría 'Categoría de prueba' no encontrado"));
+
+        if(!itemRepository.existsByNameAndDeletedAtIsNull("Item de prueba")){
+            Item item = new Item();
+            item.setName("Item de prueba");
+            item.setDescription("Esto es un item de prueba");
+            item.setStockQuantity(40);
+            item.setMinStock(37);
+            item.setLocation("Estantería 4 - Almacén B");
+            item.setCategory(testCategory);
+            item.setActive(true);
+            itemRepository.save(item);
+            log.info("Item: 'Item de prueba' creada con éxito por el DataSeed.");
+        }
     }
 
+    //Método auxiliar para crear un role si no existe
     private void createRoleIfNotFound(String roleName) {
         if (!roleRepository.findByNameAndDeletedAtIsNull(roleName).isPresent()) {
             Role role = new Role();

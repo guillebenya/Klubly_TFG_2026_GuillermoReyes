@@ -60,7 +60,7 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
               </span>
             ) : (
               <span className="flex items-center gap-0.5 mt-1 text-gray-400 text-[8px] font-black uppercase tracking-tighter">
-                <LockOpen size={8} /> Personalizado
+                <LockOpen size={8} /> Rol Informativo
               </span>
             )}
 
