@@ -4,6 +4,7 @@ const ENDPOINT = "/identity/users";
 
 export const userService = {
   getAll: () => api.get(ENDPOINT),
+  getDeletedHistory: () => api.get(`${ENDPOINT}/history/deleted`),
   getById: (id: number) => api.get(`${ENDPOINT}/${id}`),
   getByUsername: (username: string) =>
     api.get<any>(`${ENDPOINT}/username/${username}`),

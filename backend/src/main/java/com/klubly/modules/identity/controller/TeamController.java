@@ -1,6 +1,7 @@
 package com.klubly.modules.identity.controller;
 
 import com.klubly.modules.identity.dto.TeamDTO;
+import com.klubly.modules.identity.dto.UserDTO;
 import com.klubly.modules.identity.service.TeamService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,12 @@ public class TeamController {
     @GetMapping
     public ResponseEntity<List<TeamDTO>> getAll() {
         return ResponseEntity.ok(teamService.getAllActiveTeams());
+    }
+
+    @GetMapping("/history/deleted")
+    public ResponseEntity<List<TeamDTO>> getDeletedHistory() {
+        // Llamamos al método del service que busca los 'isNotNull'
+        return ResponseEntity.ok(teamService.getAllDeletedTeams());
     }
 
     @GetMapping("/{id}")

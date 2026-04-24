@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Filter, Loader2 } from "lucide-react";
+import { Plus, Filter, Loader2, History, ArrowLeft } from "lucide-react";
 import PageHeader from "../../../components/shared/PageHeader";
 import Button from "../../../components/shared/Button";
 import Modal from "../../../components/shared/Modal";
@@ -19,6 +19,7 @@ const MembersPage = () => {
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
+  const [isHistoryMode, setIsHistoryMode] = useState(false);
 
   // --- ESTADOS PARA MODALES ---
   const [selectedMember, setSelectedMember] = useState<any>(null);
@@ -54,12 +55,14 @@ const MembersPage = () => {
   useEffect(() => {
     fetchMembers();
     fetchTeams();
-  }, []);
+  }, [isHistoryMode]);
 
   const fetchMembers = async () => {
     try {
       setLoading(true);
-      const response = await userService.getAll();
+      const response = isHistoryMode
+        ? await userService.getDeletedHistory()
+        : await userService.getAll();
       setMembers(response.data);
     } catch (error) {
       console.error("Error cargando miembros:", error);
@@ -168,81 +171,119 @@ const MembersPage = () => {
   const staffTeamIds = currentUser?.teamIds || [];
 
   const filteredMembers = members.filter((m) => {
-    // --- A. FILTROS EXISTENTES (Buscador, Roles, Estado, Equipos seleccionados) ---
+    // --- A. BÚSQUEDA Y ROLES (Se mantienen en ambos modos) ---
     const searchString =
       `${m.firstName} ${m.lastName} ${m.email} ${m.username}`.toLowerCase();
     const matchesSearch = searchString.includes(searchTerm.toLowerCase());
+
     const matchesRole =
       activeFilters.roles.length === 0 ||
       activeFilters.roles.includes(m.roleName);
+
+    // --- B. LÓGICA DIFERENCIADA POR MODO ---
+    if (isHistoryMode) {
+      // En el historial, no filtramos por equipo ni por estado activo,
+      // porque ya sabemos que todos son "bajas".
+      return matchesSearch && matchesRole;
+    }
+
+    // --- C. VISTA NORMAL (Lo que ya tenías) ---
     const matchesStatus =
       activeFilters.status.length === 0 ||
       activeFilters.status.includes(m.active);
+
     const matchesTeam =
       activeFilters.teams.length === 0 ||
       m.affiliations?.some((aff: any) =>
         activeFilters.teams.includes(aff.teamId),
       );
 
-    // --- B. RESTRICCIONES DE ROL STAFF (Seguridad de visibilidad) ---
+    // Restricciones de Staff (solo para vista normal)
     if (!isAdmin) {
-      // 1. Un Staff nunca ve a un ADMIN en esta lista
       if (m.roleName === "ADMIN") return false;
-
-      // 2. Un Staff solo ve a gente con la que comparte al menos UN equipo
       const hasCommonTeam = m.affiliations?.some((aff: any) =>
         staffTeamIds.includes(aff.teamId),
       );
       if (!hasCommonTeam) return false;
-
-      // 3. (Opcional) Un Staff no suele ver usuarios inactivos
       if (!m.active) return false;
     }
 
     return matchesSearch && matchesRole && matchesStatus && matchesTeam;
   });
+
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Gestión de Miembros"
-        subtitle="Visualiza y gestiona todos los integrantes del club."
+        title={isHistoryMode ? "Historial de Bajas" : "Gestión de Miembros"} // <--- TÍTULO DINÁMICO
+        subtitle={
+          isHistoryMode
+            ? "Consulta de registros eliminados del sistema."
+            : "Visualiza y gestiona todos los integrantes del club."
+        }
         onSearch={setSearchTerm}
         actions={
           <>
-            <Button
-              variant={
-                activeFilters.roles.length +
-                  activeFilters.status.length +
-                  activeFilters.teams.length >
-                0
-                  ? "primary"
-                  : "secondary"
-              }
-              icon={<Filter size={18} />}
-              onClick={() => setIsFilterOpen(true)}
-            >
-              Filtros{" "}
-              {activeFilters.roles.length +
-                activeFilters.status.length +
-                activeFilters.teams.length >
-                0 &&
-                `(${activeFilters.roles.length + activeFilters.status.length + activeFilters.teams.length})`}
-            </Button>
-            {isAdmin && (
+            {isHistoryMode ? (
+              // BOTÓN PARA VOLVER
               <Button
-                variant="add"
-                icon={<Plus size={18} />}
-                onClick={handleAddNew}
+                variant="secondary"
+                icon={<ArrowLeft size={18} />}
+                onClick={() => setIsHistoryMode(false)}
               >
-                Añadir miembro
+                Volver a la lista
               </Button>
+            ) : (
+              <>
+                {/* FILTROS (Solo en vista normal) */}
+                <Button
+                  variant={
+                    activeFilters.roles.length +
+                      activeFilters.status.length +
+                      activeFilters.teams.length >
+                    0
+                      ? "primary"
+                      : "secondary"
+                  }
+                  icon={<Filter size={18} />}
+                  onClick={() => setIsFilterOpen(true)}
+                >
+                  Filtros{" "}
+                  {activeFilters.roles.length +
+                    activeFilters.status.length +
+                    activeFilters.teams.length >
+                    0 && `(...)`}
+                </Button>
+
+                {/* BOTÓN HISTORIAL (Solo para Admin) */}
+                {isAdmin && (
+                  <Button
+                    variant="ghost"
+                    icon={<History size={18} />}
+                    className="!text-indigo-600 hover:!bg-indigo-50"
+                    onClick={() => setIsHistoryMode(true)}
+                  >
+                    Ver Bajas
+                  </Button>
+                )}
+
+                {/* AÑADIR (Solo para Admin) */}
+                {isAdmin && (
+                  <Button
+                    variant="add"
+                    icon={<Plus size={18} />}
+                    onClick={handleAddNew}
+                  >
+                    Añadir miembro
+                  </Button>
+                )}
+              </>
             )}
           </>
         }
       />
 
       {/* LISTADO: Usa la constante 'filteredMembers' que acabamos de definir arriba */}
-      {/* CONTENIDO PRINCIPAL */}
+      {/* LISTADO */}
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 text-gray-500">
           <Loader2 className="animate-spin mb-2" size={40} />
@@ -252,7 +293,7 @@ const MembersPage = () => {
         <div className="flex flex-col gap-3">
           {filteredMembers.length > 0 ? (
             filteredMembers.map((member) => {
-              // 1. Calculamos cuántos equipos tienen en común el Staff actual y el miembro de la tarjeta
+              const staffTeamIds = currentUser?.teamIds || [];
               const commonTeamsCount =
                 member.affiliations?.filter((aff: any) =>
                   staffTeamIds.includes(aff.teamId),
@@ -263,9 +304,10 @@ const MembersPage = () => {
                   key={member.id}
                   member={member}
                   onView={handleView}
-                  onEdit={handleEdit}
-                  onDelete={handleDeleteTrigger}
-                  isStaffView={!isAdmin} // Si no es admin, es vista de staff
+                  // Si estamos en modo historial, le pasamos null a onEdit y onDelete para que no muestre los botones
+                  onEdit={isHistoryMode ? undefined : handleEdit}
+                  onDelete={isHistoryMode ? undefined : handleDeleteTrigger}
+                  isStaffView={!isAdmin}
                   commonTeamsCount={commonTeamsCount}
                 />
               );
@@ -273,13 +315,9 @@ const MembersPage = () => {
           ) : (
             <div className="bg-white rounded-2xl p-12 text-center border-2 border-dashed border-gray-100">
               <p className="text-gray-500">
-                {searchTerm ||
-                activeFilters.roles.length +
-                  activeFilters.status.length +
-                  activeFilters.teams.length >
-                  0
-                  ? "No hay miembros que coincidan con los filtros aplicados."
-                  : "No hay registros en el sistema."}
+                {isHistoryMode
+                  ? "No hay registros en el historial de bajas."
+                  : "No hay miembros que coincidan con los filtros aplicados."}
               </p>
             </div>
           )}

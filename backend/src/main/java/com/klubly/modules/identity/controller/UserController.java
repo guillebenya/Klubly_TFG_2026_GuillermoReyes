@@ -33,6 +33,12 @@ public class UserController {
         return ResponseEntity.ok(userService.getAllActiveUsers());
     }
 
+    @GetMapping("/history/deleted")
+    public ResponseEntity<List<UserDTO>> getDeletedHistory() {
+        // Llamamos al método del service que busca los 'isNotNull'
+        return ResponseEntity.ok(userService.getAllDeletedUsers());
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getById(@PathVariable Long id) {
         return ResponseEntity.ok(userService.getUserById(id));

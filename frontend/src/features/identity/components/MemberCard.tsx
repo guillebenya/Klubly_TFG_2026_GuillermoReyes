@@ -19,8 +19,8 @@ import { authService } from "../../auth/services/auth.service";
 interface MemberCardProps {
   member: any;
   onView: (member: any) => void;
-  onEdit: (member: any) => void;
-  onDelete: (id: number) => void;
+  onEdit?: (member: any) => void;
+  onDelete?: (id: number) => void;
   isStaffView?: boolean;
   commonTeamsCount?: number;
 }
@@ -171,24 +171,32 @@ const MemberCard = ({
           icon={<Eye size={16} />}
           onClick={() => onView(member)}
           className="!text-blue-600 hover:!bg-blue-50"
+          title="Ver detalles"
         />
-        {isAdmin && (
+
+        {/* Añadimos '&& onEdit' y '&& onDelete'. 
+      Si en MembersPage pasamos 'undefined', esta condición será falsa 
+      y el botón simplemente no se renderizará.
+  */}
+        {isAdmin && onEdit && (
           <Button
             variant="ghost"
             size="sm"
             icon={<Edit2 size={16} />}
             onClick={() => onEdit(member)}
             className="!text-amber-500 hover:!bg-amber-50"
+            title="Editar miembro"
           />
         )}
-        {isAdmin && (
+
+        {isAdmin && onDelete && (
           <Button
             variant="ghost"
             size="sm"
             icon={<Trash2 size={16} />}
             onClick={() => onDelete(member.id)}
             disabled={isSelf}
-            className="!text-red-500 hover:!bg-red-50"
+            className="!text-red-500 hover:!bg-red-50 disabled:opacity-30"
             title={
               isSelf
                 ? "No puedes eliminar tu propia cuenta"
