@@ -10,7 +10,11 @@ interface TeamCardProps {
   onDelete?: (id: number) => void;
 }
 
+
+
 const TeamCard = ({ team, onView, onEdit, onDelete }: TeamCardProps) => {
+  const hasMembers = (team.memberCount || 0) > 0;
+
   return (
     <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
       <div
@@ -35,7 +39,7 @@ const TeamCard = ({ team, onView, onEdit, onDelete }: TeamCardProps) => {
         </div>
 
         {/* BOTONES ACCIÓN */}
-        <div className="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+        <div className="flex items-center gap-1 ">
           {/* El botón de ver siempre está, porque onView es obligatoria */}
           <Button
             variant="ghost"
@@ -66,8 +70,13 @@ const TeamCard = ({ team, onView, onEdit, onDelete }: TeamCardProps) => {
               variant="ghost"
               size="sm"
               onClick={() => onDelete(team.id)}
+              disabled={hasMembers}
               className="!text-red-500 hover:!bg-red-50"
-              title="Eliminar equipo"
+              title={
+                hasMembers
+                  ? "Los equipos con miembros no se pueden eliminar"
+                  : "Eliminar equipo"
+              }
             >
               <Trash2 size={16} />
             </Button>
@@ -82,13 +91,23 @@ const TeamCard = ({ team, onView, onEdit, onDelete }: TeamCardProps) => {
 
         <div className="flex items-center justify-between pt-2 border-t border-gray-50">
           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-            Miembros actuales
+            Número de integrantes:
           </span>
-          <span
-            className={`text-xs font-black px-3 py-1 rounded-full ${team.memberCount && team.memberCount > 0 ? "bg-indigo-50 text-indigo-700" : "bg-gray-100 text-gray-400"}`}
-          >
-            {team.memberCount || 0}
-          </span>
+          <div className="flex items-center gap-1.5">
+            {hasMembers ? (
+              <div className="flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full">
+                <Users2 size={10} className="text-indigo-500" />
+                <span className="text-[10px] font-black uppercase">
+                  {team.memberCount} {team.memberCount === 1 ? 'Integrante' : 'Integrantes'}
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 px-2.5 py-1 bg-gray-50 text-gray-400 border border-gray-100 rounded-full">
+                <Users2 size={10} />
+                <span className="text-[10px] font-bold uppercase tracking-tight">Vacío</span>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </div>

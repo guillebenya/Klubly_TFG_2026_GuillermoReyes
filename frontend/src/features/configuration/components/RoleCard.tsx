@@ -7,6 +7,7 @@ import {
   LockOpen,
   Eye,
   Users,
+  Users2,
 } from "lucide-react";
 import Button from "../../../components/shared/Button";
 import { type Role } from "../services/role.service";
@@ -51,13 +52,6 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
                 {role.name}
               </h3>
 
-              <Badge
-                variant={hasUsers ? "indigo" : "gray"}
-                icon={<Users size={10} />}
-                className="rounded-full"
-              >
-                {role.userCount || 0}
-              </Badge>
             </div>
 
             {isSystemRole ? (
@@ -69,6 +63,10 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
                 <LockOpen size={8} /> Personalizado
               </span>
             )}
+
+            <p className="text-[10px] text-gray-400 font-medium">
+              ID Rol: #{role.id}
+            </p>
           </div>
         </div>
 
@@ -122,6 +120,27 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
         <p className="text-xs text-gray-500 leading-relaxed line-clamp-2 italic">
           {role.description || "Sin descripción definida."}
         </p>
+      </div>
+
+      <div className="flex items-center justify-between pt-2 border-t border-gray-50">
+        <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+          Número de usuarios con este rol:
+        </span>
+        <div className="flex items-center gap-1.5">
+            {hasUsers ? (
+              <div className="flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full">
+                <Users2 size={10} className="text-indigo-500" />
+                <span className="text-[10px] font-black uppercase">
+                  {role.userCount} {role.userCount === 1 ? 'Usuario' : 'Usuarios'}
+                </span>
+              </div>
+            ) : (
+              <div className="flex items-center gap-1 px-2.5 py-1 bg-gray-50 text-gray-400 border border-gray-100 rounded-full">
+                <Users2 size={10} />
+                <span className="text-[10px] font-bold uppercase tracking-tight">Vacío</span>
+              </div>
+            )}
+          </div>
       </div>
     </div>
   );

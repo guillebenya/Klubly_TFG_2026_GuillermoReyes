@@ -145,10 +145,10 @@ const RolesSection = () => {
             <h3 className="text-lg font-bold text-gray-800 uppercase tracking-tight">
               {isHistoryMode ? "Historial de Roles" : "Listado de Roles"}
             </h3>
-            <p className="text-[10px] text-gray-400 font-medium">
+            <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
               {isHistoryMode
                 ? "Consulta roles eliminados del club."
-                : "Administra los roles del club."}
+                : "Administra los roles del club"}
             </p>
           </div>
         </div>
