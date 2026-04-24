@@ -17,6 +17,8 @@ export const roleService = {
   /*Obtiene todos los roles disponibles */
   getAll: () => api.get<Role[]>(ENDPOINT),
 
+  getDeletedHistory: () => api.get<Role[]>(`${ENDPOINT}/history/deleted`),
+
   /* Obtiene un rol por su ID */
   getById: (id: number) => api.get<Role>(`${ENDPOINT}/${id}`),
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Shield, Plus, Loader2, Check } from "lucide-react";
+import { Shield, Plus, Loader2, History, ArrowLeft } from "lucide-react";
 import Button from "../../../components/shared/Button";
 import Modal from "../../../components/shared/Modal";
 import ConfirmDialog from "../../../components/shared/ConfirmDialog";
@@ -14,6 +14,7 @@ const RolesSection = () => {
   const [loading, setLoading] = useState(true);
   const [formLoading, setFormLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
+  const [isHistoryMode, setIsHistoryMode] = useState(false);
 
   // --- ESTADOS DE MODALES ---
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -41,14 +42,16 @@ const RolesSection = () => {
 
   useEffect(() => {
     fetchRoles();
-  }, []);
+  }, [isHistoryMode]);
 
   const fetchRoles = async () => {
     try {
       setLoading(true);
-      const resp = await roleService.getAll();
-      // Mira la consola del navegador y expande el objeto:
-      console.log("¿Qué llega exactamente en el primer rol?", resp.data[0]);
+      // <--- LÓGICA DE CARGA SEGÚN EL MODO
+      const resp = isHistoryMode
+        ? await roleService.getDeletedHistory()
+        : await roleService.getAll();
+
       setRoles(resp.data);
     } catch (error) {
       console.error("ERROR:", error);
@@ -130,29 +133,58 @@ const RolesSection = () => {
 
   return (
     <div className="space-y-6">
-      {/* Cabecera Subsección */}
+      {/* CABECERA DINÁMICA */}
       <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
-            <Shield size={20} />
+          <div
+            className={`p-2 rounded-lg ${isHistoryMode ? "bg-amber-50 text-amber-600" : "bg-indigo-50 text-indigo-600"}`}
+          >
+            {isHistoryMode ? <History size={20} /> : <Shield size={20} />}
           </div>
           <div>
             <h3 className="text-lg font-bold text-gray-800 uppercase tracking-tight">
-              Listado de Roles
+              {isHistoryMode ? "Historial de Roles" : "Listado de Roles"}
             </h3>
             <p className="text-[10px] text-gray-400 font-medium">
-              Administra los roles del club.
+              {isHistoryMode
+                ? "Consulta roles eliminados del club."
+                : "Administra los roles del club."}
             </p>
           </div>
         </div>
-        <Button
-          variant="add"
-          size="sm"
-          icon={<Plus size={18} />}
-          onClick={handleAddNew}
-        >
-          Añadir Rol
-        </Button>
+
+        <div className="flex items-center gap-2">
+          {isHistoryMode ? (
+            <Button
+              variant="secondary"
+              size="sm"
+              icon={<ArrowLeft size={18} />}
+              onClick={() => setIsHistoryMode(false)}
+            >
+              Volver a Roles
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                icon={<History size={18} />}
+                className="!text-indigo-600 hover:!bg-indigo-50"
+                onClick={() => setIsHistoryMode(true)}
+              >
+                Ver Bajas
+              </Button>
+              <Button
+                variant="add"
+                size="sm"
+                icon={<Plus size={18} />}
+                onClick={handleAddNew}
+              >
+                Añadir Rol
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       {/* Listado de Cards */}
@@ -168,14 +200,16 @@ const RolesSection = () => {
                 key={role.id}
                 role={role}
                 onView={handleView}
-                onEdit={handleEdit}
-                onDelete={handleDeleteTrigger}
+                onEdit={isHistoryMode ? undefined : handleEdit}
+                onDelete={isHistoryMode ? undefined : handleDeleteTrigger}
               />
             ))
           ) : (
             <div className="col-span-full bg-white rounded-2xl p-12 text-center border-2 border-dashed border-gray-100">
               <p className="text-gray-500 italic text-sm">
-                No hay roles configurados en el sistema.
+                {isHistoryMode
+                  ? "No hay registros de roles eliminados."
+                  : "No hay roles configurados en el sistema."}
               </p>
             </div>
           )}

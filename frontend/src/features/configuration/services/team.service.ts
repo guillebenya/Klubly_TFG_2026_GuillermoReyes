@@ -15,6 +15,7 @@ export interface Team {
 
 export const teamService = {
   getAll: () => api.get<Team[]>(ENDPOINT),
+  getDeletedHistory: () => api.get<Team[]>(`${ENDPOINT}/history/deleted`),
   getById: (id: number) => api.get<Team>(`${ENDPOINT}/${id}`),
   create: (data: Partial<Team>) => api.post<Team>(ENDPOINT, data),
   update: (id: number, data: Partial<Team>) =>
