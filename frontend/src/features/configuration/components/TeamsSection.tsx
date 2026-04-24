@@ -1,6 +1,5 @@
-// src/features/configuration/components/TeamsSection.tsx
 import React, { useEffect, useState } from "react";
-import { Users2, Plus, Loader2 } from "lucide-react";
+import { Users2, Plus, Loader2, History, ArrowLeft } from "lucide-react";
 import Button from "../../../components/shared/Button";
 import Modal from "../../../components/shared/Modal";
 import ConfirmDialog from "../../../components/shared/ConfirmDialog";
@@ -14,6 +13,7 @@ const TeamsSection = () => {
   const [loading, setLoading] = useState(true);
   const [formLoading, setFormLoading] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
+  const [isHistoryMode, setIsHistoryMode] = useState(false);
 
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
@@ -36,12 +36,13 @@ const TeamsSection = () => {
 
   useEffect(() => {
     fetchTeams();
-  }, []);
+  }, [isHistoryMode]);
 
   const fetchTeams = async () => {
     try {
-      setLoading(true);
-      const resp = await teamService.getAll();
+      const resp = isHistoryMode
+        ? await teamService.getDeletedHistory()
+        : await teamService.getAll();
       setTeams(resp.data);
     } finally {
       setLoading(false);
@@ -102,28 +103,57 @@ const TeamsSection = () => {
 
   return (
     <div className="space-y-6">
+      {/* CABECERA DINÁMICA */}
       <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
-            <Users2 size={20} />
+          <div
+            className={`p-2 rounded-lg ${isHistoryMode ? "bg-amber-50 text-amber-600" : "bg-indigo-50 text-indigo-600"}`}
+          >
+            {isHistoryMode ? <History size={20} /> : <Users2 size={20} />}
           </div>
           <div>
             <h3 className="text-lg font-bold text-gray-800 uppercase tracking-tight">
-              Listado de Equipos
+              {isHistoryMode ? "Historial de Equipos" : "Listado de Equipos"}
             </h3>
-            <p className="text-[10px] text-gray-400 font-medium">
-              Administra los equipos del club.
+            <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
+              {isHistoryMode ? "Bajas registradas" : "Administración de squads"}
             </p>
           </div>
         </div>
-        <Button
-          variant="add"
-          size="sm"
-          icon={<Plus size={18} />}
-          onClick={handleAddNew}
-        >
-          Añadir Equipo
-        </Button>
+
+        <div className="flex items-center gap-2">
+          {isHistoryMode ? (
+            <Button
+              variant="secondary"
+              size="sm"
+              icon={<ArrowLeft size={18} />}
+              onClick={() => setIsHistoryMode(false)}
+            >
+              Volver
+            </Button>
+          ) : (
+            <>
+              <Button
+                variant="ghost"
+                size="sm"
+                icon={<History size={18} />}
+                className="!text-indigo-600 hover:!bg-indigo-50"
+                onClick={() => setIsHistoryMode(true)}
+                title="Ver equipos eliminados"
+              >
+                Ver Bajas
+              </Button>
+              <Button
+                variant="add"
+                size="sm"
+                icon={<Plus size={18} />}
+                onClick={handleAddNew}
+              >
+                Añadir Equipo
+              </Button>
+            </>
+          )}
+        </div>
       </div>
 
       {loading ? (
@@ -138,13 +168,16 @@ const TeamsSection = () => {
                 key={t.id}
                 team={t}
                 onView={handleView}
-                onEdit={handleEdit}
-                onDelete={handleDeleteTrigger}
+                // Pasamos undefined si estamos en historial para ocultar acciones
+                onEdit={isHistoryMode ? undefined : handleEdit}
+                onDelete={isHistoryMode ? undefined : handleDeleteTrigger}
               />
             ))
           ) : (
-            <div className="col-span-full py-12 text-center text-gray-400 italic text-sm">
-              No hay equipos registrados.
+            <div className="col-span-full py-12 text-center bg-white rounded-2xl border-2 border-dashed border-gray-100 text-gray-400 italic text-sm">
+              {isHistoryMode
+                ? "No hay equipos en la papelera."
+                : "No hay equipos registrados."}
             </div>
           )}
         </div>

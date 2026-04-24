@@ -1,4 +1,3 @@
-// src/features/configuration/components/TeamCard.tsx
 import React from "react";
 import { Users2, Edit2, Trash2, Eye } from "lucide-react";
 import Button from "../../../components/shared/Button";
@@ -7,38 +6,72 @@ import { type Team } from "../services/team.service";
 interface TeamCardProps {
   team: Team;
   onView: (team: Team) => void;
-  onEdit: (team: Team) => void;
-  onDelete: (id: number) => void;
+  onEdit?: (team: Team) => void;
+  onDelete?: (id: number) => void;
 }
 
 const TeamCard = ({ team, onView, onEdit, onDelete }: TeamCardProps) => {
   return (
     <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
-      <div className={`absolute left-0 top-0 bottom-0 w-1 ${team.active ? "bg-indigo-500" : "bg-gray-300"}`} />
+      <div
+        className={`absolute left-0 top-0 bottom-0 w-1 ${team.active ? "bg-indigo-500" : "bg-gray-300"}`}
+      />
 
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-3">
-          <div className={`p-2 rounded-lg ${team.active ? "bg-indigo-50 text-indigo-600" : "bg-gray-50 text-gray-400"}`}>
+          <div
+            className={`p-2 rounded-lg ${team.active ? "bg-indigo-50 text-indigo-600" : "bg-gray-50 text-gray-400"}`}
+          >
             <Users2 size={20} />
           </div>
           <div>
             <h3 className="text-sm font-bold text-gray-800 uppercase tracking-tight line-clamp-1">
               {team.name}
             </h3>
-            <p className="text-[10px] text-gray-400 font-medium">ID Equipo: #{team.id}</p>
+            <p className="text-[10px] text-gray-400 font-medium">
+              ID Equipo: #{team.id}
+            </p>
           </div>
         </div>
 
+        {/* BOTONES ACCIÓN */}
         <div className="flex items-center gap-1 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
-          <Button variant="ghost" size="sm" onClick={() => onView(team)} className="!text-blue-500 hover:!bg-blue-50">
+          {/* El botón de ver siempre está, porque onView es obligatoria */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => onView(team)}
+            className="!text-blue-500 hover:!bg-blue-50"
+            title="Ver detalles"
+          >
             <Eye size={16} />
           </Button>
-          <Button variant="ghost" size="sm" onClick={() => onEdit(team)} className="!text-amber-500 hover:!bg-amber-50">
-            <Edit2 size={16} />
-          </Button>
-          <Button variant="ghost" size="sm" onClick={() => onDelete(team.id)} className="!text-red-500 hover:!bg-red-50">
-            <Trash2 size={16} />
-          </Button>
+
+          {/* SOLO si existe onEdit (No estamos en historial) */}
+          {onEdit && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onEdit(team)}
+              className="!text-amber-500 hover:!bg-amber-50"
+              title="Editar equipo"
+            >
+              <Edit2 size={16} />
+            </Button>
+          )}
+
+          {/* SOLO si existe onDelete (No estamos en historial) */}
+          {onDelete && (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => onDelete(team.id)}
+              className="!text-red-500 hover:!bg-red-50"
+              title="Eliminar equipo"
+            >
+              <Trash2 size={16} />
+            </Button>
+          )}
         </div>
       </div>
 
@@ -48,8 +81,12 @@ const TeamCard = ({ team, onView, onEdit, onDelete }: TeamCardProps) => {
         </p>
 
         <div className="flex items-center justify-between pt-2 border-t border-gray-50">
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Miembros actuales</span>
-          <span className={`text-xs font-black px-3 py-1 rounded-full ${team.memberCount && team.memberCount > 0 ? 'bg-indigo-50 text-indigo-700' : 'bg-gray-100 text-gray-400'}`}>
+          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+            Miembros actuales
+          </span>
+          <span
+            className={`text-xs font-black px-3 py-1 rounded-full ${team.memberCount && team.memberCount > 0 ? "bg-indigo-50 text-indigo-700" : "bg-gray-100 text-gray-400"}`}
+          >
             {team.memberCount || 0}
           </span>
         </div>
