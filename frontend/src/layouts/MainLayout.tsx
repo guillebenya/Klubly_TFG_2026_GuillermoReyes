@@ -83,7 +83,7 @@ const MainLayout = () => {
       roles: ["ADMIN"],
     },
     {
-      path: "/mispagos",
+      path: "/mis-pagos",
       label: "Mis Pagos",
       icon: <EuroIcon size={20} />,
       roles: ["MEMBER"],
