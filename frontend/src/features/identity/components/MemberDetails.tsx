@@ -34,12 +34,12 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
     });
   };
 
-  // 1. Lógica de Identidad y Seguridad
+  // Lógica de Identidad y Seguridad
   const currentUser = authService.getCurrentUser();
   const isAdmin = currentUser?.roleName === "ADMIN";
   const staffTeamIds = currentUser?.teamIds || [];
 
-  // 2. Filtrado de Afiliaciones: Si es Staff, solo ve las comunes
+  // Filtrado de Afiliaciones: Si es Staff, solo ve las comunes
   const displayedAffiliations = isAdmin
     ? member.affiliations || []
     : (member.affiliations || []).filter((aff: any) =>
@@ -191,7 +191,11 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
 
       {/* CAMPOS AUDITORÍA (Solo ADMIN) */}
       {isAdmin && (
-        <div className="p-4 bg-slate-900 rounded-2xl grid grid-cols-1 sm:grid-cols-3 gap-4">
+        <div
+        className={`p-4 bg-slate-900 rounded-2xl grid gap-4 ${
+          member.deletedAt ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-2"
+        }`}
+      >
           <div className="flex flex-col">
             <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
               <Calendar size={10} /> Registrado el
@@ -208,6 +212,8 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
               {formatDate(member.updatedAt)}
             </span>
           </div>
+
+          {member.deletedAt && (
           <div className="flex flex-col border-t border-slate-800 sm:border-t-0 sm:border-l sm:pl-4 pt-3 sm:pt-0">
             <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
               <Trash2 size={10} /> Eliminado el
@@ -220,6 +226,7 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
                 : "Este usuario no ha sido eliminado"}
             </span>
           </div>
+          )}
         </div>
       )}
     </div>

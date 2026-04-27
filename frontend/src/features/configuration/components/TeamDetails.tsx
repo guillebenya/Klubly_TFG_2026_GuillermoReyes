@@ -56,7 +56,12 @@ const TeamDetails = ({ team }: TeamDetailsProps) => {
         </p>
       </div>
 
-      <div className="p-4 bg-slate-900 rounded-2xl grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* CAMPOS AUDITORÍA */}
+      <div
+        className={`p-4 bg-slate-900 rounded-2xl grid gap-4 ${
+          team.deletedAt ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-2"
+        }`}
+      >
         <div className="flex flex-col">
           <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
             <Calendar size={10} /> Creado el
@@ -73,6 +78,7 @@ const TeamDetails = ({ team }: TeamDetailsProps) => {
             {formatDate(team.updatedAt)}
           </span>
         </div>
+        {team.deletedAt && (
         <div className="flex flex-col border-t border-slate-800 sm:border-t-0 sm:border-l sm:pl-4 pt-3 sm:pt-0">
           <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
             <Trash2 size={10} /> Eliminado el
@@ -85,6 +91,7 @@ const TeamDetails = ({ team }: TeamDetailsProps) => {
               : "Este equipo no ha sido eliminado"}
           </span>
         </div>
+        )}
       </div>
     </div>
   );

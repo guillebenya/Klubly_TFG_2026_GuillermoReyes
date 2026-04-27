@@ -29,24 +29,34 @@ const ItemCard = ({ item, onView, onEdit, onDelete }: ItemCardProps) => {
 
   // Lógica de Stock Bajo
   const isLowStock = item.stockQuantity <= item.minStock;
+  const isOutOfStock = item.stockQuantity === 0;
 
   return (
-    <Card className="flex items-center gap-4 py-3 px-6 hover:border-indigo-300 transition-all shadow-sm group">
-      {/* Icono Principal (Caja) */}
-      <div
-        className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${
-          isLowStock
-            ? "bg-red-50 border-red-100 text-red-500"
-            : "bg-indigo-50 border-indigo-100 text-indigo-600"
-        }`}
-      >
-        <Package size={24} />
+    <Card className={`flex items-center gap-4 py-3 px-6 transition-all shadow-sm group relative border-l-4 ${
+      isLowStock ? "border-l-red-500 hover:border-red-300 bg-red-50/10" : "border-l-transparent hover:border-indigo-300"
+    }`}>
+      
+      {/* Icono Principal con Badge de Alerta superpuesto */}
+      <div className="relative">
+        <div
+          className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${
+            isLowStock
+              ? "bg-red-100 border-red-200 text-red-600 shadow-sm"
+              : "bg-indigo-50 border-indigo-100 text-indigo-600"
+          }`}
+        >
+          <Package size={24} />
+        </div>
+        {isLowStock && (
+          <div className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full p-0.5 shadow-sm animate-bounce">
+            <AlertTriangle size={10} />
+          </div>
+        )}
       </div>
 
-      {/* Información en Fila (Similar a Members) */}
       <div className="flex items-center justify-between flex-1 min-w-0 gap-4">
-        {/* Nombre y Descripción corta */}
-        <div className="flex flex-col min-w-[200px] max-w-[250px]">
+        {/* Nombre e Info Básica */}
+        <div className="flex flex-col min-w-[180px] max-w-[220px]">
           <p className="text-sm font-bold text-gray-900 truncate uppercase tracking-tight">
             {item.name}
           </p>
@@ -58,29 +68,44 @@ const ItemCard = ({ item, onView, onEdit, onDelete }: ItemCardProps) => {
           </div>
         </div>
 
-        {/* Stock Actual - Con alerta visual */}
-        <div className="hidden md:flex flex-col items-center min-w-[100px]">
+        {/* Stock Actual*/}
+        <div className="hidden md:flex flex-col items-center min-w-[110px] relative group/stock">
           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
             Stock Actual
           </span>
-          <div className="flex items-center gap-1.5">
-            <span
-              className={`text-sm font-black ${isLowStock ? "text-red-600" : "text-gray-700"}`}
-            >
-              {item.stockQuantity}
-            </span>
+          <div className="flex flex-col items-center gap-0.5">
+            <div className="flex items-center gap-1.5">
+              <span className={`text-base font-black ${isLowStock ? "text-red-600" : "text-gray-700"}`}>
+                {item.stockQuantity}
+              </span>
+              {isLowStock && <AlertTriangle size={14} className="text-red-500 animate-pulse" />}
+            </div>
+            
+            {/* Texto de aviso fijo cuando es bajo mínimos */}
             {isLowStock && (
-              <AlertTriangle size={14} className="text-red-500 animate-pulse" />
+              <span className="text-[9px] font-black text-red-500 uppercase tracking-tighter animate-pulse">
+                {isOutOfStock ? "Agotado" : "Vigilar Stock"}
+              </span>
             )}
           </div>
+
+          {/* Tooltip en Hover para explicar el mínimo */}
+          {isLowStock && (
+            <div className="absolute bottom-full mb-2 hidden group-hover/stock:block w-32 p-2 bg-gray-900 text-white text-[10px] rounded-lg shadow-xl z-10 text-center">
+              Stock por debajo del mínimo ({item.minStock} uds.)
+              <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-gray-900" />
+            </div>
+          )}
         </div>
 
-        {/* Stock Mínimo (Solo informativo) */}
+        {/* Stock Mínimo */}
         <div className="hidden lg:flex flex-col items-center min-w-[80px]">
           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
             Mínimo
           </span>
-          <p className="text-xs font-semibold text-gray-500">{item.minStock}</p>
+          <p className={`text-sm font-semibold ${isLowStock ? "text-gray-900" : "text-gray-500"}`}>
+            {item.minStock}
+          </p>
         </div>
 
         {/* Ubicación */}
@@ -89,7 +114,7 @@ const ItemCard = ({ item, onView, onEdit, onDelete }: ItemCardProps) => {
             Ubicación
           </span>
           <div className="flex items-center gap-1 text-gray-600">
-            <MapPin size={12} className="text-indigo-500" />
+            <MapPin size={12} className={isLowStock ? "text-red-400" : "text-indigo-500"} />
             <p className="text-xs font-medium truncate">
               {item.location || "No asignada"}
             </p>
@@ -103,9 +128,7 @@ const ItemCard = ({ item, onView, onEdit, onDelete }: ItemCardProps) => {
           </span>
           <Badge
             variant={item.active ? "green" : "red"}
-            icon={
-              item.active ? <CheckCircle2 size={10} /> : <XCircle size={10} />
-            }
+            icon={item.active ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
           >
             {item.active ? "ACTIVO" : "INACTIVO"}
           </Badge>
@@ -113,7 +136,7 @@ const ItemCard = ({ item, onView, onEdit, onDelete }: ItemCardProps) => {
       </div>
 
       {/* Acciones */}
-      <div className="flex items-center gap-1 shrink-0 ml-4 lg:opacity-0 lg:group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center gap-1 shrink-0 ml-4 opacity-0 group-hover:opacity-100 transition-opacity">
         <Button
           variant="ghost"
           size="sm"

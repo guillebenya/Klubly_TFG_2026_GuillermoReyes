@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.klubly.modules.inventory.entity.Item;
@@ -11,6 +12,9 @@ import com.klubly.modules.inventory.entity.Item;
 @Repository
 public interface ItemRepository extends JpaRepository<Item, Long> {
     List<Item> findByDeletedAtIsNull();
+
+    @Query(value = "SELECT * FROM items WHERE deleted_at IS NOT NULL", nativeQuery = true)
+    List<Item> findAllDeletedNative();
     List<Item> findByDeletedAtIsNotNull();
     Optional<Item> findByIdAndDeletedAtIsNull(Long id);
     Optional<Item> findByNameAndDeletedAtIsNull(String name);

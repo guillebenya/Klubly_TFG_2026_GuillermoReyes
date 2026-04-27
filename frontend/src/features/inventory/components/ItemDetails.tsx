@@ -8,6 +8,7 @@ import {
   Clock,
   Info,
   ShieldAlert,
+  Trash,
 } from "lucide-react";
 import Badge from "../../../components/shared/Badge";
 import { authService } from "../../auth/services/auth.service";
@@ -37,7 +38,7 @@ const ItemDetails = ({ item }: { item: Item }) => {
           </div>
         </div>
         <Badge variant={item.active ? "green" : "red"}>
-          {item.active ? "DISPONIBLE" : "NO DISPONIBLE"}
+          {item.active ? "ACTIVO" : "INACTIVO"}
         </Badge>
       </div>
 
@@ -87,35 +88,40 @@ const ItemDetails = ({ item }: { item: Item }) => {
 
       {/* Auditoría (SOLO ADMIN) */}
       {isAdmin && (
-        <div className="p-4 bg-slate-900 rounded-2xl">
-          <div className="flex items-center gap-2 mb-4 text-indigo-400">
-            <ShieldAlert size={14} />
-            <span className="text-[10px] font-black uppercase tracking-widest">
-              Panel de Auditoría
+        <div
+          className={`p-4 bg-slate-900 rounded-2xl grid gap-4 ${
+            item.deletedAt ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-2"
+          }`}
+        >
+          <div className="flex flex-col">
+            <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
+              <Calendar size={10} /> Registrado el
+            </span>
+            <span className="text-[11px] font-medium text-white mt-1">
+              {formatDate(item.createdAt)}
             </span>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="flex flex-col">
-              <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
-                <Calendar size={10} /> Registrado el
-              </span>
-              <span className="text-[11px] font-medium text-white mt-1">
-                {formatDate(item.createdAt)}
-              </span>
-            </div>
-            <div className="flex flex-col">
-              <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
-                <Clock size={10} /> Última actualización
-              </span>
-              <span className="text-[11px] font-medium text-white mt-1">
-                {formatDate(item.updatedAt)}
-              </span>
-            </div>
+          <div className="flex flex-col">
+            <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
+              <Clock size={10} /> Último cambio
+            </span>
+            <span className="text-[11px] font-medium text-white mt-1">
+              {formatDate(item.updatedAt)}
+            </span>
           </div>
           {item.deletedAt && (
-            <div className="mt-4 pt-3 border-t border-slate-800">
-              <span className="text-[9px] font-bold text-red-400 uppercase">
-                Fecha de Baja definitiva: {formatDate(item.deletedAt)}
+            <div className="flex flex-col">
+              <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
+                <Trash size={10} /> Eliminado el
+              </span>
+              <span
+                className={`text-[11px] font-medium mt-1 ${
+                  item.deletedAt ? "text-red-400" : "text-slate-500 italic"
+                }`}
+              >
+                {item.deletedAt
+                  ? formatDate(item.deletedAt)
+                  : "Este rol no ha sido eliminado"}
               </span>
             </div>
           )}

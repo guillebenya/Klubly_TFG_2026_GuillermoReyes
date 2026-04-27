@@ -84,8 +84,12 @@ const RoleDetails = ({ role }: RoleDetailsProps) => {
         </p>
       </div>
 
-      {/* CAMPOS AUDITORÍA (Mismo bloque oscuro que MemberDetails) */}
-      <div className="p-4 bg-slate-900 rounded-2xl grid grid-cols-1 sm:grid-cols-3 gap-4">
+      {/* CAMPOS AUDITORÍA */}
+      <div
+        className={`p-4 bg-slate-900 rounded-2xl grid gap-4 ${
+          role.deletedAt ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-2"
+        }`}
+      >
         <div className="flex flex-col">
           <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
             <Calendar size={10} /> Configurado el
@@ -104,20 +108,22 @@ const RoleDetails = ({ role }: RoleDetailsProps) => {
           </span>
         </div>
 
-        <div className="flex flex-col border-t border-slate-800 sm:border-t-0 sm:border-l sm:pl-4 pt-3 sm:pt-0">
-          <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
-            <Trash2 size={10} /> Eliminado el
-          </span>
-          <span
-            className={`text-[11px] font-medium mt-1 ${
-              role.deletedAt ? "text-red-400" : "text-slate-500 italic"
-            }`}
-          >
-            {role.deletedAt
-              ? formatDate(role.deletedAt)
-              : "Este rol no ha sido eliminado"}
-          </span>
-        </div>
+        {role.deletedAt && (
+          <div className="flex flex-col border-t border-slate-800 sm:border-t-0 sm:border-l sm:pl-4 pt-3 sm:pt-0">
+            <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
+              <Trash2 size={10} /> Eliminado el
+            </span>
+            <span
+              className={`text-[11px] font-medium mt-1 ${
+                role.deletedAt ? "text-red-400" : "text-slate-500 italic"
+              }`}
+            >
+              {role.deletedAt
+                ? formatDate(role.deletedAt)
+                : "Este rol no ha sido eliminado"}
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

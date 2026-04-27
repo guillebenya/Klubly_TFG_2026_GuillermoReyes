@@ -109,7 +109,22 @@ public class DataInitializer implements CommandLineRunner{
             testTeam = teamRepository.findByNameAndDeletedAtIsNull("Equipo de Prueba").get();
         }
 
-         //Crear una afiliación de prueba
+         //Crear una afiliación de prueba para un STAFF
+         User staffUser = userRepository.findByUsernameAndDeletedAtIsNull("staff")
+            .orElseThrow(() -> new RuntimeException("Error: Usuario staff no encontrado"));
+
+        if (!affiliationRepository.existsByUserIdAndTeamIdAndDeletedAtIsNull(staffUser.getId(), testTeam.getId())) {
+            Affiliation testAffiliation = new Affiliation();
+            testAffiliation.setUser(staffUser);
+            testAffiliation.setTeam(testTeam);
+            testAffiliation.setTeamPosition("SEGUNDO ENTRENADOR"); // Campo obligatorio que definimos
+            testAffiliation.setActive(true);
+
+            affiliationRepository.save(testAffiliation);
+            log.info("Afiliación de prueba ('member' -> 'Equipo de Prueba') creada con éxito.");
+        }
+
+         //Crear una afiliación de prueba para un MEMBER
          User memberUser = userRepository.findByUsernameAndDeletedAtIsNull("member")
             .orElseThrow(() -> new RuntimeException("Error: Usuario member no encontrado"));
 
