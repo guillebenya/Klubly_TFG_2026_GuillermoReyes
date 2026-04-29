@@ -23,5 +23,6 @@ public class TransactionDTO {
 
     private Boolean active;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private LocalDateTime deletedAt;
 }

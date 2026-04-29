@@ -53,7 +53,7 @@ public class TeamService {
         Team team = new Team();
         team.setName(teamDTO.getName());
         team.setDescription(teamDTO.getDescription());
-        team.setActive(true);
+        team.setActive(teamDTO.getActive() != null ? teamDTO.getActive() : true);
         
         Team savedTeam = teamRepository.save(team);
         return convertToDTO(savedTeam);

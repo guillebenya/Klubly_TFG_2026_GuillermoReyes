@@ -1,4 +1,3 @@
-// src/features/treasury/services/treasury.service.ts
 import api from "../../../api/axios";
 
 export const TransactionType = {
@@ -6,7 +5,8 @@ export const TransactionType = {
   EXPENSE: "EXPENSE",
 } as const;
 
-export type TransactionType = typeof TransactionType[keyof typeof TransactionType];
+export type TransactionType =
+  (typeof TransactionType)[keyof typeof TransactionType];
 
 export const PaymentMethod = {
   CARD: "CARD",
@@ -14,7 +14,7 @@ export const PaymentMethod = {
   TRANSFER: "TRANSFER",
 } as const;
 
-export type PaymentMethod = typeof PaymentMethod[keyof typeof PaymentMethod];
+export type PaymentMethod = (typeof PaymentMethod)[keyof typeof PaymentMethod];
 
 //INTERFACES
 export interface Transaction {
@@ -28,6 +28,7 @@ export interface Transaction {
   userFullName?: string;
   active: boolean;
   createdAt?: string;
+  updatedAt?: string;
   deletedAt?: string | null;
 }
 
@@ -40,7 +41,6 @@ export interface TreasurySummary {
 const ENDPOINT = "/treasury/transactions";
 
 export const treasuryService = {
-    
   // ACCIONES DE ADMIN
   // Obtener todas las transacciones activas
   getAll: () => api.get<Transaction[]>(ENDPOINT),
@@ -49,10 +49,15 @@ export const treasuryService = {
   getGlobalSummary: () => api.get<TreasurySummary>(`${ENDPOINT}/summary`),
 
   // Obtener historial de movimientos eliminados
-  getDeletedHistory: () => api.get<Transaction[]>(`${ENDPOINT}/history/deleted`),
+  getDeletedHistory: () =>
+    api.get<Transaction[]>(`${ENDPOINT}/history/deleted`),
 
   // Registrar un nuevo ingreso o gasto
   create: (data: Partial<Transaction>) => api.post<Transaction>(ENDPOINT, data),
+
+  // Actualizar una transacción existente
+  update: (id: number, data: Partial<Transaction>) =>
+    api.put<Transaction>(`${ENDPOINT}/${id}`, data),
 
   // Dar de baja una transacción
   delete: (id: number) => api.delete(`${ENDPOINT}/${id}`),
@@ -60,10 +65,10 @@ export const treasuryService = {
   // ACCIONES DE MEMBER (MIS PAGOS)
 
   // Obtener los pagos de un socio específico
-  getByUserId: (userId: number) => 
+  getByUserId: (userId: number) =>
     api.get<Transaction[]>(`${ENDPOINT}/user/${userId}`),
 
   // Obtener el total acumulado pagado por un socio
-  getUserTotalPaid: (userId: number) => 
+  getUserTotalPaid: (userId: number) =>
     api.get<number>(`${ENDPOINT}/user/${userId}/total`),
 };

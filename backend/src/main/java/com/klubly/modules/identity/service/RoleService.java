@@ -53,7 +53,7 @@ public class RoleService {
         Role role = new Role();
         role.setName(roleDTO.getName());
         role.setDescription(roleDTO.getDescription());
-        role.setActive(true);
+        role.setActive(roleDTO.getActive() != null ? roleDTO.getActive() : true);
 
         Role savedRole = roleRepository.save(role);
         return convertToDTO(savedRole);

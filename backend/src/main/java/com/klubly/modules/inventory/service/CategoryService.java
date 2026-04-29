@@ -60,7 +60,7 @@ public class CategoryService {
         Category category = new Category();
         category.setName(categoryDTO.getName());
         category.setDescription(categoryDTO.getDescription());
-        category.setActive(true);
+        category.setActive(categoryDTO.getActive() != null ? categoryDTO.getActive() : true);
 
         Category savedCategory = categoryRepository.save(category);
         return convertToDTO(savedCategory);

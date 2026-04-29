@@ -84,7 +84,7 @@ public class UserService {
         user.setPhone(userDTO.getPhone());
         user.setClubPosition(userDTO.getClubPosition());
         user.setAvatarURL(userDTO.getAvatarURL());
-        user.setActive(true);
+        user.setActive(userDTO.getActive() != null ? userDTO.getActive() : true);
         user.setRole(role); // Asignar el rol al usuario
 
         User savedUser = userRepository.save(user);

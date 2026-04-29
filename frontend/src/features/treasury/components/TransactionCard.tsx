@@ -12,7 +12,8 @@ import {
   Trash2,
   Wallet,
   ArrowUpRight,
-  ArrowDownLeft
+  ArrowDownLeft,
+  ArrowDownRight
 } from "lucide-react";
 import Card from "../../../components/shared/Card";
 import Badge from "../../../components/shared/Badge";
@@ -44,17 +45,17 @@ const TransactionCard = ({
       if (isClubIncome) {
         return {
           label: "PAGO REALIZADO",
-          variant: "green" as const,
-          icon: <ArrowUpRight size={10} />,
-          colorClass: "text-emerald-600"
+          variant: "red" as const,
+          icon: <ArrowDownRight size={10} />,
+          colorClass: "text-red-600"
         };
       } 
       // Caso 2: El club pagó al socio (Expense para el club, ingreso para el socio)
       return {
         label: "RECIBIDO / REEMBOLSO",
-        variant: "blue" as const,
-        icon: <ArrowDownLeft size={10} />,
-        colorClass: "text-blue-600"
+        variant: "green" as const,
+        icon: <ArrowUpRight size={10} />,
+        colorClass: "text-green-600"
       };
     }
 
@@ -101,7 +102,7 @@ const TransactionCard = ({
   return (
     <Card className={`flex items-center gap-4 py-3 px-6 hover:border-indigo-300 transition-all shadow-sm group border-l-4 ${
       isMemberView 
-        ? (isClubIncome ? "border-l-emerald-500" : "border-l-blue-500") 
+        ? (isClubIncome ? "border-l-red-500" : "border-l-emerald-500") 
         : (isClubIncome ? "border-l-emerald-500" : "border-l-rose-500")
     }`}>
       
@@ -127,7 +128,7 @@ const TransactionCard = ({
         </Column>
 
         {/* Tipo / Estado Adaptado */}
-        <Column title={isMemberView ? "Tu Movimiento" : "Tipo"} className="min-w-[130px]">
+        <Column title={isMemberView ? "Movimiento" : "Tipo"} className="min-w-[130px]">
           <Badge 
             variant={config.variant}
             icon={config.icon}

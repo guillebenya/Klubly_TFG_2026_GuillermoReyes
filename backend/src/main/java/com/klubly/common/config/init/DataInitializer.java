@@ -1,6 +1,7 @@
 package com.klubly.common.config.init;
 
 import com.klubly.modules.identity.controller.AffiliationController;
+import com.klubly.modules.identity.controller.AuthController;
 import com.klubly.modules.identity.entity.Affiliation;
 import com.klubly.modules.identity.entity.Role;
 import com.klubly.modules.identity.entity.Team;
@@ -14,11 +15,19 @@ import com.klubly.modules.inventory.entity.Category;
 import com.klubly.modules.inventory.entity.Item;
 import com.klubly.modules.inventory.repository.CategoryRepository;
 import com.klubly.modules.inventory.repository.ItemRepository;
+import com.klubly.modules.treasury.entity.Transaction;
+import com.klubly.modules.treasury.enums.PaymentMethod;
+import com.klubly.modules.treasury.enums.TransactionType;
+import com.klubly.modules.treasury.repository.TransactionRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
@@ -27,6 +36,8 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DataInitializer implements CommandLineRunner{
 
+    private final AuthenticationManager authenticationManager;
+    private final AuthController authController;
     private final AffiliationService affiliationService;
     private final AffiliationController affiliationController;
     private final UserRepository userRepository;
@@ -35,6 +46,7 @@ public class DataInitializer implements CommandLineRunner{
     private final AffiliationRepository affiliationRepository;
     private final CategoryRepository categoryRepository;
     private final ItemRepository itemRepository;
+    private final TransactionRepository transactionRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -165,6 +177,32 @@ public class DataInitializer implements CommandLineRunner{
             itemRepository.save(item);
             log.info("Item: 'Item de prueba' creada con éxito por el DataSeed.");
         }
+
+        //Crear un transaction INCOME de prueba
+        User memberUserForTransaction = userRepository.findByUsernameAndDeletedAtIsNull("member")
+            .orElseThrow(() -> new RuntimeException("Error: Usuario member no encontrado"));
+        Transaction transaction1 = new Transaction();
+        transaction1.setAmount(new BigDecimal("20.00"));
+        transaction1.setConcept("Transacción de prueba 1");
+        transaction1.setTransactionDate(LocalDateTime.now());
+        transaction1.setType(TransactionType.INCOME);
+        transaction1.setPaymentMethod(PaymentMethod.CARD);
+        transaction1.setActive(true);
+        transaction1.setUser(memberUserForTransaction);
+        transactionRepository.save(transaction1);
+        log.info("Transacción de prueba 1 creada con éxito por el DataSeed");
+        
+        //Crear un transaction EXPENSE de prueba
+        Transaction transaction2 = new Transaction();
+        transaction2.setAmount(new BigDecimal("45.32"));
+        transaction2.setConcept("Transacción de prueba 2");
+        transaction2.setTransactionDate(LocalDateTime.now());
+        transaction2.setType(TransactionType.EXPENSE);
+        transaction2.setPaymentMethod(PaymentMethod.CASH);
+        transaction2.setActive(true);
+        transaction2.setUser(memberUserForTransaction);
+        transactionRepository.save(transaction2);
+        log.info("Transacción de prueba 2 creada con éxito por el DataSeed");
     }
 
     //Método auxiliar para crear un role si no existe

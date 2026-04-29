@@ -66,12 +66,42 @@ public class TransactionService {
         transaction.setTransactionDate(dto.getTransactionDate() != null ? dto.getTransactionDate() : LocalDateTime.now());
         transaction.setType(dto.getType());
         transaction.setPaymentMethod(dto.getPaymentMethod());
-        transaction.setActive(true);
+        transaction.setActive(dto.getActive() != null ? dto.getActive() : true);
 
         if (dto.getUserId() != null) {
             User user = userRepository.findById(dto.getUserId())
                     .orElseThrow(() -> new RuntimeException("Socio no encontrado"));
             transaction.setUser(user);
+        }
+
+        return convertToDTO(transactionRepository.save(transaction));
+    }
+
+    @Transactional
+    public TransactionDTO updateTransaction(Long id, TransactionDTO dto) {
+        checkAdminRole();
+
+        Transaction transaction = transactionRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new RuntimeException(TRANS_NOT_FOUND));
+
+        if (dto.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+            throw new RuntimeException("El importe debe ser positivo");
+        }
+
+        transaction.setAmount(dto.getAmount());
+        transaction.setConcept(dto.getConcept());
+        transaction.setTransactionDate(dto.getTransactionDate() != null ? dto.getTransactionDate() : LocalDateTime.now());
+        transaction.setType(dto.getType());
+        transaction.setPaymentMethod(dto.getPaymentMethod());
+        
+        transaction.setActive(dto.getActive());
+
+        if (dto.getUserId() != null) {
+            User user = userRepository.findById(dto.getUserId())
+                    .orElseThrow(() -> new RuntimeException("Socio no encontrado"));
+            transaction.setUser(user);
+        } else {
+            transaction.setUser(null); // Si se marca como gasto general del club
         }
 
         return convertToDTO(transactionRepository.save(transaction));
@@ -101,7 +131,7 @@ public class TransactionService {
     public BigDecimal getMemberTotalPaid(Long userId) {
         checkAdminOrOwner(userId);
         // Sumamos solo sus pagos (EXPENSE desde el punto de vista del flujo)
-        BigDecimal total = transactionRepository.sumAmountByUserIdAndType(userId, TransactionType.EXPENSE);
+        BigDecimal total = transactionRepository.sumAmountByUserIdAndType(userId, TransactionType.INCOME);
         return (total != null) ? total : BigDecimal.ZERO;
     }
 
@@ -144,6 +174,7 @@ public class TransactionService {
         dto.setPaymentMethod(t.getPaymentMethod());
         dto.setActive(t.getActive());
         dto.setCreatedAt(t.getCreatedAt());
+        dto.setUpdatedAt(t.getUpdatedAt());
         dto.setDeletedAt(t.getDeletedAt());
         if (t.getUser() != null) {
             dto.setUserId(t.getUser().getId());

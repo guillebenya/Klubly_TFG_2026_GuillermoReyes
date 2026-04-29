@@ -81,7 +81,7 @@ public class ItemService {
                         () -> { throw new RuntimeException("Categoría no encontrada"); }
                 );
 
-        item.setActive(true);
+        item.setActive(itemDTO.getActive() != null ? itemDTO.getActive() : true);
         Item savedItem = itemRepository.save(item);
         return convertToDTO(savedItem);
     }

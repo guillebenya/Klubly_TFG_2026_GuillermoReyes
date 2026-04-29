@@ -1,5 +1,6 @@
 package com.klubly.modules.treasury.controller;
 
+import com.klubly.modules.inventory.dto.CategoryDTO;
 import com.klubly.modules.treasury.dto.TransactionDTO;
 import com.klubly.modules.treasury.dto.TreasurySummaryDTO;
 import com.klubly.modules.treasury.service.TransactionService;
@@ -38,6 +39,13 @@ public class TransactionController {
     @PostMapping
     public ResponseEntity<TransactionDTO> createTransaction(@RequestBody TransactionDTO dto) {
         return new ResponseEntity<>(transactionService.createTransaction(dto), HttpStatus.CREATED);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<TransactionDTO> updateTransaction(
+            @PathVariable Long id, 
+            @RequestBody TransactionDTO transactionDTO) {
+        return ResponseEntity.ok(transactionService.updateTransaction(id, transactionDTO));
     }
 
     @DeleteMapping("/{id}")
