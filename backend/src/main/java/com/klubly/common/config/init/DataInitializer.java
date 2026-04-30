@@ -1,5 +1,10 @@
 package com.klubly.common.config.init;
 
+import com.klubly.common.config.SecurityConfig;
+import com.klubly.modules.activities.entity.Activity;
+import com.klubly.modules.activities.entity.Registration;
+import com.klubly.modules.activities.repository.ActivityRepository;
+import com.klubly.modules.activities.repository.RegistrationRepository;
 import com.klubly.modules.identity.controller.AffiliationController;
 import com.klubly.modules.identity.controller.AuthController;
 import com.klubly.modules.identity.entity.Affiliation;
@@ -36,6 +41,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class DataInitializer implements CommandLineRunner{
 
+    private final SecurityConfig securityConfig;
     private final AuthenticationManager authenticationManager;
     private final AuthController authController;
     private final AffiliationService affiliationService;
@@ -47,6 +53,8 @@ public class DataInitializer implements CommandLineRunner{
     private final CategoryRepository categoryRepository;
     private final ItemRepository itemRepository;
     private final TransactionRepository transactionRepository;
+    private final ActivityRepository activityRepository;
+    private final RegistrationRepository registrationRepository;
     private final PasswordEncoder passwordEncoder;
 
     @Override
@@ -203,6 +211,87 @@ public class DataInitializer implements CommandLineRunner{
         transaction2.setUser(memberUserForTransaction);
         transactionRepository.save(transaction2);
         log.info("Transacción de prueba 2 creada con éxito por el DataSeed");
+
+        //Crear Actividades y registros
+        if (activityRepository.count() == 0) {
+            // Una actividad GLOBAL (sin equipos)
+            Activity globalAct = new Activity();
+            globalAct.setName("Asamblea General del Club");
+            globalAct.setDescription("Reunión anual para todos los socios en el salón de actos.");
+            globalAct.setStartDate(LocalDateTime.now().plusDays(10).withHour(18).withMinute(0));
+            globalAct.setEndDate(LocalDateTime.now().plusDays(10).withHour(20).withMinute(0));
+            globalAct.setCapacity(100);
+            globalAct.setLocation("Sede Social - Salón Principal");
+            globalAct.setActive(true);
+            activityRepository.save(globalAct);
+
+            // Una actividad para un equipo específico (usando un equipo ya creado)
+            Team teamForActivity = teamRepository.findByNameAndDeletedAtIsNull("Equipo de Prueba")
+                .orElse(null);
+
+            if (teamForActivity != null) {
+                Activity teamAct = new Activity();
+                teamAct.setName("Entrenamiento Táctico Avanzado");
+                teamAct.setDescription("Sesión a puerta cerrada para preparar el derbi.");
+                teamAct.setStartDate(LocalDateTime.now().plusDays(2).withHour(19).withMinute(30));
+                teamAct.setEndDate(LocalDateTime.now().plusDays(2).withHour(21).withMinute(0));
+                teamAct.setCapacity(20);
+                teamAct.setLocation("Campo de Entrenamiento 1");
+                teamAct.setActive(true);
+                teamAct.getTeams().add(teamForActivity);
+                activityRepository.save(teamAct);
+
+                // Una inscripción de prueba para esta actividad
+                User miembroUser = userRepository.findByUsernameAndDeletedAtIsNull("member")
+                    .orElse(null);
+                    
+                if (miembroUser != null) {
+                    Registration reg = new Registration();
+                    reg.setActivity(teamAct);
+                    reg.setUser(miembroUser);
+                    reg.setRegistrationDate(LocalDateTime.now());
+                    reg.setActive(true);
+                    registrationRepository.save(reg);
+                }
+            }
+
+            // Una actividad PASADA (para probar que el front no deja apuntarse)
+            Activity pastAct = new Activity();
+            pastAct.setName("Torneo de Navidad");
+            pastAct.setDescription("Evento finalizado.");
+            pastAct.setStartDate(LocalDateTime.now().minusDays(30));
+            pastAct.setEndDate(LocalDateTime.now().minusDays(30).plusHours(4));
+            pastAct.setCapacity(50);
+            pastAct.setLocation("Pabellón Municipal");
+            pastAct.setActive(true);
+            activityRepository.save(pastAct);
+
+            // 5. Actividad con CUPO LLENO (Capacity: 1, Registrations: 1)
+            Activity fullAct = new Activity();
+            fullAct.setName("Taller de Nutrición Deportiva");
+            fullAct.setDescription("Charla exclusiva sobre suplementación. Plazas muy limitadas.");
+            fullAct.setStartDate(LocalDateTime.now().plusDays(5).withHour(17).withMinute(0));
+            fullAct.setEndDate(LocalDateTime.now().plusDays(5).withHour(18).withMinute(30));
+            fullAct.setCapacity(1); // Solo una plaza
+            fullAct.setLocation("Sala de Juntas");
+            fullAct.setActive(true);
+            activityRepository.save(fullAct);
+
+            // Buscamos un usuario (el admin, por ejemplo) para que ocupe la única plaza
+            User adminUser = userRepository.findByUsernameAndDeletedAtIsNull("admin")
+                .orElse(null);
+
+            if (adminUser != null) {
+                Registration fullReg = new Registration();
+                fullReg.setActivity(fullAct);
+                fullReg.setUser(adminUser);
+                fullReg.setRegistrationDate(LocalDateTime.now());
+                fullReg.setActive(true);
+                registrationRepository.save(fullReg);
+            }
+
+            log.info("Seeding de actividades e inscripciones completado.");
+        }
     }
 
     //Método auxiliar para crear un role si no existe
