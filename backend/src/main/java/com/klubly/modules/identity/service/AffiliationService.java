@@ -6,6 +6,9 @@ import java.util.stream.Collectors;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
+import com.klubly.core.exception.BadRequestException;
+import com.klubly.core.exception.ResourceNotFoundException;
+import com.klubly.core.exception.UnauthorizedException;
 import com.klubly.modules.identity.dto.AffiliationDTO;
 import com.klubly.modules.identity.entity.Affiliation;
 import com.klubly.modules.identity.repository.AffiliationRepository;
@@ -37,7 +40,7 @@ public class AffiliationService {
     //Obtener afiliación por id
     public AffiliationDTO getAffiliationById(Long id) {
         Affiliation affiliation = affiliationRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new RuntimeException(AFFILIATION_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(AFFILIATION_NOT_FOUND_MSG));
         return convertToDTO(affiliation);
     }
 
@@ -63,13 +66,13 @@ public class AffiliationService {
         checkAdminRole();
         // Validar que el usuario y el equipo existen
         var user = userRepository.findByIdAndDeletedAtIsNull(affiliationDTO.getUserId())
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
         var team = teamRepository.findByIdAndDeletedAtIsNull(affiliationDTO.getTeamId())
-                .orElseThrow(() -> new RuntimeException("Equipo no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Equipo no encontrado"));
 
         // Validar que la afiliación no exista ya
         if (affiliationRepository.existsByUserIdAndTeamIdAndDeletedAtIsNull(affiliationDTO.getUserId(), affiliationDTO.getTeamId())) {
-            throw new RuntimeException("El usuario ya está afiliado a este equipo");
+            throw new BadRequestException("El usuario ya está afiliado a este equipo");
         }
 
         Affiliation affiliation = new Affiliation();
@@ -85,7 +88,7 @@ public class AffiliationService {
     public AffiliationDTO updateAffiliation(Long id, AffiliationDTO affiliationDTO) {
         checkAdminRole();
         Affiliation affiliation = affiliationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(AFFILIATION_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(AFFILIATION_NOT_FOUND_MSG));
         affiliation.setTeamPosition(affiliationDTO.getTeamPosition()); // Actualizar solo la posición específica en el equipo
         Affiliation updatedAffiliation = affiliationRepository.save(affiliation);
         return convertToDTO(updatedAffiliation);
@@ -96,7 +99,7 @@ public class AffiliationService {
     public void deleteAffiliation(Long id) {
         checkAdminRole();
         Affiliation affiliation = affiliationRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(AFFILIATION_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(AFFILIATION_NOT_FOUND_MSG));
         
         log.info("Desvinculando usuario '{}' del equipo '{}'", 
              affiliation.getUser().getUsername(), 
@@ -128,7 +131,7 @@ public class AffiliationService {
 
     private void checkAdminRole() {
         if (!getContextRole().equals("ROLE_ADMIN")) {
-            throw new RuntimeException("Acceso denegado: Se requieren permisos de administrador");
+            throw new UnauthorizedException("Acceso denegado: Se requieren permisos de administrador");
         }
     }
 }

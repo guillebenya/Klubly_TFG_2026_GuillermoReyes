@@ -7,6 +7,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.klubly.core.exception.BadRequestException;
+import com.klubly.core.exception.ResourceNotFoundException;
+import com.klubly.core.exception.UnauthorizedException;
 import com.klubly.modules.inventory.dto.ItemDTO;
 import com.klubly.modules.inventory.entity.Category;
 import com.klubly.modules.inventory.entity.Item;
@@ -43,25 +46,25 @@ public class ItemService {
     public ItemDTO getItemById(Long id) {
         return itemRepository.findByIdAndDeletedAtIsNull(id)
                 .map(this::convertToDTO)
-                .orElseThrow(() -> new RuntimeException(ITEM_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(ITEM_NOT_FOUND_MSG));
     }
 
     @Transactional(readOnly = true)
     public ItemDTO getItemByName(String name) {
         return itemRepository.findByNameAndDeletedAtIsNull(name)
                 .map(this::convertToDTO)
-                .orElseThrow(() -> new RuntimeException(ITEM_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(ITEM_NOT_FOUND_MSG));
     }
 
     @Transactional
     public ItemDTO createItem(ItemDTO itemDTO) {
         checkAdminRole();
         if (itemDTO.getStockQuantity() < 0 || itemDTO.getMinStock() < 0) {
-            throw new RuntimeException("El stock y el stock mínimo no pueden ser valores negativos");
+            throw new BadRequestException("El stock y el stock mínimo no pueden ser valores negativos");
         }
 
         if (itemRepository.existsByNameAndDeletedAtIsNull(itemDTO.getName())) {
-            throw new RuntimeException("El nombre de artículo ya existe");
+            throw new BadRequestException("El nombre de artículo ya existe");
         }
 
         Item item = new Item();
@@ -72,13 +75,13 @@ public class ItemService {
         item.setLocation(itemDTO.getLocation());
 
         if (itemDTO.getCategoryId() == null) {
-            throw new RuntimeException("Debes asignar una categoría al artículo");
+            throw new BadRequestException("Debes asignar una categoría al artículo");
         }
 
         categoryRepository.findByIdAndDeletedAtIsNull(itemDTO.getCategoryId())
                 .ifPresentOrElse(
                         category -> item.setCategory(category),
-                        () -> { throw new RuntimeException("Categoría no encontrada"); }
+                        () -> { throw new ResourceNotFoundException("Categoría no encontrada"); }
                 );
 
         item.setActive(itemDTO.getActive() != null ? itemDTO.getActive() : true);
@@ -89,24 +92,23 @@ public class ItemService {
     @Transactional
     public ItemDTO updateItem(Long id, ItemDTO itemDTO) {
         Item item = itemRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new RuntimeException(ITEM_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(ITEM_NOT_FOUND_MSG));
 
         if (itemDTO.getStockQuantity() < 0 || itemDTO.getMinStock() < 0) {
-            throw new RuntimeException("El stock y el stock mínimo no pueden ser valores negativos");
+            throw new BadRequestException("El stock y el stock mínimo no pueden ser valores negativos");
         }
 
         if (itemDTO.getCategoryId() == null) {
-        throw new RuntimeException("El artículo debe tener una categoría asignada");
+        throw new BadRequestException("El artículo debe tener una categoría asignada");
     }
 
         boolean isAdmin = getContextRole().equals("ROLE_ADMIN");
-        boolean isStaff = getContextRole().equals("ROLE_STAFF");
 
         if (isAdmin) {
             // Solo el ADMIN puede cambiar el nombre y validamos unicidad
             if (!item.getName().equals(itemDTO.getName())) {
                 if (itemRepository.existsByNameAndDeletedAtIsNull(itemDTO.getName())) {
-                    throw new RuntimeException("El nombre de artículo ya existe");
+                    throw new BadRequestException("El nombre de artículo ya existe");
                 }
                 item.setName(itemDTO.getName());
             }
@@ -121,7 +123,7 @@ public class ItemService {
             // Cambio de Categoría (Solo ADMIN)
             if (item.getCategory() == null || !item.getCategory().getId().equals(itemDTO.getCategoryId())) {
                 Category category = categoryRepository.findByIdAndDeletedAtIsNull(itemDTO.getCategoryId())
-                        .orElseThrow(() -> new RuntimeException("Categoría no encontrada"));
+                        .orElseThrow(() -> new ResourceNotFoundException("Categoría no encontrada"));
                 item.setCategory(category);
             }
         }
@@ -138,7 +140,7 @@ public class ItemService {
     public void deleteItem(Long id) {
         checkAdminRole();
         Item item = itemRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new RuntimeException(ITEM_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(ITEM_NOT_FOUND_MSG));
 
         item.setDeletedAt(java.time.LocalDateTime.now());
         item.setActive(false);
@@ -175,7 +177,7 @@ public class ItemService {
 
     private void checkAdminRole() {
         if (!getContextRole().equals("ROLE_ADMIN")) {
-            throw new RuntimeException("Acceso denegado: Se requieren permisos de administrador");
+            throw new UnauthorizedException("Acceso denegado: Se requieren permisos de administrador");
         }
     }
 }

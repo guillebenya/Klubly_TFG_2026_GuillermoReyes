@@ -1,5 +1,8 @@
 package com.klubly.modules.identity.service;
 
+import com.klubly.core.exception.BadRequestException;
+import com.klubly.core.exception.ResourceNotFoundException;
+import com.klubly.core.exception.UnauthorizedException;
 import com.klubly.modules.identity.dto.RoleDTO;
 import com.klubly.modules.identity.entity.Role;
 import com.klubly.modules.identity.repository.RoleRepository;
@@ -10,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException.BadRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -43,7 +47,7 @@ public class RoleService {
     public RoleDTO getRoleById(Long id) {
         Role role = roleRepository.findById(id)
                 .filter(t -> t.getDeletedAt() == null)
-                .orElseThrow(() -> new RuntimeException(ROLE_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(ROLE_NOT_FOUND_MSG));
         return convertToDTO(role);
     }
 
@@ -64,7 +68,7 @@ public class RoleService {
         checkAdminRole();
         Role role = roleRepository.findById(id)
                 .filter(t -> t.getDeletedAt() == null)
-                .orElseThrow(() -> new RuntimeException(ROLE_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(ROLE_NOT_FOUND_MSG));
 
         role.setName(roleDTO.getName());
         role.setDescription(roleDTO.getDescription());
@@ -80,10 +84,10 @@ public class RoleService {
     public void deleteRole(Long id) {
         checkAdminRole();
         if (id <= 3) {
-            throw new RuntimeException("No se pueden eliminar roles de sistema");
+            throw new BadRequestException("No se pueden eliminar roles de sistema (ADMIN, STAFF, MEMBER)");
         }
         Role role = roleRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(ROLE_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(ROLE_NOT_FOUND_MSG));
         
         //No borrar si hay usuarios asignados
         long activeUsers = role.getUsers().stream()
@@ -91,7 +95,7 @@ public class RoleService {
                 .count();
 
         if (activeUsers > 0) {
-            throw new RuntimeException("No se puede eliminar un rol que tiene usuarios asignados");
+            throw new BadRequestException("No se puede eliminar un rol que tiene usuarios asignados");
         }
         
         role.setDeletedAt(LocalDateTime.now());
@@ -121,7 +125,7 @@ public class RoleService {
 
     private void checkAdminRole() {
         if (!getContextRole().equals("ROLE_ADMIN")) {
-            throw new RuntimeException("Acceso denegado: Se requieren permisos de administrador");
+            throw new UnauthorizedException("Acceso denegado: Se requieren permisos de administrador");
         }
     }
 }

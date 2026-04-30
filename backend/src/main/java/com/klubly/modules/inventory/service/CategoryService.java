@@ -7,6 +7,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.klubly.core.exception.BadRequestException;
+import com.klubly.core.exception.ResourceNotFoundException;
+import com.klubly.core.exception.UnauthorizedException;
 import com.klubly.modules.inventory.dto.CategoryDTO;
 import com.klubly.modules.inventory.entity.Category;
 import com.klubly.modules.inventory.repository.CategoryRepository;
@@ -39,14 +42,14 @@ public class CategoryService {
     @Transactional(readOnly = true)
     public CategoryDTO getCategoryById(Long id) {
         Category category = categoryRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new RuntimeException(CATEGORY_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(CATEGORY_NOT_FOUND_MSG));
         return convertToDTO(category);
     }
 
     @Transactional(readOnly = true)
     public CategoryDTO getCategoryByName(String name) {
         Category category = categoryRepository.findByNameAndDeletedAtIsNull(name)
-                .orElseThrow(() -> new RuntimeException(CATEGORY_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(CATEGORY_NOT_FOUND_MSG));
         return convertToDTO(category);
     }
 
@@ -54,7 +57,7 @@ public class CategoryService {
     public CategoryDTO createCategory(CategoryDTO categoryDTO) {
         checkAdminRole();
         if (categoryRepository.existsByNameAndDeletedAtIsNull(categoryDTO.getName())) {
-            throw new RuntimeException("El nombre de categoría ya existe");
+            throw new BadRequestException("El nombre de categoría ya existe");
         }
 
         Category category = new Category();
@@ -70,7 +73,7 @@ public class CategoryService {
     public CategoryDTO updateCategory(Long id, CategoryDTO categoryDTO) {
         checkAdminRole();
         Category category = categoryRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new RuntimeException(CATEGORY_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(CATEGORY_NOT_FOUND_MSG));
 
         String role = getContextRole();
         if (!role.equals("ROLE_ADMIN")){
@@ -79,7 +82,7 @@ public class CategoryService {
 
         if (!category.getName().equals(categoryDTO.getName()) &&
                 categoryRepository.existsByNameAndDeletedAtIsNull(categoryDTO.getName())) {
-            throw new RuntimeException("El nombre de categoría ya existe");
+            throw new BadRequestException("El nombre de categoría ya existe");
         }
 
         category.setName(categoryDTO.getName());
@@ -96,7 +99,7 @@ public class CategoryService {
     public void deleteCategory(Long id) {
         checkAdminRole();
         Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(CATEGORY_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(CATEGORY_NOT_FOUND_MSG));
         
         //No borrar si tiene artículos activos
         long activeItems = category.getItems().stream()
@@ -104,7 +107,7 @@ public class CategoryService {
                 .count();
         
         if (activeItems > 0) {
-            throw new RuntimeException("No se puede eliminar una categoría que tiene artículos asociados");
+            throw new BadRequestException("No se puede eliminar una categoría que tiene artículos asociados");
         }
 
         category.setDeletedAt(java.time.LocalDateTime.now());
@@ -141,7 +144,7 @@ public class CategoryService {
 
     private void checkAdminRole() {
         if (!getContextRole().equals("ROLE_ADMIN")) {
-            throw new RuntimeException("Acceso denegado: Se requieren permisos de administrador");
+            throw new UnauthorizedException("Acceso denegado: Se requieren permisos de administrador");
         }
     }
 }

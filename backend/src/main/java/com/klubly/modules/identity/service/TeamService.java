@@ -1,5 +1,7 @@
 package com.klubly.modules.identity.service;
 
+import com.klubly.core.exception.ResourceNotFoundException;
+import com.klubly.core.exception.UnauthorizedException;
 import com.klubly.modules.identity.dto.TeamDTO;
 import com.klubly.modules.identity.entity.Team;
 import com.klubly.modules.identity.repository.AffiliationRepository;
@@ -43,7 +45,7 @@ public class TeamService {
     public TeamDTO getTeamById(Long id) {
         Team team = teamRepository.findById(id)
                 .filter(t -> t.getDeletedAt() == null)
-                .orElseThrow(() -> new RuntimeException(TEAM_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(TEAM_NOT_FOUND_MSG));
         return convertToDTO(team);
     }
 
@@ -64,7 +66,7 @@ public class TeamService {
         checkAdminRole();
         Team team = teamRepository.findById(id)
                 .filter(t -> t.getDeletedAt() == null)
-                .orElseThrow(() -> new RuntimeException(TEAM_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(TEAM_NOT_FOUND_MSG));
 
         team.setName(teamDTO.getName());
         team.setDescription(teamDTO.getDescription());
@@ -80,7 +82,7 @@ public class TeamService {
     public void deleteTeam(Long id) {
         checkAdminRole();
         Team team = teamRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException(TEAM_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(TEAM_NOT_FOUND_MSG));
         
         // Antes de marcar el equipo como eliminado, eliminamos las afiliaciones relacionadas
         affiliationRepository.deleteByTeamId(id); // Eliminar afiliaciones relacionadas al equipo
@@ -115,7 +117,7 @@ public class TeamService {
 
     private void checkAdminRole() {
         if (!getContextRole().equals("ROLE_ADMIN")) {
-            throw new RuntimeException("Acceso denegado: Se requieren permisos de administrador");
+            throw new UnauthorizedException("Acceso denegado: Se requieren permisos de administrador");
         }
     }
 }

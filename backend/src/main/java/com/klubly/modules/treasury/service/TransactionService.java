@@ -1,5 +1,8 @@
 package com.klubly.modules.treasury.service;
 
+import com.klubly.core.exception.BadRequestException;
+import com.klubly.core.exception.ResourceNotFoundException;
+import com.klubly.core.exception.UnauthorizedException;
 import com.klubly.modules.identity.entity.User;
 import com.klubly.modules.identity.repository.UserRepository;
 import com.klubly.modules.treasury.dto.TransactionDTO;
@@ -57,7 +60,7 @@ public class TransactionService {
         checkAdminRole(); // Si el Staff no tiene sección, solo el Admin crea
         
         if (dto.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("El importe debe ser positivo");
+            throw new BadRequestException("El importe debe ser positivo");
         }
 
         Transaction transaction = new Transaction();
@@ -70,7 +73,7 @@ public class TransactionService {
 
         if (dto.getUserId() != null) {
             User user = userRepository.findById(dto.getUserId())
-                    .orElseThrow(() -> new RuntimeException("Socio no encontrado"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Socio no encontrado"));
             transaction.setUser(user);
         }
 
@@ -82,10 +85,10 @@ public class TransactionService {
         checkAdminRole();
 
         Transaction transaction = transactionRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new RuntimeException(TRANS_NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException(TRANS_NOT_FOUND));
 
         if (dto.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
-            throw new RuntimeException("El importe debe ser positivo");
+            throw new BadRequestException("El importe debe ser positivo");
         }
 
         transaction.setAmount(dto.getAmount());
@@ -98,7 +101,7 @@ public class TransactionService {
 
         if (dto.getUserId() != null) {
             User user = userRepository.findById(dto.getUserId())
-                    .orElseThrow(() -> new RuntimeException("Socio no encontrado"));
+                    .orElseThrow(() -> new ResourceNotFoundException("Socio no encontrado"));
             transaction.setUser(user);
         } else {
             transaction.setUser(null); // Si se marca como gasto general del club
@@ -111,7 +114,7 @@ public class TransactionService {
     public void deleteTransaction(Long id) {
         checkAdminRole();
         Transaction transaction = transactionRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new RuntimeException(TRANS_NOT_FOUND));
+                .orElseThrow(() -> new ResourceNotFoundException(TRANS_NOT_FOUND));
 
         transaction.setDeletedAt(LocalDateTime.now());
         transaction.setActive(false);
@@ -139,7 +142,7 @@ public class TransactionService {
 
     private void checkAdminRole() {
         if (!getRole().equals("ROLE_ADMIN")) {
-            throw new RuntimeException("Acceso denegado: Solo administradores");
+            throw new UnauthorizedException("Acceso denegado: Solo administradores");
         }
     }
 
@@ -149,13 +152,13 @@ public class TransactionService {
         
         // Buscamos el username del ID que se intenta consultar
         User userToConsult = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         boolean isAdmin = role.equals("ROLE_ADMIN");
         boolean isOwner = currentUsername.equals(userToConsult.getUsername());
 
         if (!isAdmin && !isOwner) {
-            throw new RuntimeException("Acceso denegado: No puedes ver los pagos de otros socios");
+            throw new UnauthorizedException("Acceso denegado: No puedes ver los pagos de otros socios");
         }
     }
 

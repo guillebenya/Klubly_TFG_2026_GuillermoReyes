@@ -1,6 +1,7 @@
 package com.klubly.modules.identity.controller;
 
 import com.klubly.common.security.JwtTokenProvider;
+import com.klubly.core.exception.ResourceNotFoundException;
 import com.klubly.modules.identity.dto.JwtAuthResponse;
 import com.klubly.modules.identity.dto.LoginDto;
 import com.klubly.modules.identity.entity.User;
@@ -44,7 +45,7 @@ public class AuthController {
         String token = tokenProvider.generateToken(authentication);
 
         User user = userRepository.findByUsernameAndDeletedAtIsNull(loginDto.username())
-            .orElseThrow(() -> new RuntimeException("Error: Usuario no encontrado tras login"));
+            .orElseThrow(() -> new ResourceNotFoundException("Error: Usuario no encontrado tras login"));
 
         // Obtenemos los IDs de los equipos desde las afiliaciones del usuario
         List<Long> teamIds = user.getAffiliations().stream()

@@ -8,6 +8,9 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import com.klubly.core.exception.BadRequestException;
+import com.klubly.core.exception.ResourceNotFoundException;
+import com.klubly.core.exception.UnauthorizedException;
 import com.klubly.modules.identity.dto.AffiliationDTO;
 import com.klubly.modules.identity.dto.ChangePasswordRequest;
 import com.klubly.modules.identity.dto.UserDTO;
@@ -49,14 +52,14 @@ public class UserService {
     @Transactional(readOnly = true)
     public UserDTO getUserById(Long id) {
         User user = userRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_MSG));
         return convertToDTO(user);
     }
 
     @Transactional(readOnly = true)
     public UserDTO getUserByUsername(String username) {
         User user = userRepository.findByUsernameAndDeletedAtIsNull(username)
-                .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_MSG));
         return convertToDTO(user);
     }
 
@@ -65,15 +68,15 @@ public class UserService {
         checkAdminRole();
         //Comprobamos si username o email ya existen (solo entre los activos)
         if (userRepository.existsByUsernameAndDeletedAtIsNull(userDTO.getUsername())) {
-            throw new RuntimeException("El nombre de usuario ya existe");
+            throw new BadRequestException("El nombre de usuario ya existe");
         }
         if (userRepository.existsByEmailAndDeletedAtIsNull(userDTO.getEmail())) {
-            throw new RuntimeException("El correo electrónico ya existe");
+            throw new BadRequestException("El correo electrónico ya existe");
         }
 
         // Buscar el rol, ya que el DTO trae el roleId y necesitamos la entidad para asignarla al usuario
         Role role = roleRepository.findByIdAndDeletedAtIsNull(userDTO.getRoleId())
-                .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado"));
         
         User user = new User();
         user.setUsername(userDTO.getUsername());
@@ -99,24 +102,24 @@ public class UserService {
         
         //BUSCAR AL USUARIO QUE ESTÁ REALIZANDO LA ACCIÓN
         User actor = userRepository.findByUsernameAndDeletedAtIsNull(currentUsername)
-                .orElseThrow(() -> new RuntimeException("Usuario autenticado no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario autenticado no encontrado"));
 
         //VALIDAR PERMISOS: Solo puede editar si es ADMIN o si es su propio ID
         boolean isAdmin = actor.getRole().getName().equals("ADMIN");
         boolean isOwner = actor.getId().equals(id);
 
         if (!isAdmin && !isOwner) {
-            throw new RuntimeException("No tienes permiso para editar este perfil");
+            throw new UnauthorizedException("No tienes permiso para editar este perfil");
         }
 
         User user = userRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_MSG));
 
         if (isAdmin) {
             // Username
             if (!user.getUsername().equals(userDTO.getUsername())) {
                 if (userRepository.existsByUsernameAndDeletedAtIsNull(userDTO.getUsername())) {
-                    throw new RuntimeException("El nombre de usuario ya existe");
+                    throw new BadRequestException("El nombre de usuario ya existe");
                 }
                 user.setUsername(userDTO.getUsername());
             }
@@ -124,7 +127,7 @@ public class UserService {
             // Email
             if (!user.getEmail().equals(userDTO.getEmail())) {
                 if (userRepository.existsByEmailAndDeletedAtIsNull(userDTO.getEmail())) {
-                    throw new RuntimeException("El correo electrónico ya existe");
+                    throw new BadRequestException("El correo electrónico ya existe");
                 }
                 user.setEmail(userDTO.getEmail());
             }
@@ -132,10 +135,10 @@ public class UserService {
             // Rol
             if (userDTO.getRoleId() != null && !user.getRole().getId().equals(userDTO.getRoleId())) {
                 if (isOwner) {
-                    throw new RuntimeException("Por seguridad, no puedes cambiar tu propio rol de Administrador");
+                    throw new BadRequestException("Por seguridad, no puedes cambiar tu propio rol de Administrador");
                 }
                 Role role = roleRepository.findByIdAndDeletedAtIsNull(userDTO.getRoleId())
-                        .orElseThrow(() -> new RuntimeException("Rol no encontrado"));
+                        .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado"));
                 user.setRole(role);
             }
 
@@ -145,7 +148,7 @@ public class UserService {
 
             if (userDTO.getActive() != null) {
                 if (isOwner && !userDTO.getActive()) {
-                    throw new RuntimeException("No puedes desactivar tu propia cuenta de Administrador");
+                    throw new BadRequestException("No puedes desactivar tu propia cuenta de Administrador");
                 }
                 user.setActive(userDTO.getActive());
             }
@@ -176,14 +179,14 @@ public class UserService {
         
         //BUSCAR AL USUARIO QUE ESTÁ REALIZANDO LA ACCIÓN
         User actor = userRepository.findByUsernameAndDeletedAtIsNull(currentUsername)
-                .orElseThrow(() -> new RuntimeException("Usuario autenticado no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario autenticado no encontrado"));
 
         boolean isOwner = actor.getId().equals(id);
         if (isOwner) {
-            throw new RuntimeException("Por seguridad, no puedes eliminar tu propio usuario");
+            throw new BadRequestException("Por seguridad, no puedes eliminar tu propio usuario");
         }
         User user = userRepository.findByIdAndDeletedAtIsNull(id)
-                .orElseThrow(() -> new RuntimeException(USER_NOT_FOUND_MSG));
+                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_MSG));
 
         user.setDeletedAt(LocalDateTime.now());
         user.setActive(false);
@@ -198,17 +201,17 @@ public class UserService {
 
         // Buscamos al usuario en la BD
         User user = userRepository.findByUsernameAndDeletedAtIsNull(currentUsername)
-                .orElseThrow(() -> new RuntimeException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
         // Comprobar si la contraseña actual es correcta
         // Usamos passwordEncoder.matches(plana, encriptada)
         if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
-            throw new RuntimeException("La contraseña actual no es correcta");
+            throw new BadRequestException("La contraseña actual no es correcta");
         }
 
         // Comprobar que las nuevas coinciden
         if (!request.newPassword().equals(request.confirmPassword())) {
-            throw new RuntimeException("Las nuevas contraseñas no coinciden");
+            throw new BadRequestException("Las nuevas contraseñas no coinciden");
         }
 
         // Encriptar la nueva y guardar
@@ -261,7 +264,7 @@ public class UserService {
 
     private void checkAdminRole() {
         if (!getContextRole().equals("ROLE_ADMIN")) {
-            throw new RuntimeException("Acceso denegado: Se requieren permisos de administrador");
+            throw new UnauthorizedException("Acceso denegado: Se requieren permisos de administrador");
         }
     }
     
