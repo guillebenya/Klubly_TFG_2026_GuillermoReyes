@@ -255,7 +255,7 @@ public class DataInitializer implements CommandLineRunner{
                 }
             }
 
-            // Una actividad PASADA (para probar que el front no deja apuntarse)
+            // Una actividad pasada (para probar que el front no deja apuntarse)
             Activity pastAct = new Activity();
             pastAct.setName("Torneo de Navidad");
             pastAct.setDescription("Evento finalizado.");
