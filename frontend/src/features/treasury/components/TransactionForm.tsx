@@ -1,6 +1,16 @@
 // src/features/treasury/components/TransactionForm.tsx
 import React, { useState, useEffect } from "react";
-import { Euro, FileText, Calendar, CreditCard, Tag, User, X, CheckCircle2, XCircle } from "lucide-react";
+import {
+  Euro,
+  FileText,
+  Calendar,
+  CreditCard,
+  Tag,
+  User,
+  X,
+  CheckCircle2,
+  XCircle,
+} from "lucide-react";
 import Button from "../../../components/shared/Button";
 import { TransactionType, PaymentMethod } from "../services/treasury.service";
 import { userService } from "../../identity/services/user.service";
@@ -12,7 +22,12 @@ interface TransactionFormProps {
   loading?: boolean;
 }
 
-const TransactionForm = ({ initialData, onSubmit, onCancel, loading }: TransactionFormProps) => {
+const TransactionForm = ({
+  initialData,
+  onSubmit,
+  onCancel,
+  loading,
+}: TransactionFormProps) => {
   const [users, setUsers] = useState<any[]>([]);
   const [formData, setFormData] = useState({
     amount: "",
@@ -39,7 +54,9 @@ const TransactionForm = ({ initialData, onSubmit, onCancel, loading }: Transacti
       setFormData({
         amount: initialData.amount.toString(),
         concept: initialData.concept,
-        transactionDate: new Date(initialData.transactionDate).toISOString().slice(0, 16),
+        transactionDate: new Date(initialData.transactionDate)
+          .toISOString()
+          .slice(0, 16),
         type: initialData.type,
         paymentMethod: initialData.paymentMethod,
         userId: initialData.userId?.toString() || "",
@@ -50,7 +67,7 @@ const TransactionForm = ({ initialData, onSubmit, onCancel, loading }: Transacti
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     // Construimos el objeto final
     const finalPayload = {
       ...formData,
@@ -66,16 +83,22 @@ const TransactionForm = ({ initialData, onSubmit, onCancel, loading }: Transacti
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        
         {/* Concepto */}
         <div className="space-y-1 md:col-span-2">
-          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">Concepto del Movimiento</label>
+          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
+            Concepto del Movimiento
+          </label>
           <div className="relative">
-            <FileText className="absolute left-3 top-3 text-gray-400" size={18} />
+            <FileText
+              className="absolute left-3 top-3 text-gray-400"
+              size={18}
+            />
             <input
               required
               value={formData.concept}
-              onChange={(e) => setFormData({...formData, concept: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, concept: e.target.value })
+              }
               className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-semibold"
               placeholder="Ej: Pago Cuota Mensual Mayo"
             />
@@ -84,17 +107,23 @@ const TransactionForm = ({ initialData, onSubmit, onCancel, loading }: Transacti
 
         {/* Socio Vinculado */}
         <div className="space-y-1 md:col-span-2">
-          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">Socio / Usuario (Opcional)</label>
+          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
+            Socio / Usuario (Opcional)
+          </label>
           <div className="relative">
             <User className="absolute left-3 top-3 text-gray-400" size={18} />
             <select
               value={formData.userId}
-              onChange={(e) => setFormData({...formData, userId: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, userId: e.target.value })
+              }
               className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm appearance-none"
             >
               <option value="">Gasto/Ingreso General (Club)</option>
-              {users.map(u => (
-                <option key={u.id} value={u.id}>{u.firstName} {u.lastName} ({u.username})</option>
+              {users.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.firstName} {u.lastName} ({u.username})
+                </option>
               ))}
             </select>
           </div>
@@ -102,7 +131,9 @@ const TransactionForm = ({ initialData, onSubmit, onCancel, loading }: Transacti
 
         {/* Importe */}
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">Importe (€)</label>
+          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
+            Importe (€)
+          </label>
           <div className="relative">
             <Euro className="absolute left-3 top-3 text-gray-400" size={18} />
             <input
@@ -110,7 +141,9 @@ const TransactionForm = ({ initialData, onSubmit, onCancel, loading }: Transacti
               step="0.01"
               required
               value={formData.amount}
-              onChange={(e) => setFormData({...formData, amount: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, amount: e.target.value })
+              }
               className="w-full pl-10 pr-4 py-2.5 bg-white border border-indigo-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm font-black text-indigo-600"
               placeholder="0.00"
             />
@@ -119,14 +152,21 @@ const TransactionForm = ({ initialData, onSubmit, onCancel, loading }: Transacti
 
         {/* Fecha y Hora */}
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">Fecha y Hora</label>
+          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
+            Fecha y Hora
+          </label>
           <div className="relative">
-            <Calendar className="absolute left-3 top-3 text-gray-400" size={18} />
+            <Calendar
+              className="absolute left-3 top-3 text-gray-400"
+              size={18}
+            />
             <input
               type="datetime-local"
               required
               value={formData.transactionDate}
-              onChange={(e) => setFormData({...formData, transactionDate: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, transactionDate: e.target.value })
+              }
               className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm"
             />
           </div>
@@ -134,12 +174,16 @@ const TransactionForm = ({ initialData, onSubmit, onCancel, loading }: Transacti
 
         {/* Tipo */}
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">Tipo</label>
+          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
+            Tipo
+          </label>
           <div className="relative">
             <Tag className="absolute left-3 top-3 text-gray-400" size={18} />
             <select
               value={formData.type}
-              onChange={(e) => setFormData({...formData, type: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, type: e.target.value })
+              }
               className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm appearance-none"
             >
               <option value={TransactionType.INCOME}>INGRESO</option>
@@ -150,12 +194,19 @@ const TransactionForm = ({ initialData, onSubmit, onCancel, loading }: Transacti
 
         {/* Método */}
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">Método de Pago</label>
+          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
+            Método de Pago
+          </label>
           <div className="relative">
-            <CreditCard className="absolute left-3 top-3 text-gray-400" size={18} />
+            <CreditCard
+              className="absolute left-3 top-3 text-gray-400"
+              size={18}
+            />
             <select
               value={formData.paymentMethod}
-              onChange={(e) => setFormData({...formData, paymentMethod: e.target.value})}
+              onChange={(e) =>
+                setFormData({ ...formData, paymentMethod: e.target.value })
+              }
               className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm appearance-none"
             >
               <option value={PaymentMethod.CASH}>EFECTIVO</option>
@@ -165,37 +216,48 @@ const TransactionForm = ({ initialData, onSubmit, onCancel, loading }: Transacti
           </div>
         </div>
 
-        {/* TOGGLE INDIGO / GRIS */}
+        {/* TOGGLE MÍNIMO: ÍNDIGO / GRIS */}
         <div className="md:col-span-2 pt-2">
-          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1 mb-2 block">Estado del registro</label>
-          <div 
-            onClick={() => setFormData({...formData, active: !formData.active})}
-            className={`flex items-center justify-between p-3 rounded-xl border cursor-pointer transition-all duration-200 group ${
-              formData.active ? 'bg-indigo-50 border-indigo-200 hover:bg-indigo-100' : 'bg-gray-50 border-gray-200 hover:bg-gray-100'
-            }`}
+          <div
+            onClick={() =>
+              setFormData({ ...formData, active: !formData.active })
+            }
+            className="flex items-center gap-3 cursor-pointer select-none w-fit"
           >
-            <div className="flex items-center gap-3">
-              {formData.active ? (
-                <CheckCircle2 className="text-indigo-600" size={20} />
-              ) : (
-                <XCircle className="text-gray-400" size={20} />
-              )}
-              <span className={`text-sm font-bold uppercase tracking-tight ${formData.active ? 'text-indigo-700' : 'text-gray-500'}`}>
-                {formData.active ? 'Transacción Activa' : 'Transacción Inactiva'}
-              </span>
+            {/* El Switch (Botón toggle) */}
+            <div
+              className={`w-10 h-5 flex items-center rounded-full p-1 transition-colors duration-300 ${
+                formData.active ? "bg-indigo-600" : "bg-gray-300"
+              }`}
+            >
+              <div
+                className={`bg-white w-3 h-3 rounded-full transform transition-transform duration-300 ${
+                  formData.active ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
             </div>
-            
-            {/* El Switch */}
-            <div className={`w-12 h-6 flex items-center rounded-full p-1 transition-colors duration-300 ${formData.active ? 'bg-indigo-600' : 'bg-gray-300'}`}>
-              <div className={`bg-white w-4 h-4 rounded-full shadow-sm transform transition-transform duration-300 ${formData.active ? 'translate-x-6' : 'translate-x-0'}`} />
-            </div>
+
+            {/* La Frase */}
+            <span
+              className={`text-sm font-bold uppercase tracking-tight transition-colors ${
+                formData.active ? "text-gray-700" : "text-gray-500"
+              }`}
+            >
+              {formData.active ? "Transacción Activa" : "Transacción Inactiva"}
+            </span>
           </div>
         </div>
-
       </div>
 
       <div className="pt-6 flex items-center justify-end gap-3 border-t border-gray-100">
-        <Button type="button" variant="secondary" onClick={onCancel} icon={<X size={18} />}>Cancelar</Button>
+        <Button
+          type="button"
+          variant="secondary"
+          onClick={onCancel}
+          icon={<X size={18} />}
+        >
+          Cancelar
+        </Button>
         <Button type="submit" variant="primary" isLoading={loading}>
           {initialData ? "Guardar Cambios" : "Registrar Movimiento"}
         </Button>

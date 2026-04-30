@@ -244,7 +244,7 @@ const ItemForm = ({
             )}
           </div>
           <span className="text-xs font-bold text-gray-700 uppercase tracking-tight flex items-center gap-2">
-            Artículo Activo {formData.active ? "" : "(Fuera de catálogo)"}
+            {formData.active ? "Artículo Activo" : "Artículo inactivo"}
             {!isAdmin && <Lock size={10} className="text-amber-500" />}
           </span>
         </div>

@@ -315,18 +315,32 @@ const MemberForm = ({
           </div>
         </div>
 
-        {/* Estado Activo */}
         <div className="flex items-center gap-3 mt-6">
-          <input
-            name="active"
-            type="checkbox"
-            checked={formData.active}
-            onChange={handleChange}
-            disabled={isSelf}
-            className="w-5 h-5 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer"
-          />
-          <label className="text-sm font-bold text-gray-700 cursor-pointer">
-            Usuario Activo {isSelf && "(No puedes desactivarte)"}
+          {/* Contenedor del Toggle */}
+          <label
+            className={`relative inline-flex items-center ${isSelf ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+          >
+            <input
+              type="checkbox"
+              name="active"
+              checked={formData.active}
+              onChange={handleChange}
+              disabled={isSelf}
+              className="sr-only peer"
+            />
+
+            {/* Línea/Fondo del Switch */}
+            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+
+            {/* Texto dinámico a la derecha */}
+            <span className="ml-3 text-sm font-bold text-gray-700">
+              {formData.active ? "Usuario Activo" : "Usuario Inactivo"}
+              {isSelf && (
+                <span className="ml-1 font-normal text-gray-500">
+                  (No puedes desactivarte)
+                </span>
+              )}
+            </span>
           </label>
         </div>
       </div>
