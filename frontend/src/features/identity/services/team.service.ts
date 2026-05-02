@@ -2,6 +2,16 @@ import api from '../../../api/axios';
 
 const ENDPOINT = '/identity/teams';
 
+export interface Team {
+  id: number;
+  name: string;
+  description: string;
+  active: boolean;
+  createdAt?: string;
+  updatedAt?: string;
+  deletedAt?: string | null;
+}
+
 export const teamService = {
   getAll: () => api.get(ENDPOINT),
   getById: (id: number) => api.get(`${ENDPOINT}/${id}`),

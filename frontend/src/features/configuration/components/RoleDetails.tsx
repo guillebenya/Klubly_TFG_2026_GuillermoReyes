@@ -22,20 +22,8 @@ const RoleDetails = ({ role }: RoleDetailsProps) => {
     role.name.toUpperCase(),
   );
 
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "---";
-    try {
-      return new Date(dateString).toLocaleDateString("es-ES", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit",
-      });
-    } catch (e) {
-      return "Formato inválido";
-    }
-  };
+  const formatDate = (dateString?: string) =>
+    dateString ? new Date(dateString).toLocaleString("es-ES") : "---";
 
   return (
     <div className="space-y-6">
@@ -48,7 +36,7 @@ const RoleDetails = ({ role }: RoleDetailsProps) => {
             <Shield size={28} />
           </div>
           <div>
-            <h4 className="text-xl font-black text-gray-900 leading-tight">
+            <h4 className="text-base font-black text-gray-900 leading-tight">
               {role.name}
             </h4>
             <div className="flex items-center gap-2 text-gray-500 mt-1">
@@ -92,7 +80,7 @@ const RoleDetails = ({ role }: RoleDetailsProps) => {
       >
         <div className="flex flex-col">
           <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
-            <Calendar size={10} /> Configurado el
+            <Calendar size={10} /> Registrado el
           </span>
           <span className="text-[11px] font-medium text-white mt-1">
             {formatDate(role.createdAt)}

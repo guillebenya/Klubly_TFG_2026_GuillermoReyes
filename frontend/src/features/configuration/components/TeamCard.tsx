@@ -1,6 +1,8 @@
 import React from "react";
 import { Users2, Edit2, Trash2, Eye } from "lucide-react";
 import Button from "../../../components/shared/Button";
+import Badge from "../../../components/shared/Badge"; // Importado
+import Card from "../../../components/shared/Card";   // Importado
 import { type Team } from "../services/team.service";
 
 interface TeamCardProps {
@@ -10,15 +12,14 @@ interface TeamCardProps {
   onDelete?: (id: number) => void;
 }
 
-
-
 const TeamCard = ({ team, onView, onEdit, onDelete }: TeamCardProps) => {
   const hasMembers = (team.memberCount || 0) > 0;
 
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+    <Card className={`!p-5 shadow-sm hover:shadow-md group relative overflow-hidden transition-all border-l-4 border-l-indigo-300 hover:border-indigo-600 ${team.active ? '' : 'opacity-65'}`}>
+      {/* Barra lateral de estado */}
       <div
-        className={`absolute left-0 top-0 bottom-0 w-1 ${team.active ? "bg-indigo-500" : "bg-gray-300"}`}
+        className="absolute left-0 top-0 bottom-0 w-1"
       />
 
       <div className="flex justify-between items-start mb-4">
@@ -40,7 +41,6 @@ const TeamCard = ({ team, onView, onEdit, onDelete }: TeamCardProps) => {
 
         {/* BOTONES ACCIÓN */}
         <div className="flex items-center gap-1 ">
-          {/* El botón de ver siempre está, porque onView es obligatoria */}
           <Button
             variant="ghost"
             size="sm"
@@ -51,7 +51,6 @@ const TeamCard = ({ team, onView, onEdit, onDelete }: TeamCardProps) => {
             <Eye size={16} />
           </Button>
 
-          {/* SOLO si existe onEdit (No estamos en historial) */}
           {onEdit && (
             <Button
               variant="ghost"
@@ -64,7 +63,6 @@ const TeamCard = ({ team, onView, onEdit, onDelete }: TeamCardProps) => {
             </Button>
           )}
 
-          {/* SOLO si existe onDelete (No estamos en historial) */}
           {onDelete && (
             <Button
               variant="ghost"
@@ -94,23 +92,28 @@ const TeamCard = ({ team, onView, onEdit, onDelete }: TeamCardProps) => {
             Número de integrantes:
           </span>
           <div className="flex items-center gap-1.5">
+            {/* Adaptado uso de Badge */}
             {hasMembers ? (
-              <div className="flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full">
-                <Users2 size={10} className="text-indigo-500" />
-                <span className="text-[10px] font-black uppercase">
-                  {team.memberCount} {team.memberCount === 1 ? 'Integrante' : 'Integrantes'}
-                </span>
-              </div>
+              <Badge 
+                variant="indigo" 
+                icon={<Users2 size={10} />}
+                className="rounded-full px-2.5 py-1 !font-black !uppercase"
+              >
+                {team.memberCount} {team.memberCount === 1 ? 'Integrante' : 'Integrantes'}
+              </Badge>
             ) : (
-              <div className="flex items-center gap-1 px-2.5 py-1 bg-gray-50 text-gray-400 border border-gray-100 rounded-full">
-                <Users2 size={10} />
-                <span className="text-[10px] font-bold uppercase tracking-tight">Vacío</span>
-              </div>
+              <Badge 
+                variant="gray" 
+                icon={<Users2 size={10} />}
+                className="rounded-full px-2.5 py-1 !font-bold !uppercase !tracking-tight !text-gray-400"
+              >
+                Vacío
+              </Badge>
             )}
           </div>
         </div>
       </div>
-    </div>
+    </Card>
   );
 };
 

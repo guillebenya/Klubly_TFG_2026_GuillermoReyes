@@ -51,7 +51,7 @@ const MemberCard = ({
   const isSelf = currentUser && member.id === currentUser.id;
 
   return (
-    <Card className="flex items-center gap-4 py-3 px-6 hover:border-indigo-300 transition-all shadow-sm">
+    <Card className={`flex items-center gap-4 py-3 px-6 border-l-4 border-l-indigo-300 hover:border-indigo-600 transition-all shadow-sm ${member.active ? "" : "opacity-65"}`}>
       {/* Avatar */}
       <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border border-indigo-50 shrink-0">
         {member.avatarURL ? (

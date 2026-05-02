@@ -22,8 +22,7 @@ const MainLayout = () => {
   const navigate = useNavigate();
 
   const currentUser = authService.getCurrentUser();
-  console.log("CONTENIDO REAL DEL USER EN STORAGE:", currentUser); // <--- AÑADE ESTO
-
+  console.log("CONTENIDO REAL DEL USER EN STORAGE:", currentUser);
   useEffect(() => {
     const closeDropdown = () => setIsProfileOpen(false);
     if (isProfileOpen) {
@@ -43,7 +42,7 @@ const MainLayout = () => {
 
   const isSystemRole = ["ADMIN", "STAFF", "MEMBER"].includes(userRole);
 
-  // Definimos todos los items posibles
+  // Definimos todas las secciones posibles
   const allMenuItems = [
     {
       path: "/dashboard",
@@ -107,19 +106,27 @@ const MainLayout = () => {
       {/* HEADER (Ocupa todo el ancho superior) */}
       <header className="h-20 w-full bg-white border-b border-gray-200 flex items-center justify-between px-8 shadow-sm z-20">
         {/* LOGO */}
-        <div className="flex items-center w-64">
+        <Link
+          to="/dashboard"
+          className="flex items-center w-64 transition-opacity hover:opacity-80"
+        >
           <img src={logo} alt="Klubly Logo" className="h-14 w-auto" />
-        </div>
+        </Link>
 
-        {/* CONTENEDOR CENTRAL - Ahora es flexible */}
-        <div className="flex-1 flex flex-col items-center justify-center min-w-0">
-          <h1 className="text-2xl font-black text-blue-950 tracking-tighter leading-none">
-            KLUBLY
-          </h1>
-          <p className="text-[10px] font-bold text-indigo-500 tracking-[0.2em] uppercase mt-1 whitespace-nowrap">
-            Gestor de Entidades Deportivas
-          </p>
-        </div>
+        {/* CONTENEDOR CENTRAL */}
+<div className="flex-1 flex flex-col items-center justify-center min-w-0">
+  
+  <Link to="/dashboard">
+    <h1 className="text-2xl font-black text-blue-950 tracking-tighter leading-none hover:text-indigo-600 transition-colors">
+      KLUBLY
+    </h1>
+  </Link>
+
+  <p className="text-[10px] font-bold text-indigo-500 tracking-[0.2em] uppercase mt-1 whitespace-nowrap">
+    Gestor de Entidades Deportivas
+  </p>
+  
+</div>
 
         <div className="flex justify-end w-64">
           <div className="relative">

@@ -6,12 +6,12 @@ import {
   Lock,
   LockOpen,
   Eye,
-  Users,
   Users2,
 } from "lucide-react";
 import Button from "../../../components/shared/Button";
-import { type Role } from "../services/role.service";
 import Badge from "../../../components/shared/Badge";
+import Card from "../../../components/shared/Card"; // 1. Adaptado uso de Card
+import { type Role } from "../services/role.service";
 
 interface RoleCardProps {
   role: Role;
@@ -26,7 +26,6 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
   );
   const hasUsers = (role.userCount || 0) > 0;
 
-  // Función para determinar el mensaje del tooltip de borrado
   const getDeleteTooltip = () => {
     if (isSystemRole) return "Los roles de sistema no se pueden eliminar";
     if (hasUsers) return "No puedes eliminar un rol con usuarios asociados";
@@ -34,9 +33,9 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
   };
 
   return (
-    <div className="bg-white border border-gray-100 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all group relative overflow-hidden">
+    <Card className={`!p-5 shadow-sm hover:shadow-md group relative overflow-hidden transition-all border-l-4 ${isSystemRole ? "border-l-indigo-300 hover:border-indigo-600" : "border-l-gray-300 hover:border-gray-500"} ${role.active ? '' : 'opacity-65'}`}>
       <div
-        className={`absolute left-0 top-0 bottom-0 w-1 ${isSystemRole ? "bg-indigo-500" : "bg-gray-200"}`}
+        className={`absolute left-0 top-0 bottom-0 w-1 `}
       />
 
       <div className="flex justify-between items-start mb-4">
@@ -51,7 +50,6 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
               <h3 className="text-sm font-bold text-gray-800 uppercase tracking-tight line-clamp-1">
                 {role.name}
               </h3>
-
             </div>
 
             {isSystemRole ? (
@@ -82,7 +80,6 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
             <Eye size={16} />
           </Button>
 
-          {/* 2. RENDERIZADO CONDICIONAL: Solo si onEdit existe */}
           {onEdit && (
             <Button
               variant="ghost"
@@ -100,7 +97,6 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
             </Button>
           )}
 
-          {/* 3. RENDERIZADO CONDICIONAL: Solo si onDelete existe */}
           {onDelete && (
             <Button
               variant="ghost"
@@ -127,22 +123,26 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
           Número de usuarios con este rol:
         </span>
         <div className="flex items-center gap-1.5">
-            {hasUsers ? (
-              <div className="flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full">
-                <Users2 size={10} className="text-indigo-500" />
-                <span className="text-[10px] font-black uppercase">
-                  {role.userCount} {role.userCount === 1 ? 'Usuario' : 'Usuarios'}
-                </span>
-              </div>
-            ) : (
-              <div className="flex items-center gap-1 px-2.5 py-1 bg-gray-50 text-gray-400 border border-gray-100 rounded-full">
-                <Users2 size={10} />
-                <span className="text-[10px] font-bold uppercase tracking-tight">Vacío</span>
-              </div>
-            )}
-          </div>
+          {hasUsers ? (
+            <Badge 
+              variant="indigo" 
+              icon={<Users2 size={10} />} 
+              className="rounded-full px-2.5 py-1 !font-black !uppercase"
+            >
+              {role.userCount} {role.userCount === 1 ? 'Usuario' : 'Usuarios'}
+            </Badge>
+          ) : (
+            <Badge 
+              variant="gray" 
+              icon={<Users2 size={10} />} 
+              className="rounded-full px-2.5 py-1 !font-bold !uppercase !tracking-tight !text-gray-400"
+            >
+              Vacío
+            </Badge>
+          )}
+        </div>
       </div>
-    </div>
+    </Card>
   );
 };
 

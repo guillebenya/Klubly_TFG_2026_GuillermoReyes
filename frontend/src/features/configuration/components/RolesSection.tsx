@@ -235,7 +235,7 @@ const RolesSection = () => {
         <form onSubmit={handleSaveTrigger} className="space-y-4">
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">
-              Nombre del Rol
+              Nombre del Rol<span className="text-red-500">*</span>
             </label>
             <input
               required

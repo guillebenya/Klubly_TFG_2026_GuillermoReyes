@@ -32,8 +32,8 @@ const ItemCard = ({ item, onView, onEdit, onDelete }: ItemCardProps) => {
   const isOutOfStock = item.stockQuantity === 0;
 
   return (
-    <Card className={`flex items-center gap-4 py-3 px-6 transition-all shadow-sm group relative border-l-4 ${
-      isLowStock ? "border-l-red-500 hover:border-red-300 bg-red-50/10" : "border-l-transparent hover:border-indigo-300"
+    <Card className={`flex items-center gap-4 py-3 px-6 transition-all shadow-sm group relative border-l-4 ${item.active ? "" : "opacity-65"} ${
+      isLowStock ? "border-l-red-500 hover:border-red-300 bg-red-50/10" : "border-l-indigo-300 hover:border-indigo-600"
     }`}>
       
       {/* Icono Principal con Badge de Alerta superpuesto */}
@@ -136,7 +136,7 @@ const ItemCard = ({ item, onView, onEdit, onDelete }: ItemCardProps) => {
       </div>
 
       {/* Acciones */}
-      <div className="flex items-center gap-1 shrink-0 ml-4 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="flex items-center gap-1 shrink-0 ml-4 ">
         <Button
           variant="ghost"
           size="sm"

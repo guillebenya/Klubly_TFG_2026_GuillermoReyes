@@ -63,6 +63,12 @@ public class UserService {
         return convertToDTO(user);
     }
 
+    public List<UserDTO> getUsersByTeam(Long teamId) {
+    return userRepository.findByTeamId(teamId).stream()
+            .map(this::convertToDTO)
+            .collect(Collectors.toList());
+}
+
     @Transactional
     public UserDTO createUser(UserDTO userDTO){
         checkAdminRole();
@@ -154,7 +160,7 @@ public class UserService {
             }
         }
 
-        // 4. CAMPOS COMUNES (ADMIN puede todo, STAFF/MEMBER solo los suyos)
+        // CAMPOS COMUNES (ADMIN puede todo, STAFF/MEMBER solo los suyos)
         // Estos campos se actualizan siempre (porque si no es Admin, ya validamos que es Owner)
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());

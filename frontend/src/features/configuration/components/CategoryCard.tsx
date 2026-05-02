@@ -1,42 +1,35 @@
 import React from "react";
-import { 
-  Tag, 
-  Edit2, 
-  Trash2, 
-  Eye, 
-  Package, 
-  Info 
-} from "lucide-react";
+import { Tag, Edit2, Trash2, Eye, Package } from "lucide-react";
 import Card from "../../../components/shared/Card";
 import Badge from "../../../components/shared/Badge";
 import Button from "../../../components/shared/Button";
 import { type Category } from "../services/category.service";
 
 interface CategoryCardProps {
-  category: any; // Usamos any o extendemos la interfaz Category para incluir itemCount
-  onView: (category: any) => void;
-  onEdit?: (category: any) => void;
+  category: Category; // Cambiado de any a Category
+  onView: (category: Category) => void;
+  onEdit?: (category: Category) => void;
   onDelete?: (id: number) => void;
 }
 
-const CategoryCard = ({ 
-  category, 
-  onView, 
-  onEdit, 
-  onDelete 
+const CategoryCard = ({
+  category,
+  onView,
+  onEdit,
+  onDelete,
 }: CategoryCardProps) => {
-  
   const hasItems = (category.itemCount || 0) > 0;
 
   return (
-    <Card className="flex flex-col gap-4 py-4 px-6 hover:border-indigo-300 transition-all shadow-sm group relative overflow-hidden">
-      {/* Indicador lateral de estado */}
-      <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${category.active ? "bg-indigo-500" : "bg-gray-300"}`} />
-
+    <Card className={`flex flex-col gap-4 !py-4 !px-6 border-l-4 border-l-indigo-300 hover:border-indigo-600 transition-all !shadow-sm group relative overflow-hidden ${category.active ? "" : "opacity-65"}`}>
+      
+      <div className="absolute left-0 top-0 bottom-0 w-1.5" />
       {/* CABECERA: Icono + Info + Botones */}
       <div className="flex items-start justify-between gap-4">
         <div className="flex items-center gap-3 min-w-0">
-          <div className={`p-2.5 rounded-xl shrink-0 ${category.active ? "bg-indigo-50 text-indigo-600" : "bg-gray-50 text-gray-400"}`}>
+          <div
+            className={`p-2.5 rounded-xl shrink-0 ${category.active ? "bg-indigo-50 text-indigo-600" : "bg-gray-50 text-gray-400"}`}
+          >
             <Tag size={20} />
           </div>
           <div className="min-w-0">
@@ -49,7 +42,7 @@ const CategoryCard = ({
           </div>
         </div>
 
-        {/* ACCIONES (Se muestran siempre en móvil, hover en desktop) */}
+        {/* ACCIONES */}
         <div className="flex items-center gap-1 shrink-0">
           <Button
             variant="ghost"
@@ -59,7 +52,7 @@ const CategoryCard = ({
             className="!text-blue-600 hover:!bg-blue-50"
             title="Ver detalles"
           />
-          
+
           {onEdit && (
             <Button
               variant="ghost"
@@ -79,7 +72,11 @@ const CategoryCard = ({
               onClick={() => onDelete(category.id)}
               disabled={hasItems}
               className="!text-red-500 hover:!bg-red-50 disabled:opacity-30 disabled:cursor-not-allowed"
-              title={hasItems ? "No puedes eliminar una categoría con productos asociados" : "Eliminar categoría"}
+              title={
+                hasItems
+                  ? "No puedes eliminar una categoría con productos asociados"
+                  : "Eliminar categoría"
+              }
             />
           )}
         </div>
@@ -88,29 +85,34 @@ const CategoryCard = ({
       {/* CUERPO: Descripción */}
       <div className="flex-1">
         <p className="text-xs text-gray-500 leading-relaxed line-clamp-2 italic">
-          {category.description || "Sin descripción definida para esta categoría."}
+          {category.description ||
+            "Sin descripción definida para esta categoría."}
         </p>
       </div>
 
-      {/* FOOTER: Contador de Items*/}
+      {/* FOOTER: Contador de Items unificado con Badge */}
       <div className="flex items-center justify-between pt-3 border-t border-gray-50">
         <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
           Productos Vinculados:
         </span>
-        
+
         <div className="flex items-center gap-1.5">
           {hasItems ? (
-            <div className="flex items-center gap-1 px-2.5 py-1 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full">
-              <Package size={10} className="text-indigo-500" />
-              <span className="text-[10px] font-black uppercase">
-                {category.itemCount} {category.itemCount === 1 ? 'Ítem' : 'Ítems'}
-              </span>
-            </div>
+            <Badge
+              variant="indigo"
+              icon={<Package size={10} className="text-indigo-500" />}
+              className="rounded-full px-2.5 py-1 !font-black !uppercase"
+            >
+              {category.itemCount} {category.itemCount === 1 ? "Ítem" : "Ítems"}
+            </Badge>
           ) : (
-            <div className="flex items-center gap-1 px-2.5 py-1 bg-gray-50 text-gray-400 border border-gray-100 rounded-full">
-              <Package size={10} />
-              <span className="text-[10px] font-bold uppercase tracking-tight">Vacía</span>
-            </div>
+            <Badge
+              variant="gray"
+              icon={<Package size={10} />}
+              className="rounded-full px-2.5 py-1 !font-bold !uppercase !tracking-tight !text-gray-400"
+            >
+              Vacía
+            </Badge>
           )}
         </div>
       </div>

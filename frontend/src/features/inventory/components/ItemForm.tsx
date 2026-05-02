@@ -5,7 +5,7 @@ import {
   MapPin,
   Layers,
   X,
-  Lock, // Importamos el candado
+  Lock,
 } from "lucide-react";
 import Button from "../../../components/shared/Button";
 import { categoryService, type Category } from "../services/category.service";
@@ -88,16 +88,14 @@ const ItemForm = ({
     onSubmit(dataToSubmit);
   };
 
-  //COMPONENTE AUXILIAR PARA LABELS BLOQUEADOS
-  const FieldLabel = ({ label, isLocked }: { label: string; isLocked: boolean }) => (
+  const FieldLabel = ({ label, isLocked, required }: { label: string; isLocked: boolean; required?: boolean }) => (
     <div className="flex items-center gap-1.5 ml-1 mb-1">
       <label className={`text-[11px] font-bold uppercase ${isLocked ? "text-gray-400" : "text-gray-500"}`}>
-        {label}
+        {label} {required && <span className="text-red-500">*</span>}
       </label>
       {isLocked && (
         <div className="group relative flex items-center">
           <Lock size={12} className="text-amber-500" />
-          {/* TOOLTIP */}
           <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block w-48 p-2 bg-gray-900 text-white text-[10px] rounded-lg shadow-xl z-50 text-center leading-tight">
             Solo los administradores pueden modificar este campo.
             <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-gray-900" />
@@ -107,7 +105,6 @@ const ItemForm = ({
     </div>
   );
 
-  // Definimos qué campos están bloqueados para el Staff en edición
   const isEdit = !!initialData;
   const lockForStaff = !isAdmin && isEdit;
 
@@ -117,7 +114,7 @@ const ItemForm = ({
         
         {/* Nombre del Artículo */}
         <div className="space-y-1 md:col-span-2">
-          <FieldLabel label="Nombre del Producto" isLocked={lockForStaff} />
+          <FieldLabel label="Nombre del Producto" isLocked={lockForStaff} required />
           <div className="relative">
             <Package className="absolute left-3 top-3 text-gray-400" size={18} />
             <input
@@ -135,7 +132,7 @@ const ItemForm = ({
 
         {/* Categoría */}
         <div className="space-y-1">
-          <FieldLabel label="Categoría" isLocked={lockForStaff} />
+          <FieldLabel label="Categoría" isLocked={lockForStaff} required />
           <div className="relative">
             <Layers className="absolute left-3 top-3 text-gray-400" size={18} />
             <select
@@ -160,7 +157,7 @@ const ItemForm = ({
           </div>
         </div>
 
-        {/* Ubicación (EL STAFF SÍ PUEDE EDITAR ESTO) */}
+        {/* Ubicación */}
         <div className="space-y-1">
           <FieldLabel label="Ubicación en Almacén" isLocked={false} />
           <div className="relative">
@@ -175,9 +172,9 @@ const ItemForm = ({
           </div>
         </div>
 
-        {/* Stock Actual (EL STAFF SÍ PUEDE EDITAR ESTO) */}
+        {/* Stock Actual*/}
         <div className="space-y-1">
-          <FieldLabel label="Stock Actual" isLocked={false} />
+          <FieldLabel label="Stock Actual" isLocked={false} required />
           <div className="relative">
             <input
               type="number"
@@ -191,9 +188,9 @@ const ItemForm = ({
           </div>
         </div>
 
-        {/* Stock Mínimo (RESTRINGIDO A ADMIN SIEMPRE) */}
+        {/* Stock Mínimo */}
         <div className="space-y-1">
-          <FieldLabel label="Stock Mínimo" isLocked={!isAdmin} />
+          <FieldLabel label="Stock Mínimo" isLocked={!isAdmin} required />
           <div className="relative">
             <input
               type="number"
@@ -223,7 +220,7 @@ const ItemForm = ({
           />
         </div>
 
-        {/* Estado Activo (Toggle) */}
+        {/* Estado Activo */}
         <div className="md:col-span-2 flex items-center gap-3 py-2 ml-1">
           <div className="group relative flex items-center gap-3">
             <div
@@ -235,7 +232,6 @@ const ItemForm = ({
               <div className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-200 ${formData.active ? "left-6" : "left-1"}`} />
             </div>
             
-            {/* Tooltip para el Toggle si no es Admin */}
             {!isAdmin && (
               <div className="absolute bottom-full left-0 mb-2 hidden group-hover:block w-48 p-2 bg-gray-900 text-white text-[10px] rounded-lg shadow-xl z-50 text-center leading-tight">
                 Solo administradores pueden cambiar el estado de disponibilidad.
@@ -250,12 +246,11 @@ const ItemForm = ({
         </div>
       </div>
 
-      {/* BOTONES DE ACCIÓN */}
       <div className="pt-6 flex items-center justify-end gap-3 border-t border-gray-100">
         <Button type="button" variant="secondary" onClick={onCancel} disabled={loading} icon={<X size={18} />}>
           Cancelar
         </Button>
-        <Button type="submit" variant="primary" isLoading={loading}>
+        <Button type="submit" variant={initialData ? "primary" : "add"} isLoading={loading}>
           {initialData ? "Guardar Cambios" : "Añadir al Inventario"}
         </Button>
       </div>

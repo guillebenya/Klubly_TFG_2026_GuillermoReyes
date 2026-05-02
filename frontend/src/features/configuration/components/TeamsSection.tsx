@@ -204,7 +204,7 @@ const TeamsSection = () => {
         <form onSubmit={handleSaveTrigger} className="space-y-4">
           <div>
             <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">
-              Nombre del Equipo
+              Nombre del Equipo<span className="text-red-500">*</span>
             </label>
             <input
               required
@@ -265,7 +265,7 @@ const TeamsSection = () => {
               </p>
             )}
           </div>
-          <div className="flex justify-end gap-3 pt-4 border-t">
+          <div className="flex justify-end gap-3 pt-1">
             <Button
               type="button"
               variant="secondary"

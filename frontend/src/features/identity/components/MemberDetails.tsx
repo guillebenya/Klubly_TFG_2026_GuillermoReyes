@@ -23,16 +23,8 @@ interface MemberDetailsProps {
 }
 
 const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
-  const formatDate = (dateString: string) => {
-    if (!dateString) return "---";
-    return new Date(dateString).toLocaleDateString("es-ES", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const formatDate = (dateString?: string) =>
+    dateString ? new Date(dateString).toLocaleString("es-ES") : "---";
 
   // Lógica de Identidad y Seguridad
   const currentUser = authService.getCurrentUser();
@@ -192,10 +184,10 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
       {/* CAMPOS AUDITORÍA (Solo ADMIN) */}
       {isAdmin && (
         <div
-        className={`p-4 bg-slate-900 rounded-2xl grid gap-4 ${
-          member.deletedAt ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-2"
-        }`}
-      >
+          className={`p-4 bg-slate-900 rounded-2xl grid gap-4 ${
+            member.deletedAt ? "grid-cols-2 sm:grid-cols-3" : "grid-cols-2"
+          }`}
+        >
           <div className="flex flex-col">
             <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
               <Calendar size={10} /> Registrado el
@@ -214,18 +206,18 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
           </div>
 
           {member.deletedAt && (
-          <div className="flex flex-col border-t border-slate-800 sm:border-t-0 sm:border-l sm:pl-4 pt-3 sm:pt-0">
-            <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
-              <Trash2 size={10} /> Eliminado el
-            </span>
-            <span
-              className={`text-[11px] font-medium mt-1 ${member.deletedAt ? "text-red-400" : "text-slate-500 italic"}`}
-            >
-              {member.deletedAt
-                ? formatDate(member.deletedAt)
-                : "Este usuario no ha sido eliminado"}
-            </span>
-          </div>
+            <div className="flex flex-col border-t border-slate-800 sm:border-t-0 sm:border-l sm:pl-4 pt-3 sm:pt-0">
+              <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
+                <Trash2 size={10} /> Eliminado el
+              </span>
+              <span
+                className={`text-[11px] font-medium mt-1 ${member.deletedAt ? "text-red-400" : "text-slate-500 italic"}`}
+              >
+                {member.deletedAt
+                  ? formatDate(member.deletedAt)
+                  : "Este usuario no ha sido eliminado"}
+              </span>
+            </div>
           )}
         </div>
       )}

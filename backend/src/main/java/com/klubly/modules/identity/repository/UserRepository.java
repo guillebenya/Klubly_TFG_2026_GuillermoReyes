@@ -5,6 +5,8 @@ import com.klubly.modules.identity.entity.User;
 
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -19,6 +21,10 @@ public interface UserRepository extends JpaRepository<User, Long> {
     //Para el login y para buscar perfiles (solo activos)
     Optional<User> findByUsernameAndDeletedAtIsNull(String username);
     Optional<User> findByEmailAndDeletedAtIsNull(String email);
+    //Consulta para buscar usuarios que tengan una afiliación con ese equipo
+    @EntityGraph(attributePaths = {"affiliations.team", "role"})
+    @Query("SELECT u FROM User u JOIN u.affiliations a WHERE a.team.id = :teamId AND u.active = true")
+    List<User> findByTeamId(@Param("teamId") Long teamId);
 
     //Para validar si el usuario existe al crear o editar
     boolean existsByUsernameAndDeletedAtIsNull(String username);

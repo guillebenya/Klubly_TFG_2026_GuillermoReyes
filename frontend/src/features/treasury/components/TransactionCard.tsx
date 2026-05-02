@@ -1,41 +1,44 @@
 import React from "react";
-import { 
-  TrendingUp, 
-  TrendingDown, 
-  Calendar, 
-  User, 
-  CreditCard, 
-  Banknote, 
+import {
+  TrendingUp,
+  TrendingDown,
+  Calendar,
+  User,
+  CreditCard,
+  Banknote,
   ArrowRightLeft,
   Eye,
   Edit2,
   Trash2,
   Wallet,
   ArrowUpRight,
-  ArrowDownLeft,
-  ArrowDownRight
+  ArrowDownRight,
+  ArrowUpDown,
 } from "lucide-react";
 import Card from "../../../components/shared/Card";
 import Badge from "../../../components/shared/Badge";
 import Button from "../../../components/shared/Button";
-import { type Transaction, TransactionType, PaymentMethod } from "../services/treasury.service";
+import {
+  type Transaction,
+  TransactionType,
+  PaymentMethod,
+} from "../services/treasury.service";
 
 interface TransactionCardProps {
   transaction: Transaction;
   onView: (t: Transaction) => void;
   onEdit?: (t: Transaction) => void;
   onDelete?: (id: number) => void;
-  isMemberView?: boolean; 
+  isMemberView?: boolean;
 }
 
-const TransactionCard = ({ 
-  transaction, 
-  onView, 
-  onEdit, 
+const TransactionCard = ({
+  transaction,
+  onView,
+  onEdit,
   onDelete,
-  isMemberView = false 
+  isMemberView = false,
 }: TransactionCardProps) => {
-  
   const isClubIncome = transaction.type === TransactionType.INCOME;
 
   // LÓGICA SEMÁNTICA DE INTERCAMBIO
@@ -47,46 +50,60 @@ const TransactionCard = ({
           label: "PAGO REALIZADO",
           variant: "red" as const,
           icon: <ArrowDownRight size={10} />,
-          colorClass: "text-red-600"
+          colorClass: "text-red-600",
         };
-      } 
+      }
       // Caso 2: El club pagó al socio (Expense para el club, ingreso para el socio)
       return {
         label: "RECIBIDO / REEMBOLSO",
         variant: "green" as const,
         icon: <ArrowUpRight size={10} />,
-        colorClass: "text-green-600"
+        colorClass: "text-green-600",
       };
     }
 
-    // VISTA ADMIN (Estándar contable)
+    // VISTA ADMIN
     return {
       label: isClubIncome ? "INGRESO" : "GASTO",
-      variant: isClubIncome ? "green" as const : "red" as const,
-      icon: isClubIncome ? <TrendingUp size={10} /> : <TrendingDown size={10} />,
-      colorClass: isClubIncome ? "text-emerald-600" : "text-rose-600"
+      variant: isClubIncome ? ("green" as const) : ("red" as const),
+      icon: isClubIncome ? (
+        <TrendingUp size={10} />
+      ) : (
+        <TrendingDown size={10} />
+      ),
+      colorClass: isClubIncome ? "text-emerald-600" : "text-rose-600",
     };
   };
 
   const config = getBadgeConfig();
 
   const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat("es-ES", { style: "currency", currency: "EUR" }).format(amount);
+    return new Intl.NumberFormat("es-ES", {
+      style: "currency",
+      currency: "EUR",
+    }).format(amount);
   };
 
   const formatDateTime = (dateStr: string) => {
     return new Date(dateStr).toLocaleString("es-ES", {
-      day: "2-digit", month: "2-digit", year: "numeric",
-      hour: "2-digit", minute: "2-digit"
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
   };
 
   const getPaymentIcon = () => {
     switch (transaction.paymentMethod) {
-      case PaymentMethod.CARD: return <CreditCard size={12} />;
-      case PaymentMethod.CASH: return <Banknote size={12} />;
-      case PaymentMethod.TRANSFER: return <ArrowRightLeft size={12} />;
-      default: return <Wallet size={12} />;
+      case PaymentMethod.CARD:
+        return <CreditCard size={12} />;
+      case PaymentMethod.CASH:
+        return <Banknote size={12} />;
+      case PaymentMethod.TRANSFER:
+        return <ArrowRightLeft size={12} />;
+      default:
+        return <Wallet size={12} />;
     }
   };
 
@@ -100,14 +117,23 @@ const TransactionCard = ({
   );
 
   return (
-    <Card className={`flex items-center gap-4 py-3 px-6 hover:border-indigo-300 transition-all shadow-sm group border-l-4 ${
-      isMemberView 
-        ? (isClubIncome ? "border-l-red-500" : "border-l-emerald-500") 
-        : (isClubIncome ? "border-l-emerald-500" : "border-l-rose-500")
-    }`}>
-      
+    <Card
+      className={`flex items-center gap-4 py-3 px-6 hover:border-indigo-600 transition-all shadow-sm group border-l-4 ${transaction.active ? "" : "opacity-65"} ${
+        isMemberView
+          ? isClubIncome
+            ? "border-l-red-500"
+            : "border-l-emerald-500"
+          : isClubIncome
+            ? "border-l-emerald-500"
+            : "border-l-rose-500"
+      }`}
+    >
       <div className="flex items-center justify-between flex-1 min-w-0 gap-4">
-        
+        {/* ICONO DE ACTIVIDAD */}
+        <div className="flex-shrink-0 p-3 bg-indigo-50 text-indigo-600 rounded-2xl border border-indigo-100">
+          <ArrowUpDown size={24} />
+        </div>
+
         {/* Usuario (Solo visible para Admin) */}
         {!isMemberView && (
           <Column title="Socio / Beneficiario" className="min-w-[150px]">
@@ -128,11 +154,11 @@ const TransactionCard = ({
         </Column>
 
         {/* Tipo / Estado Adaptado */}
-        <Column title={isMemberView ? "Movimiento" : "Tipo"} className="min-w-[130px]">
-          <Badge 
-            variant={config.variant}
-            icon={config.icon}
-          >
+        <Column
+          title={isMemberView ? "Movimiento" : "Tipo"}
+          className="min-w-[130px]"
+        >
+          <Badge variant={config.variant} icon={config.icon}>
             {config.label}
           </Badge>
         </Column>
@@ -140,7 +166,8 @@ const TransactionCard = ({
         {/* Importe */}
         <Column title="Importe" className="min-w-[100px]">
           <span className={`text-sm font-black ${config.colorClass}`}>
-            {!isMemberView && (isClubIncome ? "+" : "-")} {formatCurrency(transaction.amount)}
+            {!isMemberView && (isClubIncome ? "+" : "-")}{" "}
+            {formatCurrency(transaction.amount)}
           </span>
         </Column>
 
@@ -148,7 +175,9 @@ const TransactionCard = ({
         <Column title="Método" className="min-w-[100px]">
           <div className="flex items-center gap-1.5 text-gray-500">
             {getPaymentIcon()}
-            <span className="text-[10px] font-black uppercase">{transaction.paymentMethod}</span>
+            <span className="text-[10px] font-black uppercase">
+              {transaction.paymentMethod}
+            </span>
           </div>
         </Column>
 
@@ -156,7 +185,9 @@ const TransactionCard = ({
         <Column title="Fecha y Hora" className="min-w-[120px]">
           <div className="flex items-center gap-1.5 text-gray-400">
             <Calendar size={12} />
-            <span className="text-[10px] font-bold">{formatDateTime(transaction.transactionDate)}</span>
+            <span className="text-[10px] font-bold">
+              {formatDateTime(transaction.transactionDate)}
+            </span>
           </div>
         </Column>
       </div>
@@ -170,7 +201,7 @@ const TransactionCard = ({
           onClick={() => onView(transaction)}
           className="!text-blue-600 hover:!bg-blue-50"
         />
-        
+
         {!isMemberView && (
           <>
             {onEdit && (

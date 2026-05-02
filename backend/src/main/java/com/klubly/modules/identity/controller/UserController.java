@@ -49,6 +49,11 @@ public class UserController {
         return ResponseEntity.ok(userService.getUserByUsername(username));
     }
 
+    @GetMapping("/team/{teamId}")
+    public ResponseEntity<List<UserDTO>> getUsersByTeam(@PathVariable Long teamId) {
+        return ResponseEntity.ok(userService.getUsersByTeam(teamId));
+    }
+
     @PostMapping
     public ResponseEntity<UserDTO> create(@RequestBody UserDTO userDTO) {
         return new ResponseEntity<>(userService.createUser(userDTO), HttpStatus.CREATED);

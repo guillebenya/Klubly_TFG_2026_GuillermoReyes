@@ -86,7 +86,7 @@ const TransactionForm = ({
         {/* Concepto */}
         <div className="space-y-1 md:col-span-2">
           <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
-            Concepto del Movimiento
+            Concepto del Movimiento<span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <FileText
@@ -108,7 +108,7 @@ const TransactionForm = ({
         {/* Socio Vinculado */}
         <div className="space-y-1 md:col-span-2">
           <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
-            Socio / Usuario (Opcional)
+            Socio / Usuario<span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <User className="absolute left-3 top-3 text-gray-400" size={18} />
@@ -132,7 +132,7 @@ const TransactionForm = ({
         {/* Importe */}
         <div className="space-y-1">
           <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
-            Importe (€)
+            Importe (€)<span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <Euro className="absolute left-3 top-3 text-gray-400" size={18} />
@@ -153,7 +153,7 @@ const TransactionForm = ({
         {/* Fecha y Hora */}
         <div className="space-y-1">
           <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
-            Fecha y Hora
+            Fecha y Hora<span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <Calendar
@@ -175,7 +175,7 @@ const TransactionForm = ({
         {/* Tipo */}
         <div className="space-y-1">
           <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
-            Tipo
+            Tipo<span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <Tag className="absolute left-3 top-3 text-gray-400" size={18} />
@@ -195,7 +195,7 @@ const TransactionForm = ({
         {/* Método */}
         <div className="space-y-1">
           <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
-            Método de Pago
+            Método de Pago<span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <CreditCard
@@ -216,7 +216,7 @@ const TransactionForm = ({
           </div>
         </div>
 
-        {/* TOGGLE MÍNIMO: ÍNDIGO / GRIS */}
+        {/* TOGGLE:*/}
         <div className="md:col-span-2 pt-2">
           <div
             onClick={() =>
@@ -258,7 +258,7 @@ const TransactionForm = ({
         >
           Cancelar
         </Button>
-        <Button type="submit" variant="primary" isLoading={loading}>
+        <Button type="submit" variant={initialData ? "primary" : "add"} isLoading={loading}>
           {initialData ? "Guardar Cambios" : "Registrar Movimiento"}
         </Button>
       </div>

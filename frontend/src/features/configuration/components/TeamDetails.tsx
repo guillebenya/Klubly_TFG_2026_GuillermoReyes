@@ -9,16 +9,8 @@ interface TeamDetailsProps {
 }
 
 const TeamDetails = ({ team }: TeamDetailsProps) => {
-  const formatDate = (dateString?: string) => {
-    if (!dateString) return "---";
-    return new Date(dateString).toLocaleDateString("es-ES", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    });
-  };
+  const formatDate = (dateString?: string) =>
+    dateString ? new Date(dateString).toLocaleString("es-ES") : "---";
 
   return (
     <div className="space-y-6">
@@ -28,12 +20,12 @@ const TeamDetails = ({ team }: TeamDetailsProps) => {
             <Users2 size={28} />
           </div>
           <div>
-            <h4 className="text-xl font-black text-gray-900 leading-tight">
+            <h4 className="text-base font-black text-gray-900 leading-tight">
               {team.name}
             </h4>
-            <p className="text-xs text-gray-500 font-bold uppercase tracking-tighter mt-1">
-              Ficha del equipo
-            </p>
+            <span className="text-xs font-bold uppercase tracking-tight">
+              ID del Equipo: #{team.id}
+            </span>
           </div>
         </div>
         <div className="flex flex-col items-end gap-2">
@@ -64,7 +56,7 @@ const TeamDetails = ({ team }: TeamDetailsProps) => {
       >
         <div className="flex flex-col">
           <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
-            <Calendar size={10} /> Creado el
+            <Calendar size={10} /> Registrado el
           </span>
           <span className="text-[11px] font-medium text-white mt-1">
             {formatDate(team.createdAt)}
@@ -79,18 +71,18 @@ const TeamDetails = ({ team }: TeamDetailsProps) => {
           </span>
         </div>
         {team.deletedAt && (
-        <div className="flex flex-col border-t border-slate-800 sm:border-t-0 sm:border-l sm:pl-4 pt-3 sm:pt-0">
-          <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
-            <Trash2 size={10} /> Eliminado el
-          </span>
-          <span
-            className={`text-[11px] font-medium mt-1 ${team.deletedAt ? "text-red-400" : "text-slate-500 italic"}`}
-          >
-            {team.deletedAt
-              ? formatDate(team.deletedAt)
-              : "Este equipo no ha sido eliminado"}
-          </span>
-        </div>
+          <div className="flex flex-col border-t border-slate-800 sm:border-t-0 sm:border-l sm:pl-4 pt-3 sm:pt-0">
+            <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
+              <Trash2 size={10} /> Eliminado el
+            </span>
+            <span
+              className={`text-[11px] font-medium mt-1 ${team.deletedAt ? "text-red-400" : "text-slate-500 italic"}`}
+            >
+              {team.deletedAt
+                ? formatDate(team.deletedAt)
+                : "Este equipo no ha sido eliminado"}
+            </span>
+          </div>
         )}
       </div>
     </div>

@@ -154,7 +154,7 @@ const MemberTeamsManager = ({ member, onRefresh }: MemberTeamsManagerProps) => {
       {/* FORMULARIO PARA AÑADIR */}
       <div className="space-y-3">
         <h5 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
-          Añadir a un equipo
+          Añadir a un equipo<span className="text-red-500">*</span>
         </h5>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <select

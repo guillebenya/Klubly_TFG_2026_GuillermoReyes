@@ -124,7 +124,7 @@ const MemberForm = ({
         {/* Nombre de Usuario */}
         <div className="space-y-1">
           <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
-            Username
+            Username<span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <User className="absolute left-3 top-3 text-gray-400" size={18} />
@@ -142,7 +142,7 @@ const MemberForm = ({
         {/* Email */}
         <div className="space-y-1">
           <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
-            Email
+            Email<span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <Mail className="absolute left-3 top-3 text-gray-400" size={18} />
@@ -161,7 +161,7 @@ const MemberForm = ({
         {/* Nombre */}
         <div className="space-y-1">
           <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
-            Nombre
+            Nombre<span className="text-red-500">*</span>
           </label>
           <input
             name="firstName"
@@ -175,7 +175,7 @@ const MemberForm = ({
         {/* Apellidos */}
         <div className="space-y-1">
           <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
-            Apellidos
+            Apellidos<span className="text-red-500">*</span>
           </label>
           <input
             name="lastName"
@@ -189,7 +189,7 @@ const MemberForm = ({
         {/* Password */}
         <div className="space-y-1">
           <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
-            Contraseña
+            Contraseña<span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <Lock className="absolute left-3 top-3 text-gray-400" size={18} />
@@ -207,7 +207,7 @@ const MemberForm = ({
         {/* Repetir Password */}
         <div className="space-y-1">
           <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
-            Repetir Contraseña
+            Repetir Contraseña<span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <Lock className="absolute left-3 top-3 text-gray-400" size={18} />
@@ -290,7 +290,7 @@ const MemberForm = ({
         {/* Rol */}
         <div className="space-y-1">
           <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
-            Rol {isSelf && "(Bloqueado)"}
+            Rol {isSelf && "(Bloqueado)"}<span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <Shield className="absolute left-3 top-3 text-gray-400" size={18} />
@@ -315,33 +315,48 @@ const MemberForm = ({
           </div>
         </div>
 
-        <div className="flex items-center gap-3 mt-6">
-          {/* Contenedor del Toggle */}
-          <label
-            className={`relative inline-flex items-center ${isSelf ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+        {/* Toggle Activo (Estilo Unificado con ActivityForm) */}
+        <div className="flex items-start pt-7">
+          <div
+            onClick={() => {
+              if (isSelf) return; // Bloqueo de seguridad si es su propia cuenta
+              setFormData({ ...formData, active: !formData.active });
+            }}
+            className={`flex items-center gap-3 select-none w-fit ${
+              isSelf ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
+            }`}
           >
-            <input
-              type="checkbox"
-              name="active"
-              checked={formData.active}
-              onChange={handleChange}
-              disabled={isSelf}
-              className="sr-only peer"
-            />
+            {/* Fondo del Switch */}
+            <div
+              className={`w-10 h-5 flex items-center rounded-full p-1 transition-colors duration-300 ${
+                formData.active ? "bg-indigo-600" : "bg-gray-300"
+              }`}
+            >
+              {/* Círculo */}
+              <div
+                className={`bg-white w-3 h-3 rounded-full transform transition-transform duration-300 ${
+                  formData.active ? "translate-x-5" : "translate-x-0"
+                }`}
+              />
+            </div>
 
-            {/* Línea/Fondo del Switch */}
-            <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-indigo-300 rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
+            {/* Texto dinámico y aviso de seguridad */}
+            <div className="flex flex-col">
+              <span
+                className={`text-sm font-bold uppercase tracking-tight transition-colors ${
+                  formData.active ? "text-gray-700" : "text-gray-500"
+                }`}
+              >
+                {formData.active ? "Usuario Activo" : "Usuario Inactivo"}
+              </span>
 
-            {/* Texto dinámico a la derecha */}
-            <span className="ml-3 text-sm font-bold text-gray-700">
-              {formData.active ? "Usuario Activo" : "Usuario Inactivo"}
               {isSelf && (
-                <span className="ml-1 font-normal text-gray-500">
-                  (No puedes desactivarte)
+                <span className="text-[10px] font-medium text-indigo-500 italic leading-none mt-0.5">
+                  No puedes desactivar tu propia cuenta
                 </span>
               )}
-            </span>
-          </label>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -356,7 +371,11 @@ const MemberForm = ({
         >
           Cancelar
         </Button>
-        <Button type="submit" variant="primary" isLoading={loading}>
+        <Button
+          type="submit"
+          variant={initialData ? "primary" : "add"}
+          isLoading={loading}
+        >
           {initialData ? "Guardar Cambios" : "Crear Miembro"}
         </Button>
       </div>

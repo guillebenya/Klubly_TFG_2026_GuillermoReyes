@@ -148,7 +148,7 @@ const CategoriesSection = () => {
             <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
               {isHistoryMode
                 ? "Registros de categorías eliminadas"
-                : "Gestiona las categorías de los productos"}
+                : "Administra las categorías de los productos"}
             </p>
           </div>
         </div>
@@ -236,7 +236,7 @@ const CategoriesSection = () => {
         <form onSubmit={handleSaveTrigger} className="space-y-4">
           <div className="space-y-1">
             <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">
-              Nombre
+              Nombre<span className="text-red-500">*</span>
             </label>
             <input
               required
