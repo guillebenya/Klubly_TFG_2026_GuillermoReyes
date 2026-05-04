@@ -62,7 +62,7 @@ const MembersPage = () => {
     desc: "",
   });
 
-  // Cargar miembros y equipos
+  // Cargar usuarios y equipos
   useEffect(() => {
     fetchMembers();
     fetchTeams();
@@ -76,7 +76,7 @@ const MembersPage = () => {
         : await userService.getAll();
       setMembers(response.data);
     } catch (error) {
-      console.error("Error cargando miembros:", error);
+      console.error("Error cargando usuarios:", error);
     } finally {
       setLoading(false);
     }
@@ -167,7 +167,7 @@ const MembersPage = () => {
   const managedMembers = members.filter((m) => {
     if (isAdmin) return true; // El Admin gestiona todo
 
-    // El Staff solo gestiona miembros activos de sus equipos (excluyendo Admins)
+    // El Staff solo gestiona usuarios activos de sus equipos (excluyendo Admins)
     if (m.roleName === "ADMIN") return false;
     const hasCommonTeam = m.affiliations?.some((aff: any) =>
       staffTeamIds.includes(aff.teamId),
@@ -205,7 +205,7 @@ const MembersPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={isHistoryMode ? "Historial de Bajas" : "Gestión de Miembros"}
+        title={isHistoryMode ? "Historial de Bajas" : "Gestión de Usuarios"}
         subtitle={
           isHistoryMode
             ? "Consulta de registros eliminados del sistema."
@@ -260,7 +260,7 @@ const MembersPage = () => {
                     icon={<Plus size={18} />}
                     onClick={handleAddNew}
                   >
-                    Añadir miembro
+                    Añadir usuario
                   </Button>
                 )}
               </>
@@ -277,19 +277,19 @@ const MembersPage = () => {
             <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 italic">
               {isAdmin
                 ? "Nota: Totales globales del club (no afectados por filtros)."
-                : "Nota: Miembros bajo tu gestión en tus equipos asignados. Los filtros no afectan a estos totales."}
+                : "Nota: Usuarios bajo tu gestión en tus equipos asignados. Los filtros no afectan a estos totales."}
             </p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <SummaryCard
-              title={isAdmin ? "Total Miembros" : "Miembros Gestionados"}
+              title={isAdmin ? "Total Usuarios" : "Usuarios Gestionados"}
               value={totalMembersCount}
               icon={<Users size={20} />}
               variant="indigo"
             />
             <SummaryCard
-              title="Miembros Activos"
+              title="Usuarios Activos"
               value={activeMembersCount}
               icon={<UserCheck size={20} />}
               variant="emerald"
@@ -331,7 +331,7 @@ const MembersPage = () => {
               <p className="text-gray-500 italic">
                 {isHistoryMode
                   ? "No hay registros en el historial de bajas."
-                  : "No hay miembros que coincidan con la búsqueda."}
+                  : "No hay usuarios que coincidan con la búsqueda."}
               </p>
             </div>
           )}
