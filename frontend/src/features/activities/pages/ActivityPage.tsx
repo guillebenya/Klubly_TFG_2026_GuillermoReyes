@@ -6,12 +6,15 @@ import {
   History,
   ArrowLeft,
   Calendar,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 
 // Componentes Compartidos
 import PageHeader from "../../../components/shared/PageHeader";
 import Button from "../../../components/shared/Button";
 import Modal from "../../../components/shared/Modal";
+import SummaryCard from "../../../components/shared/SummaryCard"; // Importamos el shared
 import ConfirmDialog from "../../../components/shared/ConfirmDialog";
 import SuccessDialog from "../../../components/shared/SuccessDialog";
 
@@ -23,36 +26,38 @@ import ActivityFilters from "../components/ActivityFilters";
 
 // Servicios y Tipos
 import { activityService, type Activity } from "../services/activity.service";
-import { authService } from "../../auth/services/auth.service"; // Ajusta según tu ruta
+import { authService } from "../../auth/services/auth.service";
 
 const ActivityPage = () => {
-  //SEGURIDAD
+  // SEGURIDAD
   const currentUser = authService.getCurrentUser();
   const isAdmin = currentUser?.roleName === "ADMIN";
   const isStaff = currentUser?.roleName === "STAFF";
   const isMember = currentUser?.roleName === "MEMBER";
 
-  //ESTADOS DE DATOS
+  // ESTADOS DE DATOS
   const [activities, setActivities] = useState<Activity[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isHistoryMode, setIsHistoryMode] = useState(false);
 
-  //ESTADOS PARA MODALES
-  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(null);
+  // ESTADOS PARA MODALES
+  const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
+    null,
+  );
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
 
-  //ESTADO DE FILTROS
+  // ESTADO DE FILTROS
   const [activeFilters, setActiveFilters] = useState({
     teams: [] as number[],
     status: [] as boolean[],
     dateRange: { start: "", end: "" },
   });
 
-  //CONFIRMACIÓN Y ÉXITO
+  // CONFIRMACIÓN Y ÉXITO
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
     type: "save" | "delete";
@@ -84,7 +89,21 @@ const ActivityPage = () => {
     }
   };
 
-  //HANDLERS
+  // --- CÁLCULOS PARA TARJETAS INFORMATIVAS ---
+  const now = new Date();
+  const activitiesThisMonth = activities.filter((a) => {
+    const d = new Date(a.startDate);
+    return (
+      d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
+    );
+  }).length;
+
+  const fullActivities = activities.filter(
+    (a) => a.registeredCount >= a.capacity,
+  ).length;
+  const totalActivities = activities.length;
+
+  // HANDLERS
   const handleView = (activity: Activity) => {
     setSelectedActivity(activity);
     setIsViewOpen(true);
@@ -145,30 +164,39 @@ const ActivityPage = () => {
     fetchActivities();
   };
 
-  //LÓGICA DE FILTRADO
+  // LÓGICA DE FILTRADO
   const filteredActivities = activities.filter((a) => {
-    // Búsqueda
+    if (!isAdmin) {
+      const userTeamIds = currentUser?.teamIds || [];
+      const isGlobalActivity = a.teamIds.length === 0;
+      const isMyTeamActivity = a.teamIds.some((id) => userTeamIds.includes(id));
+      if (!isGlobalActivity && !isMyTeamActivity) return false;
+    }
+
     const searchString = `${a.name} ${a.location}`.toLowerCase();
     const matchesSearch = searchString.includes(searchTerm.toLowerCase());
 
-    //Filtro de Equipos
     const matchesTeam =
       activeFilters.teams.length === 0 ||
-      a.teamIds.some((id) => activeFilters.teams.includes(id));
+      a.teamIds.some((id) => activeFilters.teams.includes(id)) ||
+      (activeFilters.teams.includes(0) && a.teamIds.length === 0);
 
-    //Filtro de Fechas
     const actDate = new Date(a.startDate);
-    const matchesDate = 
-      (!activeFilters.dateRange.start || actDate >= new Date(activeFilters.dateRange.start)) &&
-      (!activeFilters.dateRange.end || actDate <= new Date(activeFilters.dateRange.end));
+    const matchesDate =
+      (!activeFilters.dateRange.start ||
+        actDate >= new Date(activeFilters.dateRange.start)) &&
+      (!activeFilters.dateRange.end ||
+        actDate <= new Date(activeFilters.dateRange.end));
 
     if (isHistoryMode) return matchesSearch && matchesTeam && matchesDate;
 
-    //Filtro de Estado (Solo Admin/Staff ven inactivos según filtro)
     if (!isAdmin && !isStaff) {
       if (!a.active) return false;
     } else {
-      if (activeFilters.status.length > 0 && !activeFilters.status.includes(a.active)) {
+      if (
+        activeFilters.status.length > 0 &&
+        !activeFilters.status.includes(a.active)
+      ) {
         return false;
       }
     }
@@ -179,7 +207,9 @@ const ActivityPage = () => {
   return (
     <div className="space-y-6">
       <PageHeader
-        title={isHistoryMode ? "Historial de Actividades" : "Gestión de Actividades"}
+        title={
+          isHistoryMode ? "Historial de Actividades" : "Gestión de Actividades"
+        }
         subtitle={
           isHistoryMode
             ? "Consulta de eventos y entrenamientos dados de baja."
@@ -200,9 +230,9 @@ const ActivityPage = () => {
               <>
                 <Button
                   variant={
-                    activeFilters.teams.length + activeFilters.status.length > 0 || 
-                    activeFilters.dateRange.start !== "" 
-                      ? "primary" 
+                    activeFilters.teams.length + activeFilters.status.length >
+                      0 || activeFilters.dateRange.start !== ""
+                      ? "primary"
                       : "secondary"
                   }
                   icon={<Filter size={18} />}
@@ -237,6 +267,43 @@ const ActivityPage = () => {
         }
       />
 
+      {/* TARJETAS DE RESUMEN (Globales) */}
+      {!isHistoryMode && !loading && (
+        <>
+          {/* Nota informativa */}
+          <div className="flex items-center gap-1.5 px-1 mb-2 opacity-80">
+            <div className="h-1 w-1 rounded-full bg-indigo-400" />
+            <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 italic">
+              {isAdmin
+                ? "Nota: Las tarjetas resumen muestran totales globales y no se ven afectados por los filtros de búsqueda."
+                : "Nota: Las tarjetas resumen muestran totales de tus actividades asignadas. Los filtros no afectan a estos totales."}
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <SummaryCard
+              title="Actividades este mes"
+              value={activitiesThisMonth}
+              icon={<Calendar size={20} />}
+              variant="indigo"
+            />
+            <SummaryCard
+              title="Ocupación de plazas"
+              value={`${fullActivities} de ${totalActivities} llenas`}
+              icon={
+                fullActivities > 0 ? (
+                  <AlertCircle size={20} />
+                ) : (
+                  <CheckCircle size={20} />
+                )
+              }
+              variant={
+                fullActivities > totalActivities / 2 ? "rose" : "emerald"
+              }
+            />
+          </div>
+        </>
+      )}
+
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 text-gray-500">
           <Loader2 className="animate-spin mb-2" size={40} />
@@ -250,24 +317,32 @@ const ActivityPage = () => {
                 key={activity.id}
                 activity={activity}
                 onView={handleView}
-                // Solo Admin y Staff ven botones de edición/borrado
-                onEdit={(isAdmin || isStaff) && !isHistoryMode ? handleEdit : undefined}
-                onDelete={(isAdmin || isStaff) && !isHistoryMode ? handleDeleteTrigger : undefined}
-                // Pasamos el rol a la card para que sepa si pintar "Apuntarse"
-                isMember={isMember} 
+                onEdit={
+                  (isAdmin || isStaff) && !isHistoryMode
+                    ? handleEdit
+                    : undefined
+                }
+                onDelete={
+                  (isAdmin || isStaff) && !isHistoryMode
+                    ? handleDeleteTrigger
+                    : undefined
+                }
+                isMember={isMember}
                 onRefresh={fetchActivities}
               />
             ))
           ) : (
             <div className="bg-white rounded-2xl p-12 text-center border-2 border-dashed border-gray-100">
               <Calendar size={48} className="mx-auto text-gray-200 mb-4" />
-              <p className="text-gray-500 italic">No se han encontrado actividades.</p>
+              <p className="text-gray-500 italic">
+                No se han encontrado actividades.
+              </p>
             </div>
           )}
         </div>
       )}
 
-      {/* MODALES */}
+      {/* MODALES, CONFIRMACIONES Y ÉXITO (Sin cambios) */}
       <Modal
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
@@ -288,9 +363,9 @@ const ActivityPage = () => {
         size="lg"
       >
         {selectedActivity && (
-          <ActivityDetails 
-            activity={selectedActivity} 
-            isHistoryMode={isHistoryMode} 
+          <ActivityDetails
+            activity={selectedActivity}
+            isHistoryMode={isHistoryMode}
           />
         )}
       </Modal>
@@ -308,7 +383,6 @@ const ActivityPage = () => {
         />
       </Modal>
 
-      {/* DIÁLOGOS DE SISTEMA */}
       <ConfirmDialog
         isOpen={confirmConfig.isOpen}
         onClose={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}
@@ -316,8 +390,8 @@ const ActivityPage = () => {
         title="¿Confirmar operación?"
         description={
           confirmConfig.type === "delete"
-            ? "¿Estás seguro de dar de baja esta actividad y todas sus inscripciones?"
-            : "¿Guardar los cambios realizados?"
+            ? "¿Estás seguro de dar de baja esta actividad?"
+            : "¿Guardar cambios?"
         }
         confirmLabel={confirmConfig.type === "delete" ? "Eliminar" : "Guardar"}
         type={confirmConfig.type === "delete" ? "danger" : "warning"}

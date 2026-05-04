@@ -173,7 +173,7 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({
         size="sm"
       >
         <AddRegistrationForm
-          activityId={activity.id}
+          activity={activity}
           onSuccess={() => {
             setIsAddModalOpen(false);
             fetchRegistrations();

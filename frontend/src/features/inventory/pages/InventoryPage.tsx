@@ -6,16 +6,25 @@ import {
   History,
   ArrowLeft,
   Package,
+  AlertTriangle, // Icono para alertas
+  Layers, // Icono para total de ítems
 } from "lucide-react";
+
+// Componentes Compartidos
 import PageHeader from "../../../components/shared/PageHeader";
 import Button from "../../../components/shared/Button";
 import Modal from "../../../components/shared/Modal";
+import SummaryCard from "../../../components/shared/SummaryCard"; // Importamos el shared
+
+// Componentes del Dominio
 import ItemCard from "../components/ItemCard";
 import ItemDetails from "../components/ItemDetails";
 import ItemForm from "../components/ItemForm";
 import ItemFilters from "../components/ItemFilters";
 import ConfirmDialog from "../../../components/shared/ConfirmDialog";
 import SuccessDialog from "../../../components/shared/SuccessDialog";
+
+// Servicios y Tipos
 import { itemService, type Item } from "../services/item.service";
 import {
   categoryService,
@@ -87,6 +96,13 @@ const InventoryPage = () => {
     setCategories(resp.data);
   };
 
+  // --- CÁLCULOS PARA TARJETAS INFORMATIVAS ---
+  // Estos datos se basan en la lista total de ítems cargada
+  const totalItemsCount = items.length;
+  const lowStockCount = items.filter(
+    (i) => i.stockQuantity <= i.minStock,
+  ).length;
+
   // --- HANDLERS ---
   const handleView = (item: Item) => {
     setSelectedItem(item);
@@ -148,38 +164,31 @@ const InventoryPage = () => {
     fetchItems();
   };
 
-  // --- LÓGICA DE FILTRADO (Seguridad + Criterios) ---
+  // --- LÓGICA DE FILTRADO ---
   const filteredItems = items.filter((m) => {
     const searchString =
       `${m.name} ${m.categoryName} ${m.location}`.toLowerCase();
     const matchesSearch = searchString.includes(searchTerm.toLowerCase());
-
     const matchesCategory =
       activeFilters.categories.length === 0 ||
       activeFilters.categories.includes(m.categoryId);
 
-    // Filtro de Stock (Bajo mínimo vs Suficiente)
     const isLow = m.stockQuantity <= m.minStock;
     const matchesStock =
       activeFilters.stockStatus === "all" ||
       (activeFilters.stockStatus === "low" && isLow) ||
       (activeFilters.stockStatus === "enough" && !isLow);
 
-    //REGLAS DE NEGOCIO Y SEGURIDAD
     if (isHistoryMode) return matchesSearch && matchesCategory;
 
-    // Filtro de Estado (Activo/Inactivo)
     if (!isAdmin) {
-      // El Staff SOLO puede ver artículos activos
       if (!m.active) return false;
     } else {
-      // El Admin usa el filtro de la modal
       if (
         activeFilters.status.length > 0 &&
         !activeFilters.status.includes(m.active)
-      ) {
+      )
         return false;
-      }
     }
 
     return matchesSearch && matchesCategory && matchesStock;
@@ -246,6 +255,34 @@ const InventoryPage = () => {
           </>
         }
       />
+
+      {/* TARJETAS DE RESUMEN (Solo en modo normal) */}
+      {!isHistoryMode && !loading && (
+        <>
+          {/* Nota informativa */}
+          <div className="flex items-center gap-1.5 px-1 mb-2 opacity-80">
+            <div className="h-1 w-1 rounded-full bg-indigo-400" />
+            <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 italic">
+              Nota: Las tarjetas resumen muestran totales globales y no se ven
+              afectados por los filtros de búsqueda.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <SummaryCard
+              title="Total Artículos"
+              value={totalItemsCount}
+              icon={<Layers size={20} />}
+              variant="indigo"
+            />
+            <SummaryCard
+              title="Alertas de Stock"
+              value={lowStockCount}
+              icon={<AlertTriangle size={20} />}
+              variant={lowStockCount > 0 ? "rose" : "emerald"}
+            />
+          </div>
+        </>
+      )}
 
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 text-gray-500">
@@ -318,7 +355,6 @@ const InventoryPage = () => {
         />
       </Modal>
 
-      {/* DIÁLOGOS DE SISTEMA */}
       <ConfirmDialog
         isOpen={confirmConfig.isOpen}
         onClose={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}

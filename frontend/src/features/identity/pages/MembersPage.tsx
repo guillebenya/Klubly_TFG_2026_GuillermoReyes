@@ -1,13 +1,24 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Filter, Loader2, History, ArrowLeft } from "lucide-react";
+import {
+  Plus,
+  Filter,
+  Loader2,
+  History,
+  ArrowLeft,
+  Users,
+  UserCheck,
+  UserCircle,
+} from "lucide-react";
 import PageHeader from "../../../components/shared/PageHeader";
 import Button from "../../../components/shared/Button";
 import Modal from "../../../components/shared/Modal";
+import Card from "../../../components/shared/Card";
 import MemberCard from "../components/MemberCard";
 import MemberDetails from "../components/MemberDetails";
 import MemberForm from "../components/MemberForm";
-import ConfirmDialog from "../../../components/shared/ConfirmDialog"; // Importante
-import SuccessDialog from "../../../components/shared/SuccessDialog"; // Importante
+import ConfirmDialog from "../../../components/shared/ConfirmDialog";
+import SuccessDialog from "../../../components/shared/SuccessDialog";
+import SummaryCard from "../../../components/shared/SummaryCard";
 import { userService } from "../services/user.service.ts";
 import MemberTeamsManager from "../components/MemberTeamsManager.tsx";
 import { teamService } from "../services/team.service.ts";
@@ -28,7 +39,7 @@ const MembersPage = () => {
   const [formLoading, setFormLoading] = useState(false);
   const [isTeamsOpen, setIsTeamsOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  const [allTeams, setAllTeams] = useState<any[]>([]); // Para el selector de equipos
+  const [allTeams, setAllTeams] = useState<any[]>([]);
   const [activeFilters, setActiveFilters] = useState({
     roles: [] as string[],
     status: [] as boolean[],
@@ -51,7 +62,7 @@ const MembersPage = () => {
     desc: "",
   });
 
-  //Cargar miembros y equipos
+  // Cargar miembros y equipos
   useEffect(() => {
     fetchMembers();
     fetchTeams();
@@ -71,7 +82,6 @@ const MembersPage = () => {
     }
   };
 
-  //Para comprobar si el usuario actual es Admin y mostrar el botón de añadir miembro solo a ellos
   const currentUser = authService.getCurrentUser();
   const isAdmin = currentUser?.roleName === "ADMIN";
 
@@ -80,33 +90,23 @@ const MembersPage = () => {
     setAllTeams(resp.data);
   };
 
-  //HANDLERS QUE DISPARAN LA CONFIRMACIÓN
+  // --- CÁLCULOS PARA TARJETAS INFORMATIVAS ---
+  const totalMembers = members.length;
+  const activeMembers = members.filter((m) => m.active).length;
 
-  // Para Borrar
+  // HANDLERS
   const handleDeleteTrigger = (id: number) => {
-    setConfirmConfig({
-      isOpen: true,
-      type: "delete",
-      data: id,
-    });
+    setConfirmConfig({ isOpen: true, type: "delete", data: id });
   };
 
-  // Para Guardar (Crear/Editar)
   const handleSaveTrigger = (formData: any) => {
-    setConfirmConfig({
-      isOpen: true,
-      type: "save",
-      data: formData,
-    });
+    setConfirmConfig({ isOpen: true, type: "save", data: formData });
   };
 
-  //EJECUCIÓN DE LA CONFIRMACIÓN (Borrado o Guardado, según el tipo)
   const executeAction = async () => {
     try {
       setFormLoading(true);
-
       if (confirmConfig.type === "delete") {
-        // Lógica de borrado
         await userService.delete(confirmConfig.data);
         setSuccessConfig({
           isOpen: true,
@@ -114,22 +114,19 @@ const MembersPage = () => {
           desc: "El miembro ha sido dado de baja correctamente del sistema.",
         });
       } else {
-        // Lógica de guardado (Crear o Editar)
         const formData = confirmConfig.data;
         if (selectedMember) {
           await userService.update(selectedMember.id, formData);
         } else {
           await userService.create(formData);
         }
-
         setSuccessConfig({
           isOpen: true,
           title: "¡Guardado!",
           desc: "La información del miembro se ha actualizado con éxito.",
         });
       }
-
-      setConfirmConfig({ ...confirmConfig, isOpen: false }); // Cerramos confirmación
+      setConfirmConfig({ ...confirmConfig, isOpen: false });
     } catch (error) {
       console.error("Error en la operación:", error);
       alert("Hubo un error al procesar la solicitud.");
@@ -138,7 +135,6 @@ const MembersPage = () => {
     }
   };
 
-  //OTROS HANDLERS
   const handleView = (member: any) => {
     setSelectedMember(member);
     setIsViewOpen(true);
@@ -160,18 +156,29 @@ const MembersPage = () => {
     setIsTeamsOpen(true);
   };
 
-  // FUNCIÓN PARA CERRAR EL ÉXITO Y LIMPIAR TODO
   const handleSuccessClose = () => {
     setSuccessConfig({ ...successConfig, isOpen: false });
-    setIsFormOpen(false); // Cerramos el formulario (si estaba abierto)
-    fetchMembers(); // Refrescamos la lista
+    setIsFormOpen(false);
+    fetchMembers();
   };
 
-  // 1. Preparamos los IDs de equipo del Staff para comparar
   const staffTeamIds = currentUser?.teamIds || [];
 
-  const filteredMembers = members.filter((m) => {
-    // --- A. BÚSQUEDA Y ROLES (Se mantienen en ambos modos) ---
+  const managedMembers = members.filter((m) => {
+    if (isAdmin) return true; // El Admin gestiona todo
+
+    // El Staff solo gestiona miembros activos de sus equipos (excluyendo Admins)
+    if (m.roleName === "ADMIN") return false;
+    const hasCommonTeam = m.affiliations?.some((aff: any) =>
+      staffTeamIds.includes(aff.teamId),
+    );
+    return hasCommonTeam && m.active;
+  });
+
+  const totalMembersCount = managedMembers.length;
+  const activeMembersCount = managedMembers.filter((m) => m.active).length;
+
+  const filteredMembers = managedMembers.filter((m) => {
     const searchString =
       `${m.firstName} ${m.lastName} ${m.email} ${m.username}`.toLowerCase();
     const matchesSearch = searchString.includes(searchTerm.toLowerCase());
@@ -180,14 +187,8 @@ const MembersPage = () => {
       activeFilters.roles.length === 0 ||
       activeFilters.roles.includes(m.roleName);
 
-    // --- B. LÓGICA DIFERENCIADA POR MODO ---
-    if (isHistoryMode) {
-      // En el historial, no filtramos por equipo ni por estado activo,
-      // porque ya sabemos que todos son "bajas".
-      return matchesSearch && matchesRole;
-    }
+    if (isHistoryMode) return matchesSearch && matchesRole;
 
-    // --- C. VISTA NORMAL (Lo que ya tenías) ---
     const matchesStatus =
       activeFilters.status.length === 0 ||
       activeFilters.status.includes(m.active);
@@ -198,23 +199,13 @@ const MembersPage = () => {
         activeFilters.teams.includes(aff.teamId),
       );
 
-    // Restricciones de Staff (solo para vista normal)
-    if (!isAdmin) {
-      if (m.roleName === "ADMIN") return false;
-      const hasCommonTeam = m.affiliations?.some((aff: any) =>
-        staffTeamIds.includes(aff.teamId),
-      );
-      if (!hasCommonTeam) return false;
-      if (!m.active) return false;
-    }
-
     return matchesSearch && matchesRole && matchesStatus && matchesTeam;
   });
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title={isHistoryMode ? "Historial de Bajas" : "Gestión de Miembros"} // <--- TÍTULO DINÁMICO
+        title={isHistoryMode ? "Historial de Bajas" : "Gestión de Miembros"}
         subtitle={
           isHistoryMode
             ? "Consulta de registros eliminados del sistema."
@@ -224,7 +215,6 @@ const MembersPage = () => {
         actions={
           <>
             {isHistoryMode ? (
-              // BOTÓN PARA VOLVER
               <Button
                 variant="secondary"
                 icon={<ArrowLeft size={18} />}
@@ -234,7 +224,6 @@ const MembersPage = () => {
               </Button>
             ) : (
               <>
-                {/* FILTROS (Solo en vista normal) */}
                 <Button
                   variant={
                     activeFilters.roles.length +
@@ -251,10 +240,9 @@ const MembersPage = () => {
                   {activeFilters.roles.length +
                     activeFilters.status.length +
                     activeFilters.teams.length >
-                    0 && `(...)`}
+                    0}
                 </Button>
 
-                {/* BOTÓN HISTORIAL (Solo para Admin) */}
                 {isAdmin && (
                   <Button
                     variant="ghost"
@@ -266,7 +254,6 @@ const MembersPage = () => {
                   </Button>
                 )}
 
-                {/* AÑADIR (Solo para Admin) */}
                 {isAdmin && (
                   <Button
                     variant="add"
@@ -282,8 +269,35 @@ const MembersPage = () => {
         }
       />
 
-      {/* LISTADO: Usa la constante 'filteredMembers' que acabamos de definir arriba */}
-      {/* LISTADO */}
+      {/* TARJETAS DE RESUMEN */}
+      {!isHistoryMode && !loading && (
+        <>
+          <div className="flex items-center gap-1.5 px-1 mb-2 opacity-80">
+            <div className="h-1 w-1 rounded-full bg-indigo-400" />
+            <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 italic">
+              {isAdmin
+                ? "Nota: Totales globales del club (no afectados por filtros)."
+                : "Nota: Miembros bajo tu gestión en tus equipos asignados. Los filtros no afectan a estos totales."}
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <SummaryCard
+              title={isAdmin ? "Total Miembros" : "Miembros Gestionados"}
+              value={totalMembersCount}
+              icon={<Users size={20} />}
+              variant="indigo"
+            />
+            <SummaryCard
+              title="Miembros Activos"
+              value={activeMembersCount}
+              icon={<UserCheck size={20} />}
+              variant="emerald"
+            />
+          </div>
+        </>
+      )}
+
       {loading ? (
         <div className="flex flex-col items-center justify-center py-20 text-gray-500">
           <Loader2 className="animate-spin mb-2" size={40} />
@@ -304,7 +318,6 @@ const MembersPage = () => {
                   key={member.id}
                   member={member}
                   onView={handleView}
-                  // Si estamos en modo historial, le pasamos null a onEdit y onDelete para que no muestre los botones
                   onEdit={isHistoryMode ? undefined : handleEdit}
                   onDelete={isHistoryMode ? undefined : handleDeleteTrigger}
                   isStaffView={!isAdmin}
@@ -314,10 +327,11 @@ const MembersPage = () => {
             })
           ) : (
             <div className="bg-white rounded-2xl p-12 text-center border-2 border-dashed border-gray-100">
-              <p className="text-gray-500">
+              <UserCircle size={48} className="mx-auto text-gray-200 mb-4" />
+              <p className="text-gray-500 italic">
                 {isHistoryMode
                   ? "No hay registros en el historial de bajas."
-                  : "No hay miembros que coincidan con los filtros aplicados."}
+                  : "No hay miembros que coincidan con la búsqueda."}
               </p>
             </div>
           )}
@@ -354,7 +368,7 @@ const MembersPage = () => {
         )}
       </Modal>
 
-      {/* MODAL 2: FORMULARIO (Cambiamos handleSave por handleSaveTrigger) */}
+      {/* MODAL: FORMULARIO */}
       <Modal
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
@@ -367,7 +381,7 @@ const MembersPage = () => {
         />
       </Modal>
 
-      {/* MODAL 3: GESTIÓN DE EQUIPOS */}
+      {/* MODAL: GESTIÓN DE EQUIPOS */}
       <Modal
         isOpen={isTeamsOpen}
         onClose={() => setIsTeamsOpen(false)}
@@ -383,8 +397,6 @@ const MembersPage = () => {
           />
         )}
       </Modal>
-
-      {/* --- DIÁLOGOS DE SISTEMA (GENERALES) --- */}
 
       <ConfirmDialog
         isOpen={confirmConfig.isOpen}

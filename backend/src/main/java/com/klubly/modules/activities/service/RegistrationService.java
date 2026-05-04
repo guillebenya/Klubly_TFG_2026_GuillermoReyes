@@ -132,20 +132,20 @@ public class RegistrationService {
     }
 
     private void validateTeamMembership(User user, Activity activity) {
-        // Si la actividad tiene equipos asignados, verificamos pertenencia
-        if (!activity.getTeams().isEmpty()) {
-            List<Long> userTeamIds = user.getAffiliations().stream()
-                    .map(aff -> aff.getTeam().getId())
-                    .collect(Collectors.toList());
+    if (!activity.getTeams().isEmpty()) {
+        List<Long> userTeamIds = user.getAffiliations().stream()
+                .map(aff -> aff.getTeam().getId())
+                .collect(Collectors.toList());
 
-            boolean isAuthorized = activity.getTeams().stream()
-                    .anyMatch(team -> userTeamIds.contains(team.getId()));
+        
+        boolean isAuthorized = activity.getTeams().stream()
+                .anyMatch(team -> userTeamIds.contains(team.getId()));
 
-            if (!isAuthorized) {
-                throw new UnauthorizedException("Solo los integrantes de los equipos vinculados pueden inscribirse.");
-            }
+        if (!isAuthorized) {
+            throw new UnauthorizedException("No perteneces al equipo de esta actividad.");
         }
     }
+}
 
     private RegistrationDTO convertToDTO(Registration reg) {
         RegistrationDTO dto = new RegistrationDTO();

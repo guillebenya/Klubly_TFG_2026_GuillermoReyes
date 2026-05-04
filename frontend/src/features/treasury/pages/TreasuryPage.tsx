@@ -15,13 +15,13 @@ import {
 import PageHeader from "../../../components/shared/PageHeader";
 import Button from "../../../components/shared/Button";
 import Modal from "../../../components/shared/Modal";
-import Card from "../../../components/shared/Card";
 import TransactionCard from "../components/TransactionCard";
 import TransactionForm from "../components/TransactionForm";
 import TransactionDetails from "../components/TransactionDetails";
 import TransactionFilters from "../components/TransactionFilters";
 import ConfirmDialog from "../../../components/shared/ConfirmDialog";
 import SuccessDialog from "../../../components/shared/SuccessDialog";
+import SummaryCard from "../../../components/shared/SummaryCard";
 import {
   treasuryService,
   type Transaction,
@@ -124,7 +124,6 @@ const TreasuryPage = () => {
           desc: "La transacción ha sido enviada al historial de bajas.",
         });
       } else {
-        // --- ESTA ES LA PARTE CLAVE ---
         const transactionData = confirmConfig.data;
 
         if (transactionData.id) {
@@ -251,28 +250,47 @@ const TreasuryPage = () => {
         }
       />
 
-      {/* TARJETAS DE RESUMEN (Solo en modo normal) */}
+      {/* TARJETAS DE RESUMEN*/}
       {!isHistoryMode && summary && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <SummaryCard
-            title="Total Ingresos"
-            amount={summary.totalIncome}
-            icon={<TrendingUp size={20} />}
-            variant="emerald"
-          />
-          <SummaryCard
-            title="Total Gastos"
-            amount={summary.totalExpense}
-            icon={<TrendingDown size={20} />}
-            variant="rose"
-          />
-          <SummaryCard
-            title="Balance Global"
-            amount={summary.balance}
-            icon={<Scale size={20} />}
-            variant={getBalanceVariant()}
-          />
-        </div>
+        <>
+          {/* Nota informativa */}
+          <div className="flex items-center gap-1.5 px-1 mb-2 opacity-80">
+            <div className="h-1 w-1 rounded-full bg-indigo-400" />
+            <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 italic">
+              Nota: Las tarjetas resumen muestran totales globales y no se ven
+              afectados por los filtros de búsqueda.
+            </p>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <SummaryCard
+              title="Total Ingresos"
+              value={new Intl.NumberFormat("es-ES", {
+                style: "currency",
+                currency: "EUR",
+              }).format(summary.totalIncome)}
+              icon={<TrendingUp size={20} />}
+              variant="emerald"
+            />
+            <SummaryCard
+              title="Total Gastos"
+              value={new Intl.NumberFormat("es-ES", {
+                style: "currency",
+                currency: "EUR",
+              }).format(summary.totalExpense)}
+              icon={<TrendingDown size={20} />}
+              variant="rose"
+            />
+            <SummaryCard
+              title="Balance Global"
+              value={new Intl.NumberFormat("es-ES", {
+                style: "currency",
+                currency: "EUR",
+              }).format(summary.balance)}
+              icon={<Scale size={20} />}
+              variant={getBalanceVariant()}
+            />
+          </div>
+        </>
       )}
 
       {/* LISTADO DE MOVIMIENTOS */}
@@ -375,70 +393,6 @@ const TreasuryPage = () => {
         description={successConfig.desc}
       />
     </div>
-  );
-};
-
-/**
- * Sub-componente para las tarjetas de balance superior
- * Corregido para evitar problemas con clases dinámicas de Tailwind
- */
-const SummaryCard = ({
-  title,
-  amount,
-  icon,
-  variant,
-}: {
-  title: string;
-  amount: number;
-  icon: React.ReactNode;
-  variant: "emerald" | "rose" | "indigo" | "gray";
-}) => {
-  const styles = {
-    emerald: {
-      border: "border-b-emerald-500",
-      bg: "bg-emerald-50",
-      text: "text-emerald-600",
-    },
-    rose: {
-      border: "border-b-rose-500",
-      bg: "bg-rose-50",
-      text: "text-rose-600",
-    },
-    indigo: {
-      border: "border-b-indigo-500",
-      bg: "bg-indigo-50",
-      text: "text-indigo-600",
-    },
-    gray: {
-      border: "border-b-gray-400",
-      bg: "bg-gray-50",
-      text: "text-gray-500",
-    },
-  };
-
-  const currentStyle = styles[variant];
-
-  return (
-    <Card
-      className={`p-5 flex items-center justify-between border-b-4 ${currentStyle.border} shadow-md`}
-    >
-      <div className="space-y-1">
-        <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
-          {title}
-        </p>
-        <p className={`text-xl font-black ${currentStyle.text}`}>
-          {new Intl.NumberFormat("es-ES", {
-            style: "currency",
-            currency: "EUR",
-          }).format(amount)}
-        </p>
-      </div>
-      <div
-        className={`h-10 w-10 rounded-xl ${currentStyle.bg} ${currentStyle.text} flex items-center justify-center`}
-      >
-        {icon}
-      </div>
-    </Card>
   );
 };
 

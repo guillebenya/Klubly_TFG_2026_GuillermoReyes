@@ -130,7 +130,17 @@ const TransactionCard = ({
     >
       <div className="flex items-center justify-between flex-1 min-w-0 gap-4">
         {/* ICONO DE ACTIVIDAD */}
-        <div className="flex-shrink-0 p-3 bg-indigo-50 text-indigo-600 rounded-2xl border border-indigo-100">
+        <div
+          className={`flex-shrink-0 p-3 rounded-2xl border transition-all ${
+            isMemberView
+              ? isClubIncome
+                ? "bg-red-50 text-red-600 border-red-100"
+                : "bg-emerald-50 text-emerald-600 border-emerald-100"
+              : isClubIncome
+                ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+                : "bg-rose-50 text-rose-600 border-rose-100"
+          }`}
+        >
           <ArrowUpDown size={24} />
         </div>
 

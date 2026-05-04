@@ -34,14 +34,16 @@ public class ActivityService {
 
     private static final String ACT_NOT_FOUND = "Actividad no encontrada";
 
-    @Transactional(readOnly = true)
+   @Transactional(readOnly = true)
     public List<ActivityDTO> getActivitiesForCurrentUser() {
-        User user = getCurrentUser();
+        User user = getCurrentUser(); 
         String role = user.getRole().getName();
 
         if (role.equals("ADMIN")) {
             return activityRepository.findByDeletedAtIsNullOrderByStartDateAsc()
-                    .stream().map(this::convertToDTO).collect(Collectors.toList());
+                    .stream()
+                    .map(a -> convertToDTO(a, user.getId())) 
+                    .collect(Collectors.toList());
         }
 
         // STAFF y MEMBER solo ven actividades de sus equipos o globales
@@ -50,59 +52,56 @@ public class ActivityService {
                 .collect(Collectors.toList());
 
         return activityRepository.findByTeamIdsInOrGlobal(teamIds)
-                .stream().map(this::convertToDTO).collect(Collectors.toList());
+                .stream()
+                .map(a -> convertToDTO(a, user.getId())) 
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
     public List<ActivityDTO> getDeletedHistory() {
+        User user = getCurrentUser(); 
         checkAdminRole();
         return activityRepository.findAllDeletedNative()
-                .stream().map(this::convertToDTO).collect(Collectors.toList());
+                .stream()
+                .map(a -> convertToDTO(a, user.getId())) 
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-public ActivityDTO getActivityById(Long id) {
-    // Buscamos la actividad (que no esté borrada)
-    Activity activity = activityRepository.findByIdAndDeletedAtIsNull(id)
-            .orElseThrow(() -> new ResourceNotFoundException(ACT_NOT_FOUND));
-    
-    User user = getCurrentUser();
-    String role = user.getRole().getName();
-
-    // Si es ADMIN, puede verla siempre.
-    // Si no es ADMIN, aplicamos restricciones:
-    if (!role.equals("ADMIN")) {
+    public ActivityDTO getActivityById(Long id) {
+        Activity activity = activityRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new ResourceNotFoundException(ACT_NOT_FOUND));
         
-        // Obtenemos los IDs de los equipos de la actividad
-        List<Long> activityTeamIds = activity.getTeams().stream()
-                .map(Team::getId)
-                .collect(Collectors.toList());
+        User user = getCurrentUser();
+        String role = user.getRole().getName();
 
-        // Si la actividad NO es global (tiene equipos asignados)
-        if (!activityTeamIds.isEmpty()) {
-            // Obtenemos los IDs de los equipos del usuario
-            List<Long> userTeamIds = user.getAffiliations().stream()
-                    .map(aff -> aff.getTeam().getId())
+        if (!role.equals("ADMIN")) {
+            List<Long> activityTeamIds = activity.getTeams().stream()
+                    .map(Team::getId)
                     .collect(Collectors.toList());
 
-            // Comprobamos si hay alguna coincidencia (intersección)
-            boolean isMemberOfTeam = activityTeamIds.stream()
-                    .anyMatch(userTeamIds::contains);
+            if (!activityTeamIds.isEmpty()) {
+                List<Long> userTeamIds = user.getAffiliations().stream()
+                        .map(aff -> aff.getTeam().getId())
+                        .collect(Collectors.toList());
 
-            if (!isMemberOfTeam) {
-                throw new UnauthorizedException("No tienes permiso para ver esta actividad porque no perteneces a los equipos vinculados.");
+                boolean isMemberOfTeam = activityTeamIds.stream()
+                        .anyMatch(userTeamIds::contains);
+
+                if (!isMemberOfTeam) {
+                    throw new UnauthorizedException("No tienes permiso para ver esta actividad.");
+                }
             }
         }
-        // Si activityTeamIds está vacío, es una actividad GLOBAL y cualquier Member puede verla.
-    }
 
-    return convertToDTO(activity);
-}
+        return convertToDTO(activity, user.getId()); 
+    }
 
     // ACCIONES ADMIN / STAFF
 
     @Transactional
     public ActivityDTO createActivity(ActivityDTO dto) {
+        User user = getCurrentUser(); 
         checkStaffOrAdminRole();
 
         validateDates(dto.getStartDate(), dto.getEndDate());
@@ -112,11 +111,12 @@ public ActivityDTO getActivityById(Long id) {
 
         Activity saved = activityRepository.save(activity);
         log.info("Actividad creada: {}", saved.getName());
-        return convertToDTO(saved);
+        return convertToDTO(saved, user.getId()); // Pasamos el ID
     }
 
     @Transactional
     public ActivityDTO updateActivity(Long id, ActivityDTO dto) {
+        User user = getCurrentUser(); // Obtenemos el user actual
         checkStaffOrAdminRole();
 
         Activity activity = activityRepository.findByIdAndDeletedAtIsNull(id)
@@ -126,7 +126,8 @@ public ActivityDTO getActivityById(Long id) {
         
         mapDtoToEntity(dto, activity);
 
-        return convertToDTO(activityRepository.save(activity));
+        Activity saved = activityRepository.save(activity);
+        return convertToDTO(saved, user.getId()); 
     }
 
     @Transactional
@@ -183,7 +184,7 @@ public ActivityDTO getActivityById(Long id) {
         }
     }
 
-    private ActivityDTO convertToDTO(Activity a) {
+    private ActivityDTO convertToDTO(Activity a, Long currentUserId) {
         ActivityDTO dto = new ActivityDTO();
         dto.setId(a.getId());
         dto.setName(a.getName());
@@ -198,13 +199,21 @@ public ActivityDTO getActivityById(Long id) {
         dto.setDeletedAt(a.getDeletedAt());
 
         // Mapeo de equipos
-        dto.setTeamIds(a.getTeams().stream().map(Team::getId).collect(Collectors.toList()));
-        dto.setTeamNames(a.getTeams().stream().map(Team::getName).collect(Collectors.toList()));
+    dto.setTeamIds(a.getTeams().stream().map(Team::getId).collect(Collectors.toList()));
+    dto.setTeamNames(a.getTeams().stream().map(Team::getName).collect(Collectors.toList()));
 
-        // Cálculo de aforo actual
-        dto.setRegisteredCount(registrationRepository.countByActivityIdAndDeletedAtIsNull(a.getId()));
+    // Cálculo de aforo
+    dto.setRegisteredCount(registrationRepository.countByActivityIdAndDeletedAtIsNull(a.getId()));
 
-        return dto;
+    // DETERMINAR SI EL USUARIO ESTÁ INSCRITO
+    if (currentUserId != null) {
+        boolean isRegistered = registrationRepository
+            .findByUserIdAndActivityIdAndDeletedAtIsNull(currentUserId, a.getId())
+            .isPresent();
+        dto.setUserRegistered(isRegistered);
+    }
+
+    return dto;
     }
 
     private User getCurrentUser() {

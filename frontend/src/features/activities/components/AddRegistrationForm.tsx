@@ -1,19 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { Save, X, Loader2 } from "lucide-react"; // Añadimos Loader2 para feedback
+import { Save, X, Loader2 } from "lucide-react"; 
 import Button from "../../../components/shared/Button";
 import { registrationService } from "../services/registration.service";
 import { teamService, type Team } from "../../identity/services/team.service";
 import { userService, type User } from "../../identity/services/user.service";
 import { authService } from "../../auth/services/auth.service";
+import { type Activity } from "../services/activity.service"; // Importamos el tipo Activity
 
 interface AddRegistrationFormProps {
-  activityId: number;
+  activity: Activity; // Recibimos la actividad completa para conocer sus teamIds
   onSuccess: () => void;
   onCancel: () => void;
 }
 
 const AddRegistrationForm: React.FC<AddRegistrationFormProps> = ({
-  activityId,
+  activity,
   onSuccess,
   onCancel,
 }) => {
@@ -25,18 +26,17 @@ const AddRegistrationForm: React.FC<AddRegistrationFormProps> = ({
   const [selectedTeam, setSelectedTeam] = useState<string>("");
   const [selectedUser, setSelectedUser] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [loadingUsers, setLoadingUsers] = useState(false); // Estado para el segundo select
+  const [loadingUsers, setLoadingUsers] = useState(false);
 
   useEffect(() => {
     loadTeams();
   }, []);
 
-  // REVISIÓN: Limpieza y carga de usuarios
   useEffect(() => {
     const fetchUsers = async () => {
       if (selectedTeam) {
         setUsers([]); 
-        setSelectedUser(""); //
+        setSelectedUser(""); 
         setLoadingUsers(true);
         try {
           const resp = await userService.getByTeam(parseInt(selectedTeam));
@@ -53,26 +53,45 @@ const AddRegistrationForm: React.FC<AddRegistrationFormProps> = ({
         setSelectedUser("");
       }
     };
-
     fetchUsers();
   }, [selectedTeam]);
 
   const loadTeams = async () => {
     try {
       const resp = await teamService.getAll();
-      let filteredTeams: Team[] = resp.data || [];
+      let allTeams: Team[] = resp.data || [];
 
-      if (!isAdmin && currentUser?.affiliations) {
-        const userTeamIds = currentUser.affiliations.map(
-          (aff: any) => aff.teamId,
-        );
-        filteredTeams = filteredTeams.filter((t) => userTeamIds.includes(t.id));
+      const userManagedTeamIds = currentUser?.teamIds || [];
+      const activityTeamIds = activity.teamIds || [];
+      const isGlobalActivity = activityTeamIds.length === 0;
+
+      let filteredTeams: Team[] = [];
+
+      if (isAdmin) {
+        // El ADMIN puede elegir cualquier equipo de la actividad (o todos si es global)
+        filteredTeams = isGlobalActivity 
+          ? allTeams 
+          : allTeams.filter(t => activityTeamIds.includes(t.id));
+      } else {
+        // LÓGICA PARA STAFF:
+        if (isGlobalActivity) {
+          // Si es Global: Puede elegir cualquiera de SUS equipos
+          filteredTeams = allTeams.filter(t => userManagedTeamIds.includes(t.id));
+        } else {
+          // Si es de equipo: Solo puede elegir equipos que estén en la actividad Y que él gestione
+          filteredTeams = allTeams.filter(t => 
+            activityTeamIds.includes(t.id) && userManagedTeamIds.includes(t.id)
+          );
+        }
       }
+      
       setTeams(filteredTeams);
     } catch (error) {
       console.error("Error cargando equipos", error);
     }
   };
+
+  // ... (handleSubmit y selectStyles se mantienen igual)
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,10 +99,9 @@ const AddRegistrationForm: React.FC<AddRegistrationFormProps> = ({
 
     try {
       setLoading(true);
-      await registrationService.addManual(activityId, parseInt(selectedUser));
+      await registrationService.addManual(activity.id, parseInt(selectedUser));
       onSuccess();
     } catch (error: any) {
-      console.error(error);
       alert(error.response?.data?.message || "Error al inscribir al usuario.");
     } finally {
       setLoading(false);
@@ -92,19 +110,14 @@ const AddRegistrationForm: React.FC<AddRegistrationFormProps> = ({
 
   const selectStyles = (isDisabled: boolean) => `
     w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl outline-none transition-all text-sm
-    ${
-      isDisabled
-        ? "bg-gray-100 cursor-not-allowed opacity-60"
-        : "focus:ring-4 focus:ring-indigo-50 focus:border-indigo-500"
-    }
+    ${isDisabled ? "bg-gray-100 cursor-not-allowed opacity-60" : "focus:ring-4 focus:ring-indigo-50 focus:border-indigo-500"}
   `;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {/* Selector de Equipo */}
       <div className="flex flex-col gap-1.5 w-full">
         <label className="text-sm font-bold text-gray-700 ml-1">
-          Seleccionar Equipo <span className="text-red-500">*</span>
+          Equipo de procedencia <span className="text-red-500">*</span>
         </label>
         <select
           value={selectedTeam}
@@ -112,16 +125,18 @@ const AddRegistrationForm: React.FC<AddRegistrationFormProps> = ({
           className={selectStyles(false)}
           required
         >
-          <option value="">-- Elige un equipo --</option>
+          <option value="">-- Seleccionar origen --</option>
           {teams.map((t) => (
-            <option key={t.id} value={t.id.toString()}>
-              {t.name}
-            </option>
+            <option key={t.id} value={t.id.toString()}>{t.name}</option>
           ))}
         </select>
+        <p className="text-[10px] text-gray-400 ml-1 italic">
+          {activity.teamIds.length > 0 
+            ? "Solo puedes añadir miembros de los equipos vinculados a esta actividad."
+            : "Actividad global: puedes añadir miembros de tus equipos gestionados."}
+        </p>
       </div>
 
-      {/* Selector de Usuario */}
       <div className="flex flex-col gap-1.5 w-full">
         <label className="text-sm font-bold text-gray-700 ml-1">
           Seleccionar Integrante <span className="text-red-500">*</span>
@@ -149,20 +164,10 @@ const AddRegistrationForm: React.FC<AddRegistrationFormProps> = ({
             </div>
           )}
         </div>
-        {selectedTeam && !loadingUsers && users.length === 0 && (
-          <p className="text-[10px] text-amber-600 ml-1">
-            Este equipo no tiene integrantes registrados.
-          </p>
-        )}
       </div>
 
       <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-        <Button
-          variant="secondary"
-          onClick={onCancel}
-          type="button"
-          icon={<X size={18} />}
-        >
+        <Button variant="secondary" onClick={onCancel} type="button" icon={<X size={18} />}>
           Cancelar
         </Button>
         <Button
@@ -170,8 +175,9 @@ const AddRegistrationForm: React.FC<AddRegistrationFormProps> = ({
           type="submit"
           isLoading={loading}
           disabled={!selectedUser || loading}
+          icon={<Save size={18} />}
         >
-          Confirmar
+          Confirmar Inscripción
         </Button>
       </div>
     </form>

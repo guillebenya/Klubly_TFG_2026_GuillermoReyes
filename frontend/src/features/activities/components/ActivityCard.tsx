@@ -1,18 +1,19 @@
 import React, { useState } from "react";
-import { 
-  Eye, 
-  Pencil, 
-  Trash2, 
-  Calendar, 
-  MapPin, 
-  Users, 
-  UserPlus, 
+import {
+  Eye,
+  Pencil,
+  Trash2,
+  Calendar,
+  MapPin,
+  Users,
+  UserPlus,
+  UserMinus,
   CheckCircle2,
-  XCircle
+  XCircle,
 } from "lucide-react";
 import Button from "../../../components/shared/Button";
 import Badge from "../../../components/shared/Badge";
-import Card from "../../../components/shared/Card"; 
+import Card from "../../../components/shared/Card";
 import { type Activity } from "../services/activity.service";
 import { registrationService } from "../services/registration.service";
 
@@ -35,6 +36,10 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 }) => {
   const [loadingAction, setLoadingAction] = useState(false);
 
+  // Estados derivados del DTO
+  const isFull = activity.registeredCount >= activity.capacity;
+  const isAlreadyRegistered = activity.userRegistered; // Coincidiendo con el booleano del Backend
+
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
     return date.toLocaleDateString("es-ES", {
@@ -46,66 +51,91 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     });
   };
 
-  const isFull = activity.registeredCount >= activity.capacity;
-
   const handleRegister = async () => {
     try {
       setLoadingAction(true);
       await registrationService.registerSelf(activity.id);
       onRefresh();
-    } catch (error) {
-      console.error("Error al inscribirse");
+    } catch (error: any) {
+      alert(error.response?.data?.message || "Error al inscribirse");
+    } finally {
+      setLoadingAction(false);
+    }
+  };
+
+  const handleUnregister = async () => {
+    try {
+      setLoadingAction(true);
+      await registrationService.unregisterSelf(activity.id);
+      onRefresh();
+    } catch (error: any) {
+      alert(
+        error.response?.data?.message || "Error al cancelar la inscripción",
+      );
     } finally {
       setLoadingAction(false);
     }
   };
 
   return (
-    <Card 
-      className={`flex flex-col lg:flex-row items-center w-full gap-4 !p-4 border-l-4 border-l-indigo-300 hover:border-indigo-600 transition-all ${activity.active ? '' : 'opacity-65'}`}
+    <Card
+      className={`flex flex-col lg:flex-row items-center w-full gap-4 !p-4 border-l-4 border-l-indigo-300 hover:border-indigo-600 transition-all ${activity.active ? "" : "opacity-65"}`}
     >
-      {/* ICONO DE ACTIVIDAD */}
+      {/* 1. ICONO */}
       <div className="flex-shrink-0 p-3 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-100">
         <Calendar size={24} />
       </div>
 
-      {/* NOMBRE - Flex más alto para dar prioridad al texto largo */}
+      {/* 2. NOMBRE */}
       <div className="flex-[2] min-w-0 w-full lg:w-auto">
-        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Actividad</span>
-        <div className="flex items-center gap-2">
-          <h3 className="text-sm font-bold text-gray-800 truncate" title={activity.name}>
-            {activity.name}
-          </h3>
-        </div>
+        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
+          Actividad
+        </span>
+        <h3
+          className="text-sm font-bold text-gray-800 truncate"
+          title={activity.name}
+        >
+          {activity.name}
+        </h3>
       </div>
 
-      {/* FECHA */}
+      {/* 3. FECHA */}
       <div className="flex-1 min-w-0 w-full lg:w-auto">
-        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Fecha y Hora</span>
+        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
+          Fecha y Hora
+        </span>
         <div className="flex items-center gap-2 text-gray-600">
           <Calendar size={14} className="text-indigo-500 flex-shrink-0" />
-          <span className="text-xs font-medium">{formatDate(activity.startDate)}</span>
-        </div>
-      </div>
-
-      {/* UBICACIÓN */}
-      <div className="flex-1 min-w-0 w-full lg:w-auto">
-        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Ubicación</span>
-        <div className="flex items-center gap-2 text-gray-600">
-          <MapPin size={14} className="text-indigo-500 flex-shrink-0" />
-          <span className="text-xs font-medium truncate" title={activity.location}>
-            {activity.location || "Ubicación por definir"}
+          <span className="text-xs font-medium">
+            {formatDate(activity.startDate)}
           </span>
         </div>
       </div>
 
-      {/* EQUIPOS */}
+      {/* 4. UBICACIÓN */}
+      <div className="flex-1 min-w-0 w-full lg:w-auto">
+        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
+          Ubicación
+        </span>
+        <div className="flex items-center gap-2 text-gray-600">
+          <MapPin size={14} className="text-indigo-500 flex-shrink-0" />
+          <span className="text-xs font-medium truncate">
+            {activity.location || "Por definir"}
+          </span>
+        </div>
+      </div>
+
+      {/* 5. EQUIPOS */}
       <div className="flex-[1.2] min-w-0 w-full lg:w-auto">
-        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Equipo/s Relacionado/s</span>
-        <div className="flex flex-wrap gap-1 items-center">
+        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
+          Equipo/s
+        </span>
+        <div className="flex flex-wrap gap-1">
           {activity.teamNames.length > 0 ? (
             activity.teamNames.map((team, idx) => (
-              <Badge key={idx} variant="indigo">{team}</Badge>
+              <Badge key={idx} variant="indigo">
+                {team}
+              </Badge>
             ))
           ) : (
             <Badge variant="gray">Global</Badge>
@@ -113,37 +143,46 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         </div>
       </div>
 
-      {/* CUPO */}
+      {/* 6. CUPO */}
       <div className="flex-[0.7] min-w-0 w-full lg:w-auto">
-        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">Inscritos</span>
+        <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
+          Inscritos
+        </span>
         <div className="flex items-center gap-2">
-          <Users size={14} className={isFull ? 'text-red-500' : 'text-emerald-500'} />
-          <span className={`text-xs font-bold ${isFull ? 'text-red-500' : 'text-emerald-600'}`}>
+          <Users
+            size={14}
+            className={isFull ? "text-red-500" : "text-emerald-500"}
+          />
+          <span
+            className={`text-xs font-bold ${isFull ? "text-red-500" : "text-emerald-600"}`}
+          >
             {activity.registeredCount}/{activity.capacity}
           </span>
         </div>
       </div>
 
-      {/* ESTADO */}
+      {/* 7. ESTADO */}
       <div className="flex-[0.7] min-w-0 w-full lg:w-auto">
         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
           Estado
         </span>
         <Badge
           variant={activity.active ? "green" : "red"}
-          icon={activity.active ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
+          icon={
+            activity.active ? <CheckCircle2 size={10} /> : <XCircle size={10} />
+          }
         >
           {activity.active ? "ACTIVO" : "INACTIVO"}
         </Badge>
       </div>
 
-      {/* ACCIONES */}
-      <div className="flex-shrink-0 flex items-center gap-2 w-full lg:w-auto justify-end pt-3 lg:pt-0">
+      {/* 8. ACCIONES */}
+      <div className="flex-shrink-0 flex items-center gap-2 w-full lg:w-auto justify-end">
         <div className="flex gap-1">
           <Button
             variant="ghost"
             size="sm"
-            className="!text-blue-600 hover:!bg-blue-50"
+            className="!text-blue-600"
             icon={<Eye size={16} />}
             onClick={() => onView(activity)}
           />
@@ -151,7 +190,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             <Button
               variant="ghost"
               size="sm"
-              className="!text-amber-600 hover:!bg-amber-50"
+              className="!text-amber-600"
               icon={<Pencil size={16} />}
               onClick={() => onEdit(activity)}
             />
@@ -160,7 +199,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             <Button
               variant="ghost"
               size="sm"
-              className="!text-red-600 hover:!bg-red-50"
+              className="!text-red-600"
               icon={<Trash2 size={16} />}
               onClick={() => onDelete(activity.id)}
             />
@@ -168,20 +207,40 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         </div>
 
         {isMember && (
-          <div className="ml-2">
-            {!isFull ? (
+          <div className="ml-2 min-w-[130px] flex justify-end">
+            {isAlreadyRegistered ? (
+              /* CASO 1: YA INSCRITO -> Botón de Desapuntarse */
+              <Button
+                variant="delete"
+                size="sm"
+                className="whitespace-nowrap"
+                icon={<UserMinus size={18} />}
+                onClick={handleUnregister}
+                isLoading={loadingAction}
+              >
+                Desapuntarse
+              </Button>
+            ) : isFull ? (
+              /* CASO 2: NO INSCRITO Y LLENO -> Badge de Lleno */
+              <Badge
+                variant="red"
+                textSize="mediano"
+                className="py-1 px-11 uppercase font-bold"
+              >
+                Lleno
+              </Badge>
+            ) : (
+              /* CASO 3: NO INSCRITO Y CON CUPO -> Botón de Apuntarse */
               <Button
                 variant="add"
                 size="sm"
-                className="whitespace-nowrap px-4"
+                className="whitespace-nowrap px-5"
                 icon={<UserPlus size={18} />}
                 onClick={handleRegister}
                 isLoading={loadingAction}
               >
                 Apuntarse
               </Button>
-            ) : (
-              <Badge variant="red" textSize= "mediano" className="py-1 px-11">Lleno</Badge>
             )}
           </div>
         )}

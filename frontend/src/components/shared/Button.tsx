@@ -2,7 +2,7 @@ import React from 'react';
 import { Loader2 } from 'lucide-react'; // Importamos el spinner
 
 interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'add';
+  variant?: 'primary' | 'secondary' | 'ghost' | 'danger' | 'add' | 'delete';
   size?: 'sm' | 'md' | 'lg';
   icon?: React.ReactNode;
   isLoading?: boolean;
@@ -25,7 +25,8 @@ const Button = ({
     secondary: "bg-white text-gray-700 border border-gray-200 hover:bg-gray-50",
     ghost: "bg-transparent text-gray-500 hover:bg-gray-100",
     danger: "bg-red-50 text-red-600 hover:bg-red-100 border border-red-100",
-    add: "bg-green-600 text-white hover:bg-green-700 border border-green-600"
+    add: "bg-green-600 text-white hover:bg-green-700 border border-green-600",
+    delete: "bg-red-600 text-white hover:bg-red-700 border border-red-600"
   };
 
   const sizes = {

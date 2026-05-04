@@ -20,6 +20,9 @@ public class ActivityDTO {
     private List<Long> teamIds;
     private List<String> teamNames;
 
+    //Para ver si un usuario ya está registrado en la actividad
+    private boolean userRegistered;
+
     // Información de cupo para las cards
     private long registeredCount;
     

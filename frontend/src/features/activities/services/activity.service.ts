@@ -1,4 +1,4 @@
-import api from "../../../api/axios"; 
+import api from "../../../api/axios";
 
 const ENDPOINT = "/activities";
 
@@ -14,6 +14,7 @@ export interface Activity {
   teamIds: number[];
   teamNames: string[];
   registeredCount: number;
+  userRegistered: boolean;
   createdAt?: string;
   updatedAt?: string;
   deletedAt?: string | null;

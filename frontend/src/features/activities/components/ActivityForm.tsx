@@ -12,11 +12,6 @@ interface ActivityFormProps {
   loading?: boolean;
 }
 
-interface UserAffiliation {
-  teamId: number;
-  teamPosition?: string;
-}
-
 const ActivityForm: React.FC<ActivityFormProps> = ({
   initialData,
   onSubmit,
@@ -46,11 +41,13 @@ const ActivityForm: React.FC<ActivityFormProps> = ({
         const resp = await teamService.getAll();
         let teams: Team[] = resp.data;
 
-        if (!isAdmin && currentUser?.affiliations) {
-          const userTeamIds = currentUser.affiliations.map(
-            (aff: UserAffiliation) => aff.teamId,
-          );
-          teams = teams.filter((t) => userTeamIds.includes(t.id));
+        // FILTRADO DE SEGURIDAD PARA EL SELECTOR DE EQUIPOS
+        if (!isAdmin) {
+          // Extraemos directamente el array teamIds del usuario (asegurando un array vacío por defecto)
+          const userTeamIds = currentUser?.teamIds || [];
+          
+          // Filtramos la lista de equipos para dejar solo aquellos cuyo ID esté en la lista del usuario
+          teams = teams.filter((t) => userTeamIds.includes(Number(t.id)));
         }
         setAvailableTeams(teams);
       } catch (error) {
@@ -58,7 +55,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({
       }
     };
     loadTeams();
-  }, [currentUser?.id, currentUser?.roleName]);
+  }, [currentUser?.id, isAdmin]);
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -269,7 +266,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({
 
         <p className="text-[10px] text-gray-400 ml-1 italic">
           {formData.teamIds.length === 0
-            ? "Selecciona los equipos que participarán en esta actividad"
+            ? "Selecciona los equipos que participarán en esta actividad (Si no seleccionas ninguno, será Global)"
             : `Has seleccionado ${formData.teamIds.length} equipo(s)`}
         </p>
       </div>
@@ -316,6 +313,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({
           variant={initialData ? "primary" : "add"}
           type="submit"
           isLoading={loading}
+          icon={<Save size={18} />}
         >
           {initialData ? "Guardar Cambios" : "Crear Actividad"}
         </Button>

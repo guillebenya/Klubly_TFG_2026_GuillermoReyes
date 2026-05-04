@@ -1,9 +1,7 @@
 import React, { useEffect, useState } from "react";
 import {
   Loader2,
-  Wallet,
   CreditCard,
-  Receipt,
   Filter,
   TrendingDown,
   TrendingUp,
@@ -11,9 +9,9 @@ import {
   ArrowRightLeft,
 } from "lucide-react";
 import PageHeader from "../../../components/shared/PageHeader";
-import Card from "../../../components/shared/Card";
 import Modal from "../../../components/shared/Modal";
 import Button from "../../../components/shared/Button";
+import SummaryCard from "../../../components/shared/SummaryCard"; // Usamos el componente compartido
 import TransactionCard from "../components/TransactionCard";
 import TransactionDetails from "../components/TransactionDetails";
 import TransactionFilters from "../components/TransactionFilters";
@@ -56,7 +54,6 @@ const MyPaymentsPage = () => {
   const fetchData = async () => {
     try {
       setLoading(true);
-      // Solo necesitamos getByUserId, ya que calcularemos los totales del array para que sean dinámicos
       const resp = await treasuryService.getByUserId(currentUser!.id);
       setTransactions(resp.data);
     } catch (error) {
@@ -106,24 +103,28 @@ const MyPaymentsPage = () => {
     );
   });
 
-  // --- CÁLCULOS DINÁMICOS ---
-  // Calculamos sobre filteredTransactions para que las tarjetas reaccionen a los filtros
-  const totalAportado = filteredTransactions
-    .filter((t) => t.type === TransactionType.INCOME)
+  // --- CÁLCULOS GLOBALES (Sin filtros, para mantener coherencia) ---
+  const totalAportado = transactions
+    .filter((t) => t.type === TransactionType.INCOME) // Income para el club = Aportado por el socio
     .reduce((acc, t) => acc + t.amount, 0);
 
-  const totalRecibido = filteredTransactions
-    .filter((t) => t.type === TransactionType.EXPENSE)
+  const totalRecibido = transactions
+    .filter((t) => t.type === TransactionType.EXPENSE) // Expense para el club = Recibido por el socio
     .reduce((acc, t) => acc + t.amount, 0);
 
   const balance = totalRecibido - totalAportado;
-  const isPositiveBalance = balance >= 0;
 
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat("es-ES", {
       style: "currency",
       currency: "EUR",
     }).format(amount);
+  };
+
+  const getBalanceVariant = () => {
+    if (balance > 0) return "emerald";
+    if (balance < 0) return "rose";
+    return "gray";
   };
 
   return (
@@ -142,91 +143,47 @@ const MyPaymentsPage = () => {
           </Button>
         }
       />
-      <div className="flex items-center gap-1.5 px-1 opacity-80">
-        <div className="h-1 w-1 rounded-full bg-indigo-400" />{" "}
-        {/* Un punto decorativo en lugar de asterisco */}
-        <p className="text-[11px] uppercase tracking-wider font-bold text-gray-400">
-          Resumen basado en los filtros actuales:
-        </p>
-      </div>
 
       {/* RESUMEN PARA EL SOCIO */}
       {!loading && (
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          {/* CARD 1: APORTADO */}
-          <Card className="p-5 flex items-center justify-between border-b-4 border-b-red-500 shadow-sm">
-            <div className="space-y-1">
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
-                Total Aportado
-              </p>
-              <p className="text-2xl font-black text-red-600">
-                {formatCurrency(totalAportado)}
-              </p>
-            </div>
-            <div className="h-12 w-12 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center shadow-inner">
-              <TrendingDown size={24} />
-            </div>
-          </Card>
+        <>
+          {/* Nota informativa */}
+          <div className="flex items-center gap-1.5 px-1 mb-2 opacity-80">
+            <div className="h-1 w-1 rounded-full bg-indigo-400" />
+            <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 italic">
+              Nota: Las tarjetas resumen muestran totales de tus transacciones y no se ven
+              afectados por los filtros de búsqueda.
+            </p>
+          </div>
 
-          {/* CARD 2: RECIBIDO */}
-          <Card className="p-5 flex items-center justify-between border-b-4 border-b-emerald-500 shadow-sm">
-            <div className="space-y-1">
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
-                Total Recibido
-              </p>
-              <p className="text-2xl font-black text-emerald-600">
-                {formatCurrency(totalRecibido)}
-              </p>
-            </div>
-            <div className="h-12 w-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shadow-inner">
-              <TrendingUp size={24} />
-            </div>
-          </Card>
-
-          {/* CARD 3: BALANCE*/}
-          <Card
-            className={`p-5 flex items-center justify-between border-b-4 shadow-sm transition-colors ${
-              isPositiveBalance
-                ? "border-b-emerald-500 bg-emerald-50/20"
-                : "border-b-red-500 bg-red-50/20"
-            }`}
-          >
-            <div className="space-y-1">
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
-                Balance Global
-              </p>
-              <p
-                className={`text-2xl font-black ${isPositiveBalance ? "text-emerald-600" : "text-red-600"}`}
-              >
-                {formatCurrency(balance)}
-              </p>
-            </div>
-            <div
-              className={`h-12 w-12 rounded-2xl flex items-center justify-center shadow-inner ${
-                isPositiveBalance
-                  ? "bg-emerald-100 text-emerald-600"
-                  : "bg-red-100 text-red-600"
-              }`}
-            >
-              <Scale size={24} />
-            </div>
-          </Card>
-
-          {/* CARD 4: MOVIMIENTOS */}
-          <Card className="p-5 flex items-center justify-between border-b-4 border-b-indigo-500 shadow-sm">
-            <div className="space-y-1">
-              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest leading-none">
-                Movimientos
-              </p>
-              <p className="text-2xl font-black text-indigo-600">
-                {filteredTransactions.length}
-              </p>
-            </div>
-            <div className="h-12 w-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-              <ArrowRightLeft size={24} />
-            </div>
-          </Card>
-        </div>
+          {/* Grid de tarjetas */}
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <SummaryCard
+              title="Total Aportado"
+              value={formatCurrency(totalAportado)}
+              icon={<TrendingDown size={20} />}
+              variant="rose"
+            />
+            <SummaryCard
+              title="Total Recibido"
+              value={formatCurrency(totalRecibido)}
+              icon={<TrendingUp size={20} />}
+              variant="emerald"
+            />
+            <SummaryCard
+              title="Balance Global"
+              value={formatCurrency(balance)}
+              icon={<Scale size={20} />}
+              variant={getBalanceVariant()}
+            />
+            <SummaryCard
+              title="Movimientos"
+              value={transactions.length}
+              icon={<ArrowRightLeft size={20} />}
+              variant="indigo"
+            />
+          </div>
+        </>
       )}
 
       {/* LISTADO DE PAGOS */}
