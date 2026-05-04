@@ -9,16 +9,16 @@ import {
   UserCheck,
   UserCircle,
 } from "lucide-react";
-import PageHeader from "../../../components/shared/PageHeader";
-import Button from "../../../components/shared/Button";
-import Modal from "../../../components/shared/Modal";
-import Card from "../../../components/shared/Card";
-import MemberCard from "../components/MemberCard";
-import MemberDetails from "../components/MemberDetails";
-import MemberForm from "../components/MemberForm";
-import ConfirmDialog from "../../../components/shared/ConfirmDialog";
-import SuccessDialog from "../../../components/shared/SuccessDialog";
-import SummaryCard from "../../../components/shared/SummaryCard";
+import PageHeader from "../../../components/shared/PageHeader.tsx";
+import Button from "../../../components/shared/Button.tsx";
+import Modal from "../../../components/shared/Modal.tsx";
+import Card from "../../../components/shared/Card.tsx";
+import MemberCard from "../components/MemberCard.tsx";
+import MemberDetails from "../components/MemberDetails.tsx";
+import MemberForm from "../components/MemberForm.tsx";
+import ConfirmDialog from "../../../components/shared/ConfirmDialog.tsx";
+import SuccessDialog from "../../../components/shared/SuccessDialog.tsx";
+import SummaryCard from "../../../components/shared/SummaryCard.tsx";
 import { userService } from "../services/user.service.ts";
 import MemberTeamsManager from "../components/MemberTeamsManager.tsx";
 import { teamService } from "../services/team.service.ts";

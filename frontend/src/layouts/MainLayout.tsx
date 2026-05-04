@@ -51,8 +51,8 @@ const MainLayout = () => {
       roles: ["ADMIN", "STAFF", "MEMBER"],
     },
     {
-      path: "/miembros",
-      label: "Miembros",
+      path: "/usuarios",
+      label: "Usuarios",
       icon: <UserIcon size={20} />,
       roles: ["ADMIN", "STAFF"],
     },
