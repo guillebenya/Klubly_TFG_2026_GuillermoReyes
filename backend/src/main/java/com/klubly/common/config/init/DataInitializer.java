@@ -59,11 +59,16 @@ public class DataInitializer implements CommandLineRunner{
 
     @Override
     public void run(String...args){
+        
+        //ROLES
+
         //Crear roles si no existen
         createRoleIfNotFound("ADMIN");
         createRoleIfNotFound("STAFF");
         createRoleIfNotFound("MEMBER");
         createRoleIfNotFound("ROL INFORMATIVO");
+
+        //USUARIOS
 
         //Crear un usuario administrador por defecto
         if (!userRepository.existsByUsernameAndDeletedAtIsNull("admin")) {
@@ -118,6 +123,52 @@ public class DataInitializer implements CommandLineRunner{
             log.info("Usuario member creado con éxito por el DataSeed.");
         }
 
+        // Usuario pendiente de aprobación
+        if (!userRepository.existsByUsernameAndDeletedAtIsNull("aspirante")) {
+            Role memberRole = roleRepository.findByNameAndDeletedAtIsNull("MEMBER").get();
+            User pendingUser = new User();
+            pendingUser.setUsername("aspirante");
+            pendingUser.setEmail("aspirante@test.com");
+            pendingUser.setPassword(passwordEncoder.encode("aspirante123"));
+            pendingUser.setFirstName("Juan");
+            pendingUser.setLastName("Novato");
+            pendingUser.setRole(memberRole);
+            pendingUser.setActive(false);  
+            pendingUser.setIsPending(true);
+            userRepository.save(pendingUser);
+            log.info("Usuario aspirante (pendiente) creado.");
+        }
+
+        //Usuario borrado para verlo en historial
+        if (!userRepository.existsByUsernameAndDeletedAtIsNull("usuario.borrado")) {
+            User deletedUser = new User();
+            deletedUser.setUsername("usuario.borrado");
+            deletedUser.setEmail("borrado@test.com");
+            deletedUser.setPassword(passwordEncoder.encode("123"));
+            deletedUser.setFirstName("Usuario");
+            deletedUser.setLastName("Eliminado");
+            deletedUser.setRole(roleRepository.findByNameAndDeletedAtIsNull("MEMBER").get());
+            deletedUser.setDeletedAt(LocalDateTime.now().minusDays(1)); // Borrado ayer
+            deletedUser.setActive(false);
+            userRepository.save(deletedUser);
+            log.info("Usuario borrado creado con éxito por el DataSeed");
+        }
+
+        // Staff sin equipos
+        if (!userRepository.existsByUsernameAndDeletedAtIsNull("staff_sin_equipo")) {
+            Role staffRole = roleRepository.findByNameAndDeletedAtIsNull("STAFF").get();
+            User loneStaff = new User();
+            loneStaff.setUsername("staff_sin_equipo");
+            loneStaff.setFirstName("Marcos");
+            loneStaff.setLastName("Sin Equipo");
+            loneStaff.setRole(staffRole);
+            loneStaff.setActive(true);
+            userRepository.save(loneStaff);
+            log.info("Usuario staff sin equipos creado con éxito por el DataSeed");
+        }
+
+        //EQUIPOS Y AFILIACIONES
+
         //Crear un equipo de prueba
         Team testTeam = new Team();
         if (!teamRepository.existsByNameAndDeletedAtIsNull("Equipo de Prueba")) {
@@ -127,6 +178,17 @@ public class DataInitializer implements CommandLineRunner{
         log.info("Equipo de prueba creado con éxito por el DataSeed.");
         } else{
             testTeam = teamRepository.findByNameAndDeletedAtIsNull("Equipo de Prueba").get();
+        }
+
+        //Crear otro equipo de prueba
+        Team teamB = new Team();
+        if (!teamRepository.existsByNameAndDeletedAtIsNull("Equipo Juvenil")) {
+        teamB.setName("Equipo Juvenil");
+        teamB.setDescription("Categoría inferior para formación.");
+        teamB = teamRepository.save(teamB);
+        log.info("Equipo Juvenil creado con éxito por el DataSeed.");
+        } else{
+            teamB = teamRepository.findByNameAndDeletedAtIsNull("Equipo de Prueba").get();
         }
 
          //Crear una afiliación de prueba para un STAFF
@@ -141,8 +203,19 @@ public class DataInitializer implements CommandLineRunner{
             testAffiliation.setActive(true);
 
             affiliationRepository.save(testAffiliation);
-            log.info("Afiliación de prueba ('member' -> 'Equipo de Prueba') creada con éxito.");
+            log.info("Afiliación de prueba ('staff' -> 'Equipo de Prueba') creada con éxito.");
         }
+
+        //Añadir al mismo usuario STAFF a otro equuipo para probar multi-equipo
+        Affiliation aff2 = new Affiliation();
+        aff2.setUser(staffUser); // El mismo usuario 'staff'
+        aff2.setTeam(teamB);
+        aff2.setTeamPosition("PRIMER ENTRENADOR");
+        aff2.setActive(true);
+        affiliationRepository.save(aff2);
+        log.info("Afiliación de prueba ('staff' -> 'Equipo Juvenil') creada con éxito.");
+
+
 
          //Crear una afiliación de prueba para un MEMBER
          User memberUser = userRepository.findByUsernameAndDeletedAtIsNull("member")
@@ -158,6 +231,8 @@ public class DataInitializer implements CommandLineRunner{
             affiliationRepository.save(testAffiliation);
             log.info("Afiliación de prueba ('member' -> 'Equipo de Prueba') creada con éxito.");
         }
+
+        //CATEGORÍAS DE INVENTARIO E ÍTEMS
 
         //Crear una categoría de inventario de prueba
         if (!categoryRepository.existsByNameAndDeletedAtIsNull("Categoría de prueba")){
@@ -186,6 +261,35 @@ public class DataInitializer implements CommandLineRunner{
             log.info("Item: 'Item de prueba' creada con éxito por el DataSeed.");
         }
 
+        //Crear un item crítico (stock bajo) para probar alertas
+        if(!itemRepository.existsByNameAndDeletedAtIsNull("Balones de Voleibol")){
+        Item itemCritico = new Item();
+        itemCritico.setName("Balones de Voleibol");
+        itemCritico.setStockQuantity(2); 
+        itemCritico.setMinStock(10); 
+        itemCritico.setCategory(testCategory);
+        itemCritico.setActive(true);
+        itemRepository.save(itemCritico);
+        log.info("Item crítico: 'Balones de Voleibol' creada con éxito por el DataSeed");
+
+        // Crear un ítem de inventario INACTIVO (Descatalogado/Viejo)
+        if (!itemRepository.existsByNameAndDeletedAtIsNull("Porterías de Entrenamiento (Madera)")) {
+            Item oldItem = new Item();
+            oldItem.setName("Porterías de Entrenamiento (Madera)");
+            oldItem.setDescription("Material antiguo almacenado. No usar en competición por seguridad.");
+            oldItem.setStockQuantity(2);
+            oldItem.setMinStock(0);
+            oldItem.setLocation("Almacén Exterior - Zona C");
+            oldItem.setCategory(testCategory); 
+            oldItem.setActive(false);
+            
+            itemRepository.save(oldItem);
+            log.info("Item inactivo 'Porterías de Entrenamiento' creado con éxito por el DataSeed.");
+        }
+}
+
+        //TRANSACCIONES
+        
         //Crear un transaction INCOME de prueba
         User memberUserForTransaction = userRepository.findByUsernameAndDeletedAtIsNull("member")
             .orElseThrow(() -> new RuntimeException("Error: Usuario member no encontrado"));
@@ -211,6 +315,19 @@ public class DataInitializer implements CommandLineRunner{
         transaction2.setUser(memberUserForTransaction);
         transactionRepository.save(transaction2);
         log.info("Transacción de prueba 2 creada con éxito por el DataSeed");
+
+        // Transacción de gasto grande para balance
+        Transaction expense = new Transaction();
+        expense.setAmount(new BigDecimal("120.50"));
+        expense.setConcept("Reparación de portería campo 2");
+        expense.setType(TransactionType.EXPENSE);
+        expense.setPaymentMethod(PaymentMethod.TRANSFER);
+        expense.setTransactionDate(LocalDateTime.now().minusDays(5));
+        expense.setActive(true);
+        transactionRepository.save(expense);
+        log.info("Transacción de gasto grande creada con éxito por el DataSeed");
+
+        //ACTIVIDADES Y REGISTROS
 
         //Crear Actividades y registros
         if (activityRepository.count() == 0) {
@@ -266,7 +383,7 @@ public class DataInitializer implements CommandLineRunner{
             pastAct.setActive(true);
             activityRepository.save(pastAct);
 
-            // 5. Actividad con CUPO LLENO (Capacity: 1, Registrations: 1)
+            // Actividad con CUPO LLENO 
             Activity fullAct = new Activity();
             fullAct.setName("Taller de Nutrición Deportiva");
             fullAct.setDescription("Charla exclusiva sobre suplementación. Plazas muy limitadas.");
@@ -291,6 +408,19 @@ public class DataInitializer implements CommandLineRunner{
             }
 
             log.info("Seeding de actividades e inscripciones completado.");
+
+            // Actividad borrada (Historial/Soft Delete)
+                Activity deletedAct = new Activity();
+                deletedAct.setName("Campus de Verano 2023");
+                deletedAct.setDescription("Esta actividad fue eliminada del sistema.");
+                deletedAct.setStartDate(LocalDateTime.now().minusYears(1));
+                deletedAct.setEndDate(LocalDateTime.now().minusYears(1).plusDays(7));
+                deletedAct.setCapacity(50);
+                deletedAct.setLocation("Instalaciones Municipales");
+                deletedAct.setActive(false);
+                deletedAct.setDeletedAt(LocalDateTime.now().minusMonths(1));
+                activityRepository.save(deletedAct);
+                log.info("Actividad borrada (Campus de Verano) creada para pruebas de historial.");
         }
     }
 
