@@ -89,7 +89,7 @@ const ActivityPage = () => {
     }
   };
 
-  // --- CÁLCULOS PARA TARJETAS INFORMATIVAS ---
+  // CÁLCULOS PARA TARJETAS INFORMATIVAS
   const now = new Date();
   const activitiesThisMonth = activities.filter((a) => {
     const d = new Date(a.startDate);
@@ -204,6 +204,28 @@ const ActivityPage = () => {
     return matchesSearch && matchesTeam && matchesDate;
   });
 
+  // LÓGICA DE ORDENACIÓN
+  const sortedActivities = [...filteredActivities].sort((a, b) => {
+    const nowTime = new Date().getTime();
+    const timeA = new Date(a.startDate).getTime();
+    const timeB = new Date(b.startDate).getTime();
+
+    const isPastA = timeA < nowTime;
+    const isPastB = timeB < nowTime;
+
+    // Si una ya pasó y la otra no, la futura va primero
+    if (isPastA && !isPastB) return 1;
+    if (!isPastA && isPastB) return -1;
+
+    // Si ambas son futuras, orden ascendente (la más próxima primero)
+    if (!isPastA && !isPastB) {
+      return timeA - timeB;
+    }
+
+    // Si ambas son pasadas, orden descendente (la más reciente primero)
+    return timeB - timeA;
+  });
+
   return (
     <div className="space-y-6">
       <PageHeader
@@ -311,26 +333,30 @@ const ActivityPage = () => {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {filteredActivities.length > 0 ? (
-            filteredActivities.map((activity) => (
-              <ActivityCard
-                key={activity.id}
-                activity={activity}
-                onView={handleView}
-                onEdit={
-                  (isAdmin || isStaff) && !isHistoryMode
-                    ? handleEdit
-                    : undefined
-                }
-                onDelete={
-                  (isAdmin || isStaff) && !isHistoryMode
-                    ? handleDeleteTrigger
-                    : undefined
-                }
-                isMember={isMember}
-                onRefresh={fetchActivities}
-              />
-            ))
+          {sortedActivities.length > 0 ? (
+            sortedActivities.map((activity) => {
+              const isPast = new Date(activity.startDate) < new Date();
+              return (
+                <ActivityCard
+                  key={activity.id}
+                  activity={activity}
+                  onView={handleView}
+                  // Si ya pasó, no enviamos funciones de editar/borrar
+                  onEdit={
+                    (isAdmin || isStaff) && !isHistoryMode && !isPast
+                      ? handleEdit
+                      : undefined
+                  }
+                  onDelete={
+                    (isAdmin || isStaff) && !isHistoryMode && !isPast
+                      ? handleDeleteTrigger
+                      : undefined
+                  }
+                  isMember={isMember && !isPast} 
+                  onRefresh={fetchActivities}
+                />
+              );
+            })
           ) : (
             <div className="bg-white rounded-2xl p-12 text-center border-2 border-dashed border-gray-100">
               <Calendar size={48} className="mx-auto text-gray-200 mb-4" />
@@ -342,7 +368,7 @@ const ActivityPage = () => {
         </div>
       )}
 
-      {/* MODALES, CONFIRMACIONES Y ÉXITO (Sin cambios) */}
+      {/* MODALES, CONFIRMACIONES Y ÉXITO */}
       <Modal
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}

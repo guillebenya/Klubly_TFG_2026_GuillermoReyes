@@ -77,9 +77,11 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     }
   };
 
+  const isPast = new Date(activity.startDate) < new Date();
+
   return (
     <Card
-      className={`flex flex-col lg:flex-row items-center w-full gap-4 !p-4 border-l-4 border-l-indigo-300 hover:border-indigo-600 transition-all ${activity.active ? "" : "opacity-65"}`}
+      className={`flex flex-col lg:flex-row items-center w-full gap-4 !p-4 border-l-4 border-l-indigo-300 hover:border-indigo-600 transition-all ${activity.active ? "" : "opacity-65"} ${isPast ? "grayscale-[0.5] opacity-70 bg-gray-50" : ""}`}
     >
       {/* 1. ICONO */}
       <div className="flex-shrink-0 p-3 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-100">
@@ -205,6 +207,16 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             />
           )}
         </div>
+
+        {isPast && (
+          <Badge
+            variant="gray"
+            textSize="mediano"
+            className="py-1 px-7 uppercase font-bold"
+          >
+            FINALIZADA
+          </Badge>
+        )}
 
         {isMember && (
           <div className="ml-2 min-w-[130px] flex justify-end">

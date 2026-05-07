@@ -72,7 +72,6 @@ public class UserService {
     @Transactional
     public UserDTO createUser(UserDTO userDTO){
         checkAdminRole();
-        //Comprobamos si username o email ya existen (solo entre los activos)
         if (userRepository.existsByUsernameAndDeletedAtIsNull(userDTO.getUsername())) {
             throw new BadRequestException("El nombre de usuario ya existe");
         }
@@ -80,21 +79,24 @@ public class UserService {
             throw new BadRequestException("El correo electrónico ya existe");
         }
 
-        // Buscar el rol, ya que el DTO trae el roleId y necesitamos la entidad para asignarla al usuario
         Role role = roleRepository.findByIdAndDeletedAtIsNull(userDTO.getRoleId())
                 .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado"));
         
         User user = new User();
         user.setUsername(userDTO.getUsername());
         user.setEmail(userDTO.getEmail());
-        user.setPassword(passwordEncoder.encode(userDTO.getPassword())); // Encriptar la contraseña
+        user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
         user.setPhone(userDTO.getPhone());
         user.setClubPosition(userDTO.getClubPosition());
         user.setAvatarURL(userDTO.getAvatarURL());
         user.setActive(userDTO.getActive() != null ? userDTO.getActive() : true);
-        user.setRole(role); // Asignar el rol al usuario
+        
+        // Al crear desde Admin, el usuario no nace como pendiente
+        user.setIsPending(userDTO.getIsPending() != null ? userDTO.getIsPending() : false);
+        
+        user.setRole(role);
 
         User savedUser = userRepository.save(user);
         log.info("Nuevo usuario creado con éxito: {}", userDTO.getUsername());
@@ -103,14 +105,10 @@ public class UserService {
     
     @Transactional
     public UserDTO updateUser(Long id, UserDTO userDTO){
-        //OBTENER USUARIO ACTUAL DEL CONTEXTO DE SEGURIDAD
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        
-        //BUSCAR AL USUARIO QUE ESTÁ REALIZANDO LA ACCIÓN
         User actor = userRepository.findByUsernameAndDeletedAtIsNull(currentUsername)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario autenticado no encontrado"));
 
-        //VALIDAR PERMISOS: Solo puede editar si es ADMIN o si es su propio ID
         boolean isAdmin = actor.getRole().getName().equals("ADMIN");
         boolean isOwner = actor.getId().equals(id);
 
@@ -122,7 +120,6 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_MSG));
 
         if (isAdmin) {
-            // Username
             if (!user.getUsername().equals(userDTO.getUsername())) {
                 if (userRepository.existsByUsernameAndDeletedAtIsNull(userDTO.getUsername())) {
                     throw new BadRequestException("El nombre de usuario ya existe");
@@ -130,7 +127,6 @@ public class UserService {
                 user.setUsername(userDTO.getUsername());
             }
             
-            // Email
             if (!user.getEmail().equals(userDTO.getEmail())) {
                 if (userRepository.existsByEmailAndDeletedAtIsNull(userDTO.getEmail())) {
                     throw new BadRequestException("El correo electrónico ya existe");
@@ -138,7 +134,6 @@ public class UserService {
                 user.setEmail(userDTO.getEmail());
             }
 
-            // Rol
             if (userDTO.getRoleId() != null && !user.getRole().getId().equals(userDTO.getRoleId())) {
                 if (isOwner) {
                     throw new BadRequestException("Por seguridad, no puedes cambiar tu propio rol de Administrador");
@@ -148,9 +143,7 @@ public class UserService {
                 user.setRole(role);
             }
 
-            // Otros campos administrativos
             user.setClubPosition(userDTO.getClubPosition());
-
 
             if (userDTO.getActive() != null) {
                 if (isOwner && !userDTO.getActive()) {
@@ -158,32 +151,30 @@ public class UserService {
                 }
                 user.setActive(userDTO.getActive());
             }
+
+            // Permite al Admin gestionar el estado de pendiente (Aprobar usuario)
+            if (userDTO.getIsPending() != null) {
+                user.setIsPending(userDTO.getIsPending());
+            }
         }
 
-        // CAMPOS COMUNES (ADMIN puede todo, STAFF/MEMBER solo los suyos)
-        // Estos campos se actualizan siempre (porque si no es Admin, ya validamos que es Owner)
         user.setFirstName(userDTO.getFirstName());
         user.setLastName(userDTO.getLastName());
         user.setPhone(userDTO.getPhone());
         user.setAvatarURL(userDTO.getAvatarURL());
 
         if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
-            // Aquí podrías añadir tu lógica de validación de requisitos de password
             user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         }
 
         User updatedUser = userRepository.save(user);
         return convertToDTO(updatedUser);
-        
     }
     
     @Transactional
     public void deleteUser(Long id){
         checkAdminRole();
-        //OBTENER USUARIO ACTUAL DEL CONTEXTO DE SEGURIDAD
         String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        
-        //BUSCAR AL USUARIO QUE ESTÁ REALIZANDO LA ACCIÓN
         User actor = userRepository.findByUsernameAndDeletedAtIsNull(currentUsername)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario autenticado no encontrado"));
 
@@ -201,33 +192,26 @@ public class UserService {
 
     @Transactional
     public void changePassword(ChangePasswordRequest request) {
-        // Obtenemos el username del "Contexto de Seguridad" (quien está logueado)
         String currentUsername = org.springframework.security.core.context.SecurityContextHolder
                                     .getContext().getAuthentication().getName();
 
-        // Buscamos al usuario en la BD
         User user = userRepository.findByUsernameAndDeletedAtIsNull(currentUsername)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
-        // Comprobar si la contraseña actual es correcta
-        // Usamos passwordEncoder.matches(plana, encriptada)
         if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
             throw new BadRequestException("La contraseña actual no es correcta");
         }
 
-        // Comprobar que las nuevas coinciden
         if (!request.newPassword().equals(request.confirmPassword())) {
             throw new BadRequestException("Las nuevas contraseñas no coinciden");
         }
 
-        // Encriptar la nueva y guardar
         user.setPassword(passwordEncoder.encode(request.newPassword()));
         userRepository.save(user);
         
         log.info("Usuario {} ha cambiado su contraseña", currentUsername);
     }
 
-    // MÉTODO DE CONVERSIÓN PARA MAPEO MANUAL
     private UserDTO convertToDTO(User user) {
         UserDTO dto = new UserDTO();
         dto.setId(user.getId());
@@ -239,6 +223,8 @@ public class UserService {
         dto.setClubPosition(user.getClubPosition());
         dto.setAvatarURL(user.getAvatarURL());
         dto.setActive(user.getActive());
+        dto.setIsPending(user.getIsPending());
+
         dto.setCreatedAt(user.getCreatedAt());
         dto.setUpdatedAt(user.getUpdatedAt());
         dto.setDeletedAt(user.getDeletedAt());
@@ -247,22 +233,21 @@ public class UserService {
             dto.setRoleName(user.getRole().getName());
         }
         if (user.getAffiliations() != null) {
-        dto.setAffiliations(user.getAffiliations().stream()
-        .filter(aff -> aff.getDeletedAt() == null)    
-        .map(aff -> {
-                AffiliationDTO affDto = new AffiliationDTO();
-                affDto.setId(aff.getId());
-                affDto.setTeamId(aff.getTeam().getId());
-                affDto.setTeamName(aff.getTeam().getName());
-                affDto.setTeamPosition(aff.getTeamPosition());
-                return affDto;
-            })
-            .collect(Collectors.toList()));
-    }
+            dto.setAffiliations(user.getAffiliations().stream()
+            .filter(aff -> aff.getDeletedAt() == null)    
+            .map(aff -> {
+                    AffiliationDTO affDto = new AffiliationDTO();
+                    affDto.setId(aff.getId());
+                    affDto.setTeamId(aff.getTeam().getId());
+                    affDto.setTeamName(aff.getTeam().getName());
+                    affDto.setTeamPosition(aff.getTeamPosition());
+                    return affDto;
+                })
+                .collect(Collectors.toList()));
+        }
         return dto;
     }
 
-    //Métodos auxiliares
     private String getContextRole() {
         return SecurityContextHolder.getContext().getAuthentication().getAuthorities()
                 .iterator().next().getAuthority();
@@ -273,5 +258,4 @@ public class UserService {
             throw new UnauthorizedException("Acceso denegado: Se requieren permisos de administrador");
         }
     }
-    
 }

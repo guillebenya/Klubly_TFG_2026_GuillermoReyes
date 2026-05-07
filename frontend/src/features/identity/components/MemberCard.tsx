@@ -10,6 +10,7 @@ import {
   ClipboardList,
   CheckCircle2,
   XCircle,
+  Clock, // Nuevo icono para pendientes
 } from "lucide-react";
 import Card from "../../../components/shared/Card";
 import Badge from "../../../components/shared/Badge";
@@ -33,7 +34,6 @@ const MemberCard = ({
   isStaffView = false,
   commonTeamsCount = 0,
 }: MemberCardProps) => {
-  // Lógica para elegir el icono del Rol
   const getRoleIcon = (role: string) => {
     switch (role?.toUpperCase()) {
       case "ADMIN":
@@ -45,13 +45,18 @@ const MemberCard = ({
     }
   };
 
-  //Para comprobar si el usuario actual es Admin y mostrar el botón de editar y eliminar solo a ellos
   const currentUser = authService.getCurrentUser();
   const isAdmin = currentUser?.roleName === "ADMIN";
   const isSelf = currentUser && member.id === currentUser.id;
 
+  // Lógica de colores dinámica según estado
+  const getBorderColor = () => {
+    if (member.isPending) return "border-l-amber-400 bg-amber-50/30";
+    return member.active ? "border-l-indigo-300" : "border-l-red-300 opacity-65";
+  };
+
   return (
-    <Card className={`flex items-center gap-4 py-3 px-6 border-l-4 border-l-indigo-300 hover:border-indigo-600 transition-all shadow-sm ${member.active ? "" : "opacity-65"}`}>
+    <Card className={`flex items-center gap-4 py-3 px-6 border-l-4 transition-all shadow-sm hover:shadow-md ${getBorderColor()}`}>
       {/* Avatar */}
       <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border border-indigo-50 shrink-0">
         {member.avatarURL ? (
@@ -71,6 +76,11 @@ const MemberCard = ({
         <div className="flex flex-col min-w-[180px]">
           <p className="text-sm font-bold text-gray-900 truncate">
             {member.firstName} {member.lastName}
+            {member.isPending && (
+              <span className="ml-2 text-[9px] bg-amber-500 text-white px-1.5 py-0.5 rounded font-black align-middle">
+                NUEVO
+              </span>
+            )}
           </p>
           <div className="flex items-center gap-1 text-gray-400 whitespace-nowrap">
             <Mail size={12} />
@@ -88,17 +98,7 @@ const MemberCard = ({
           </p>
         </div>
 
-        {/* Teléfono */}
-        <div className="hidden md:flex flex-col items-start min-w-[100px]">
-          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
-            Teléfono
-          </span>
-          <p className="text-xs font-semibold text-gray-600 truncate">
-            {member.phone || "No disponible"}
-          </p>
-        </div>
-
-        {/* Rol con Icono Dinámico */}
+        {/* Rol */}
         <div className="hidden md:flex flex-col items-start min-w-[100px]">
           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
             Rol
@@ -108,19 +108,25 @@ const MemberCard = ({
           </Badge>
         </div>
 
-        {/* Estado con Icono de Check o X */}
-        <div className="hidden sm:flex flex-col items-start min-w-[90px]">
+        {/* Estado Mejorado: Ahora diferencia pendientes de inactivos */}
+        <div className="hidden sm:flex flex-col items-start min-w-[110px]">
           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
             Estado
           </span>
-          <Badge
-            variant={member.active ? "green" : "red"}
-            icon={
-              member.active ? <CheckCircle2 size={10} /> : <XCircle size={10} />
-            }
-          >
-            {member.active ? "ACTIVO" : "INACTIVO"}
-          </Badge>
+          {member.isPending ? (
+            <Badge variant="amber" icon={<Clock size={10} />}>
+              PENDIENTE
+            </Badge>
+          ) : (
+            <Badge
+              variant={member.active ? "green" : "red"}
+              icon={
+                member.active ? <CheckCircle2 size={10} /> : <XCircle size={10} />
+              }
+            >
+              {member.active ? "ACTIVO" : "INACTIVO"}
+            </Badge>
+          )}
         </div>
 
         {/* Cargo Club */}
@@ -128,18 +134,17 @@ const MemberCard = ({
           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
             Cargo Institucional
           </span>
-          <p className="text-xs font-semibold text-gray-600 truncate">
-            {member.clubPosition || "Socio"}
+          <p className={`text-xs font-semibold truncate ${member.isPending ? "text-amber-600 italic" : "text-gray-600"}`}>
+            {member.isPending ? "Por asignar" : (member.clubPosition || "Socio")}
           </p>
         </div>
 
-        {/* Equipos - Resumen Dinámico */}
+        {/* Equipos */}
         <div className="hidden xl:flex flex-col min-w-[110px]">
           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight mb-1">
             {isStaffView ? "Equipos en común" : "Nº Equipos"}
           </span>
           <div className="flex items-center gap-1.5">
-            {/* Verificamos el conteo según el rol: commonTeamsCount para Staff, affiliations para Admin */}
             {((isStaffView ? commonTeamsCount : member.affiliations?.length) ||
               0) > 0 ? (
               <div className="flex items-center gap-1 px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full">
@@ -163,7 +168,7 @@ const MemberCard = ({
         </div>
       </div>
 
-      {/* 3. Acciones con los colores solicitados */}
+      {/* Acciones */}
       <div className="flex items-center gap-1 shrink-0 ml-4">
         <Button
           variant="ghost"
@@ -174,18 +179,14 @@ const MemberCard = ({
           title="Ver detalles"
         />
 
-        {/* Añadimos '&& onEdit' y '&& onDelete'. 
-      Si en MembersPage pasamos 'undefined', esta condición será falsa 
-      y el botón simplemente no se renderizará.
-  */}
         {isAdmin && onEdit && (
           <Button
             variant="ghost"
             size="sm"
             icon={<Edit2 size={16} />}
             onClick={() => onEdit(member)}
-            className="!text-amber-500 hover:!bg-amber-50"
-            title="Editar miembro"
+            className={`!text-amber-500 hover:!bg-amber-50 ${member.isPending ? "animate-pulse" : ""}`}
+            title={member.isPending ? "Aprobar y configurar miembro" : "Editar miembro"}
           />
         )}
 
@@ -197,11 +198,7 @@ const MemberCard = ({
             onClick={() => onDelete(member.id)}
             disabled={isSelf}
             className="!text-red-500 hover:!bg-red-50 disabled:opacity-30"
-            title={
-              isSelf
-                ? "No puedes eliminar tu propia cuenta"
-                : "Eliminar miembro"
-            }
+            title="Eliminar miembro"
           />
         )}
       </div>

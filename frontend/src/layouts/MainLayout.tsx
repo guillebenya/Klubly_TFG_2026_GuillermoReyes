@@ -226,7 +226,7 @@ const MainLayout = () => {
                   Este es un rol informativo a modo de prueba sin funcionalidad
                   alguna. Por ello,{" "}
                   <span className="font-bold text-indigo-600">
-                    no se muestra el menú lateral ni acceso a módulos
+                    no se muestra el menú lateral ni acceso a módulos, y el dashboard no contiene más información que esta.
                   </span>
                   .
                 </p>

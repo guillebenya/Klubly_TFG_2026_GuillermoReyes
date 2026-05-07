@@ -18,9 +18,9 @@ const LoginPage = () => {
 
     try {
       await authService.login(username, password);
-      navigate("/dashboard"); // Si sale bien, vamos al dashboard
+      navigate("/dashboard");
     } catch (err: any) {
-      setError("Credenciales incorrectas. Inténtalo de nuevo.");
+      setError("Credenciales incorrectas o cuenta pendiente de aprobación.");
     } finally {
       setLoading(false);
     }
@@ -93,6 +93,18 @@ const LoginPage = () => {
             {loading ? "Entrando..." : "Entrar"}
           </button>
         </form>
+
+        <div className="mt-8 pt-6 border-t border-slate-200 text-center">
+          <p className="text-sm text-slate-500">
+            ¿Aún no eres miembro?{" "}
+            <button
+              onClick={() => navigate("/register")}
+              className="font-bold text-indigo-600 hover:text-indigo-500 transition-colors cursor-pointer"
+            >
+              Regístrate aquí
+            </button>
+          </p>
+        </div>
       </div>
     </div>
   );

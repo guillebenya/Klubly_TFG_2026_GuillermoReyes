@@ -23,6 +23,8 @@ public class UserDTO {
     private String avatarURL;
     private Boolean active;
 
+    private Boolean isPending;
+
     private Long roleId;
     private String roleName; //Para que el front muestre el nombre del rol sin necesidad de hacer otra consulta
 

@@ -53,6 +53,9 @@ public class User extends BaseEntity {
     @Column(name = "avatar_url", length = 500)
     private String avatarURL;
 
+    @Column(name = "is_pending", nullable = false)
+    private Boolean isPending = false; // Por defecto false
+
     //La mayoría de veces necesitaremos saber el rol a la vez, por lo que usamos EAGER.
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "role_id", nullable = false)

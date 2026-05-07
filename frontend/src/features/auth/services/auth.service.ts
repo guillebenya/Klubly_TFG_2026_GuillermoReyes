@@ -4,11 +4,9 @@ export const authService = {
   login: async (username: string, password: string) => {
     const response = await api.post("/auth/login", { username, password });
 
-    // Ahora recibimos: accessToken, tokenType, username, firstName, lastName, roleName
     if (response.data.accessToken) {
       localStorage.setItem("token", response.data.accessToken);
 
-      // Guardamos los datos directamente.
       localStorage.setItem(
         "user",
         JSON.stringify({
@@ -22,6 +20,11 @@ export const authService = {
         }),
       );
     }
+    return response.data;
+  },
+
+  register: async (data: any) => {
+    const response = await api.post("/auth/register", data);
     return response.data;
   },
 

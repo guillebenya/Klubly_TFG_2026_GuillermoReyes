@@ -8,11 +8,11 @@ import {
   Users,
   UserCheck,
   UserCircle,
+  Clock,
 } from "lucide-react";
 import PageHeader from "../../../components/shared/PageHeader.tsx";
 import Button from "../../../components/shared/Button.tsx";
 import Modal from "../../../components/shared/Modal.tsx";
-import Card from "../../../components/shared/Card.tsx";
 import MemberCard from "../components/MemberCard.tsx";
 import MemberDetails from "../components/MemberDetails.tsx";
 import MemberForm from "../components/MemberForm.tsx";
@@ -26,13 +26,13 @@ import MemberFilters from "../components/MemberFilters.tsx";
 import { authService } from "../../auth/services/auth.service.ts";
 
 const MembersPage = () => {
-  // --- ESTADOS DE DATOS ---
+  // ESTADOS DE DATOS
   const [members, setMembers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isHistoryMode, setIsHistoryMode] = useState(false);
 
-  // --- ESTADOS PARA MODALES ---
+  // ESTADOS PARA MODALES
   const [selectedMember, setSelectedMember] = useState<any>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -44,9 +44,10 @@ const MembersPage = () => {
     roles: [] as string[],
     status: [] as boolean[],
     teams: [] as number[],
+    isPending: [] as boolean[],
   });
 
-  // --- ESTADOS PARA DIÁLOGOS DE CONFIRMACIÓN Y ÉXITO ---
+  // ESTADOS PARA DIÁLOGOS DE CONFIRMACIÓN Y ÉXITO
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
     type: "save" | "delete";
@@ -89,10 +90,6 @@ const MembersPage = () => {
     const resp = await teamService.getAll();
     setAllTeams(resp.data);
   };
-
-  // --- CÁLCULOS PARA TARJETAS INFORMATIVAS ---
-  const totalMembers = members.length;
-  const activeMembers = members.filter((m) => m.active).length;
 
   // HANDLERS
   const handleDeleteTrigger = (id: number) => {
@@ -165,9 +162,8 @@ const MembersPage = () => {
   const staffTeamIds = currentUser?.teamIds || [];
 
   const managedMembers = members.filter((m) => {
-    if (isAdmin) return true; // El Admin gestiona todo
+    if (isAdmin) return true; 
 
-    // El Staff solo gestiona usuarios activos de sus equipos (excluyendo Admins)
     if (m.roleName === "ADMIN") return false;
     const hasCommonTeam = m.affiliations?.some((aff: any) =>
       staffTeamIds.includes(aff.teamId),
@@ -175,8 +171,10 @@ const MembersPage = () => {
     return hasCommonTeam && m.active;
   });
 
+  // CÁLCULOS PARA TARJETAS INFORMATIVAS
   const totalMembersCount = managedMembers.length;
-  const activeMembersCount = managedMembers.filter((m) => m.active).length;
+  const activeMembersCount = managedMembers.filter((m) => m.active && !m.isPending).length;
+  const pendingMembersCount = managedMembers.filter((m) => m.isPending).length;
 
   const filteredMembers = managedMembers.filter((m) => {
     const searchString =
@@ -198,8 +196,12 @@ const MembersPage = () => {
       m.affiliations?.some((aff: any) =>
         activeFilters.teams.includes(aff.teamId),
       );
+    
+    const matchesPending = 
+      activeFilters.isPending.length === 0 || 
+      activeFilters.isPending.includes(m.isPending);
 
-    return matchesSearch && matchesRole && matchesStatus && matchesTeam;
+    return matchesSearch && matchesRole && matchesStatus && matchesTeam && matchesPending;
   });
 
   return (
@@ -227,8 +229,9 @@ const MembersPage = () => {
                 <Button
                   variant={
                     activeFilters.roles.length +
-                      activeFilters.status.length +
-                      activeFilters.teams.length >
+                    activeFilters.status.length +
+                    activeFilters.teams.length +
+                    activeFilters.isPending.length >
                     0
                       ? "primary"
                       : "secondary"
@@ -239,7 +242,8 @@ const MembersPage = () => {
                   Filtros{" "}
                   {activeFilters.roles.length +
                     activeFilters.status.length +
-                    activeFilters.teams.length >
+                    activeFilters.teams.length +
+                    activeFilters.isPending.length >
                     0}
                 </Button>
 
@@ -281,7 +285,7 @@ const MembersPage = () => {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className={`grid grid-cols-1 ${isAdmin ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-4`}>
             <SummaryCard
               title={isAdmin ? "Total Usuarios" : "Usuarios Gestionados"}
               value={totalMembersCount}
@@ -294,6 +298,14 @@ const MembersPage = () => {
               icon={<UserCheck size={20} />}
               variant="emerald"
             />
+            {isAdmin && (
+              <SummaryCard
+                title="Solicitudes Pendientes"
+                value={pendingMembersCount}
+                icon={<Clock size={20} />}
+                variant={pendingMembersCount > 0 ? "rose" : "indigo"}
+              />
+            )}
           </div>
         </>
       )}

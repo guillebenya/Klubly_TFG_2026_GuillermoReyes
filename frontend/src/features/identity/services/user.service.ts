@@ -12,6 +12,7 @@ export interface User {
   clubPosition: string;
   avatarURL: string;
   active: boolean;
+  isPending: boolean;
   createdAt?: string;
   updatedAt?: string;
   deletedAt?: string | null;
