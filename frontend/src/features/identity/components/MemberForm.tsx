@@ -61,7 +61,9 @@ const StaffOnlyFields = ({
   loadingRoles: boolean;
   roles: Role[];
   formData: { roleId: number; active: boolean; clubPosition: string };
-  onRoleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  onRoleChange: (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => void;
   onActiveToggle: () => void;
 }) => (
   <>
@@ -220,7 +222,7 @@ const MemberForm = ({
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value, type } = e.target;
-    if (type === "checkbox") return (e.target as HTMLInputElement).checked;
+    if (type === "checkbox") return e.target.checked;
     if (name === "roleId") return Number.parseInt(value);
     return value;
   };
@@ -457,7 +459,8 @@ const MemberForm = ({
             formData={formData}
             onRoleChange={handleChange}
             onActiveToggle={() => {
-              if (!isSelf) setFormData((prev) => ({ ...prev, active: !prev.active }));
+              if (!isSelf)
+                setFormData((prev) => ({ ...prev, active: !prev.active }));
             }}
           />
         )}

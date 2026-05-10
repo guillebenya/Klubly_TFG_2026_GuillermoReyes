@@ -45,3 +45,16 @@ release.properties
 # Pruebas
 /target/site/jacoco/
 jacoco.exec
+
+# SonarQube / SonarCloud
+.sonar/
+.scannerwork/
+sonar-project.properties
+
+# Coverage (frontend)
+frontend/coverage/
+*.lcov
+*.lcov
+
+# Coverage (backend)
+**/target/site/

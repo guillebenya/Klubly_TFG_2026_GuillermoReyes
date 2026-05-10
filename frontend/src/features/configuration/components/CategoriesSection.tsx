@@ -21,7 +21,7 @@ const ActiveToggle = ({
   onChange: () => void;
 }) => {
   const handleClick = () => {
-    // REGLA: Si tiene ítems y está activa, bloqueamos el cambio a inactiva
+    // Si tiene ítems y está activa, bloqueamos el cambio a inactiva
     if (hasItems && active) {
       alert(
         `No puedes desactivar esta categoría porque todavía tiene ${itemCount} productos vinculados. Primero debes mover esos productos a otra categoría o eliminarlos.`,

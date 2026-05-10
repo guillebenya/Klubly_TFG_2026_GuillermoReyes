@@ -19,6 +19,16 @@ interface TransactionFormProps {
   loading?: boolean;
 }
 
+interface TransactionFormData {
+  amount: string;
+  concept: string;
+  transactionDate: string;
+  type: TransactionType;
+  paymentMethod: PaymentMethod;
+  userId: string;
+  active: boolean;
+}
+
 const TransactionForm = ({
   initialData,
   onSubmit,
@@ -26,12 +36,12 @@ const TransactionForm = ({
   loading,
 }: TransactionFormProps) => {
   const [users, setUsers] = useState<any[]>([]);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<TransactionFormData>({
     amount: "",
     concept: "",
     transactionDate: new Date().toISOString().slice(0, 16),
-    type: TransactionType.INCOME as string,
-    paymentMethod: PaymentMethod.CASH as string,
+    type: TransactionType.INCOME,
+    paymentMethod: PaymentMethod.CASH,
     userId: "",
     active: true,
   });
@@ -191,7 +201,10 @@ const TransactionForm = ({
               id="type"
               value={formData.type}
               onChange={(e) =>
-                setFormData({ ...formData, type: e.target.value })
+                setFormData({
+                  ...formData,
+                  type: e.target.value as TransactionType,
+                })
               }
               className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm appearance-none"
             >
@@ -214,7 +227,10 @@ const TransactionForm = ({
             <select
               value={formData.paymentMethod}
               onChange={(e) =>
-                setFormData({ ...formData, paymentMethod: e.target.value })
+                setFormData({
+                  ...formData,
+                  paymentMethod: e.target.value as PaymentMethod,
+                })
               }
               className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm appearance-none"
             >

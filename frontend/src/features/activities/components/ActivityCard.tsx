@@ -122,6 +122,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 
   return (
     <Card
+      data-testid="activity-card"
       className={`flex flex-col lg:flex-row items-center w-full gap-4 !p-4 border-l-4 border-l-indigo-300 hover:border-indigo-600 transition-all ${activity.active ? "" : "opacity-65"} ${isPast ? "grayscale-[0.5] opacity-70 bg-gray-50" : ""}`}
     >
       <div className="flex-shrink-0 p-3 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-100">
@@ -218,6 +219,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             variant="ghost"
             size="sm"
             className="!text-blue-600"
+            aria-label="Ver"
             icon={<Eye size={16} />}
             onClick={() => onView(activity)}
           />
@@ -226,16 +228,17 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
               variant="ghost"
               size="sm"
               className="!text-amber-600"
+              aria-label="Editar"
               icon={<Pencil size={16} />}
               onClick={() => onEdit(activity)}
             />
           )}
           {onDelete && (
             <Button
-              aria-label="Eliminar"
               variant="ghost"
               size="sm"
               className="!text-red-600"
+              aria-label="Eliminar"
               icon={<Trash2 size={16} />}
               onClick={() => onDelete(activity.id)}
             />

@@ -18,7 +18,6 @@ const MainLayout = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
 
-
   const currentUser = authService.getCurrentUser();
   console.log("CONTENIDO REAL DEL USER EN STORAGE:", currentUser);
   useEffect(() => {
@@ -112,19 +111,17 @@ const MainLayout = () => {
         </Link>
 
         {/* CONTENEDOR CENTRAL */}
-<div className="flex-1 flex flex-col items-center justify-center min-w-0">
-  
-  <Link to="/dashboard">
-    <h1 className="text-2xl font-black text-blue-950 tracking-tighter leading-none hover:text-indigo-600 transition-colors">
-      KLUBLY
-    </h1>
-  </Link>
+        <div className="flex-1 flex flex-col items-center justify-center min-w-0">
+          <Link to="/dashboard">
+            <h1 className="text-2xl font-black text-blue-950 tracking-tighter leading-none hover:text-indigo-600 transition-colors">
+              KLUBLY
+            </h1>
+          </Link>
 
-  <p className="text-[10px] font-bold text-indigo-500 tracking-[0.2em] uppercase mt-1 whitespace-nowrap">
-    Gestor de Entidades Deportivas
-  </p>
-  
-</div>
+          <p className="text-[10px] font-bold text-indigo-500 tracking-[0.2em] uppercase mt-1 whitespace-nowrap">
+            Gestor de Entidades Deportivas
+          </p>
+        </div>
 
         <div className="flex justify-end w-64">
           <div className="relative">
@@ -208,7 +205,7 @@ const MainLayout = () => {
         )}
 
         {/* CONTENEDOR PRINCIPAL */}
-        <main className="flex-1 overflow-y-auto p-8 bg-gray-100">
+        <main className="flex-1 overflow-y-auto p-8 bg-gray-50">
           {isSystemRole ? (
             <Outlet />
           ) : (
@@ -224,7 +221,8 @@ const MainLayout = () => {
                   Este es un rol informativo a modo de prueba sin funcionalidad
                   alguna. Por ello,{" "}
                   <span className="font-bold text-indigo-600">
-                    no se muestra el menú lateral ni acceso a módulos, y el dashboard no contiene más información que esta.
+                    no se muestra el menú lateral ni acceso a módulos, y el
+                    dashboard no contiene más información que esta.
                   </span>
                 </p>
               </div>

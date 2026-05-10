@@ -6,13 +6,25 @@ interface CardProps {
   onClick?: () => void;
 }
 
-const Card = ({ children, className = "", onClick }: CardProps) => {
+const Card = ({ children, className = "", onClick, ...props }: CardProps) => {
+  if (onClick) {
+    return (
+      <button
+        onClick={onClick}
+        className={`bg-white rounded-2xl border border-gray-50 shadow-xl p-6 
+          cursor-pointer hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 active:scale-[0.98]
+          text-left w-full
+          ${className}`}
+      >
+        {children}
+      </button>
+    );
+  }
+
   return (
     <div
-      onClick={onClick}
-      className={`bg-white rounded-2xl border border-gray-50 shadow-xl p-6 
-        ${onClick ? "cursor-pointer hover:shadow-2xl hover:-translate-y-1 transition-all duration-300 active:scale-[0.98]" : ""} 
-        ${className}`}
+      {...props}
+      className={`bg-white rounded-2xl border border-gray-50 shadow-xl p-6 ${className}`}
     >
       {children}
     </div>

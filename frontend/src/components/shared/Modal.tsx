@@ -37,22 +37,25 @@ const Modal = ({
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
       {/* Backdrop (Fondo oscuro) */}
-      <div
-        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"
+      <button
+        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity w-full cursor-default"
         onClick={onClose}
+        aria-label="Cerrar modal"
+        tabIndex={-1}
       />
 
       {/* Contenedor del Modal */}
-      <div
-        role="dialog"
+      <dialog
+        open
         aria-modal="true"
-        className={`relative w-full ${sizeClasses[size]} bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all`}
+        className={`relative w-full ${sizeClasses[size]} bg-white rounded-2xl shadow-2xl overflow-hidden transform transition-all p-0 border-0`}
       >
         {/* Header */}
         <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100 bg-gray-50/50">
           <h3 className="text-xl font-bold text-gray-800">{title}</h3>
           <button
             onClick={onClose}
+            aria-label="Cerrar"
             className="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-200/50 rounded-full transition-all"
           >
             <X size={20} />
@@ -61,7 +64,7 @@ const Modal = ({
 
         {/* Body */}
         <div className="p-6 overflow-y-auto max-h-[80vh]">{children}</div>
-      </div>
+      </dialog>
     </div>
   );
 };

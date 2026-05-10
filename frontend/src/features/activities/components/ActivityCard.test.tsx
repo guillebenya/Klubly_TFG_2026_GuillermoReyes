@@ -17,13 +17,13 @@ describe("ActivityCard", () => {
     name: "Entrenamiento Senior",
     description: "Descripción de prueba",
     startDate: "2026-10-10T10:00:00",
-    endDate: "2026-10-10T12:00:00",        
+    endDate: "2026-10-10T12:00:00",
     location: "Pabellón Central",
     capacity: 20,
     registeredCount: 10,
     active: true,
     teamNames: ["Senior A"],
-    teamIds: [5],                          
+    teamIds: [5],
     userRegistered: false,
   };
 
@@ -51,14 +51,7 @@ describe("ActivityCard", () => {
 
   it("debe llamar a onEdit cuando se pulsa el botón de editar", () => {
     render(<ActivityCard {...defaultProps} />);
-
-    // Buscamos el botón por el icono o clase si no tiene texto
-    // En este caso, el botón de editar tiene la clase !text-amber-600
-    const editBtn = screen
-      .getByRole("button", { name: "" })
-      .parentElement?.querySelector(".text-amber-600");
-    if (editBtn) fireEvent.click(editBtn);
-
+    fireEvent.click(screen.getByRole("button", { name: "Editar" }));
     expect(defaultProps.onEdit).toHaveBeenCalledWith(mockActivity);
   });
 
@@ -117,7 +110,7 @@ describe("ActivityCard", () => {
     render(<ActivityCard {...defaultProps} activity={pastActivity} />);
 
     expect(screen.getByText("FINALIZADA")).toBeInTheDocument();
-    const card = screen.getByText("Entrenamiento Senior").closest("div.flex");
-    expect(card?.parentElement?.parentElement).toHaveClass("grayscale-[0.5]");
+    const card = screen.getByTestId("activity-card");
+    expect(card.className).toContain("grayscale-[0.5]");
   });
 });
