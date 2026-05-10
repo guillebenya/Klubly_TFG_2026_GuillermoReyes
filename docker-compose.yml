@@ -11,6 +11,8 @@ services:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
+    networks:
+      - klubly-network
 
   backend:
     build: ./backend
@@ -27,7 +29,9 @@ services:
       - APP_JWT_SECRET=${JWT_SECRET}
       - SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop # Recrea todo al iniciar y borra al cerrar
       - APP_DEFAULT_PASSWORD=${APP_DEFAULT_PASSWORD}
-    
+    networks:
+      - klubly-network
+
   frontend:
     build: ./frontend
     container_name: klubly-frontend
@@ -36,6 +40,8 @@ services:
       - "80:80"
     depends_on:
       - backend
+    networks:
+      - klubly-network
 
   adminer:
     image: adminer
@@ -43,6 +49,13 @@ services:
     restart: always
     ports:
       - "8888:8080"
+    networks:
+      - klubly-network
+
+networks:
+  klubly-network:
+    name: klubly-network
+    driver: bridge
 
 volumes:
   pgdata:
