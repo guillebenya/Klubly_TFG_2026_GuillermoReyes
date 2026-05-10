@@ -40,6 +40,7 @@ public class DataInitializer implements CommandLineRunner {
     private static final String ROLE_STAFF    = "STAFF";
     private static final String ROLE_ADMIN    = "ADMIN";
     private static final String ROLE_MEMBER   = "MEMBER";
+    private static final String ROLE_INFORMATIVO = "ROL INFORMATIVO";
     private static final String USERNAME_ADMIN  = "admin";
     private static final String USERNAME_STAFF  = "staff";
     private static final String USERNAME_MEMBER = "member";
@@ -74,7 +75,7 @@ public class DataInitializer implements CommandLineRunner {
         createRoleIfNotFound(ROLE_ADMIN);
         createRoleIfNotFound(ROLE_STAFF);
         createRoleIfNotFound(ROLE_MEMBER);
-        createRoleIfNotFound("ROL INFORMATIVO");
+        createRoleIfNotFound(ROLE_INFORMATIVO);
     }
 
     // Usuarios
@@ -86,6 +87,7 @@ public class DataInitializer implements CommandLineRunner {
         createPendingUser();
         createDeletedUser();
         createLoneStaffUser();
+        createInformativeRoleUser();
     }
 
     private void createAdminUser() {
@@ -188,6 +190,22 @@ public class DataInitializer implements CommandLineRunner {
         loneStaff.setActive(true);
         userRepository.save(loneStaff);
         log.info("Usuario staff sin equipos creado con éxito por el DataSeed");
+    }
+
+    private void createInformativeRoleUser() {
+        if (userRepository.existsByUsernameAndDeletedAtIsNull("user_rol_informativo")) return;
+
+        Role informativeRole = findRoleOrThrow(ROLE_INFORMATIVO);
+        User informativeUser = new User();
+        informativeUser.setUsername("user_rol_informativo");
+        informativeUser.setEmail("informativeUser@klubly.com");
+        informativeUser.setPassword(passwordEncoder.encode(appProperties.getDefaultPassword()));
+        informativeUser.setFirstName("Usuario");
+        informativeUser.setLastName("Rol Informativo");
+        informativeUser.setRole(informativeRole);
+        informativeUser.setActive(true);
+        userRepository.save(informativeUser);
+        log.info("Usuario member con rol informativo creado con éxito por el DataSeed");
     }
 
     // Equipos y afiliaciones

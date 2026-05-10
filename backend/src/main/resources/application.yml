@@ -3,9 +3,9 @@ spring:
     name: klubly-backend
 
   datasource:
-    url: jdbc:postgresql://localhost:5432/klubly_db
-    username: admin
-    password: password123
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://localhost:5432/klubly_db}
+    username: ${SPRING_DATASOURCE_USERNAME:admin_placeholder}
+    password: ${SPRING_DATASOURCE_PASSWORD:pass_placeholder}
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -32,6 +32,6 @@ logging:
     "[com.klubly]": DEBUG
 
 app:
-  jwt-secret: "ClaveSecretaMuyLargaParaQueSeaSegura2026!"
+  jwt-secret: ${APP_JWT_SECRET:dispositivo_de_seguridad_jwt_no_configurado}
   jwt-expiration-milliseconds: 3600000
-  default-password: "klubly2026" #Contraseña por defecto para el seeding
+  default-password: ${APP_DEFAULT_PASSWORD:klubly_default_pass}

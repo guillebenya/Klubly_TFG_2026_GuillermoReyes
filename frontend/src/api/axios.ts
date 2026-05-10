@@ -2,7 +2,7 @@ import axios from "axios";
 import { authService } from "../features/auth/services/auth.service";
 
 const api = axios.create({
-  baseURL: "http://localhost:8080/api", // URL de tu backend en SpringBoot
+  baseURL: "/api", 
   headers: {
     "Content-Type": "application/json",
   },
@@ -31,7 +31,6 @@ api.interceptors.response.use(
     // Error de red (Servidor caído)
     if (!error.response) {
       console.error("DEBUG - Axios: Error de red / Servidor no responde");
-      // Opcional: alert("No se pudo conectar con el servidor.");
       return Promise.reject(error);
     }
 

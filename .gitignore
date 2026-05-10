@@ -58,3 +58,8 @@ frontend/coverage/
 
 # Coverage (backend)
 **/target/site/
+
+# Secretos
+.env
+.env.local
+.env.development.local
