@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useState, useEffect } from "react"; 
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { authService } from "../services/auth.service";
 import { Lock, User, AlertCircle } from "lucide-react";
 import logo from "../../../assets/Klubly_Logo.png";
@@ -9,7 +9,16 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams(); 
+
+  // Hook para detectar si venimos rebotados por sesión expirada
+  useEffect(() => {
+    if (searchParams.get("expired") === "true") {
+      setError("Tu sesión ha expirado por seguridad. Por favor, identifícate de nuevo.");
+    }
+  }, [searchParams]);
 
   const handleLogin = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();

@@ -1,5 +1,4 @@
 import axios from "axios";
-import { authService } from "../features/auth/services/auth.service";
 
 const api = axios.create({
   baseURL: "/api", 
@@ -8,7 +7,7 @@ const api = axios.create({
   },
 });
 
-//INTERCEPTOR DE PETICIÓN
+// INTERCEPTOR DE PETICIÓN
 // Añade el token JWT a cada cabecera antes de salir
 api.interceptors.request.use(
   (config) => {
@@ -20,15 +19,15 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  },
+  }
 );
 
-//INTERCEPTOR DE RESPUESTA
-// Maneja errores globales, como la expiración del token
+// INTERCEPTOR DE RESPUESTA
+// Maneja errores globales, como la expiración del token o usuarios inexistentes
 api.interceptors.response.use(
   (response) => response, // Si la respuesta es 2xx, pasa de largo
   (error) => {
-    // Error de red (Servidor caído)
+    // Error de red (Servidor caído o sin respuesta)
     if (!error.response) {
       console.error("DEBUG - Axios: Error de red / Servidor no responde");
       return Promise.reject(error);
@@ -36,34 +35,34 @@ api.interceptors.response.use(
 
     const { status } = error.response;
 
-    // Error 401: Sesión expirada o no autorizado
+    // Error 401: Sesión expirada, token inválido o usuario no encontrado en DB
     if (status === 401) {
-      console.warn("DEBUG - Axios: Error 401 detectado - Sesión caducada");
+      console.warn("DEBUG - Axios: Error 401 detectado - Limpiando sesión");
 
-      // Solo actuamos si no estamos ya en la página de login (evita bucles)
-      if (!globalThis.location.pathname.includes("/login")) {
-        // Ejecutamos el logout del servicio (que limpia localStorage)
-        authService.logout();
+      // Borramos el rastro del usuario antiguo para evitar bloqueos
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
 
-        // Avisamos al usuario para que no se asuste
-        alert(
-          "Tu sesión ha expirado por seguridad. Por favor, identifícate de nuevo.",
-        );
-
-        // Redirigimos por "fuerza bruta" al login
-        // Usamos window.location porque los interceptores están fuera del contexto de React Router
-        globalThis.location.href = "/login";
+      // Solo redirigimos si no estamos ya en la página de login
+      if (!globalThis.location.pathname.includes("/login")) {;
+        
+        // Redirección forzosa al login con parámetro para aviso visual
+        globalThis.location.href = "/login?expired=true";
       }
     }
 
-    // Error 403: Prohibido (El usuario no tiene permisos para esa acción específica)
+    // Error 403: Prohibido (Falta de permisos de rol)
     if (status === 403) {
-      console.error("DEBUG - Axios: Error 403 - No tienes permisos para esto");
-      // Aquí podrías mostrar un toast avisando de falta de permisos
+      console.error("DEBUG - Axios: Error 403 - No tienes permisos suficientes");
+    }
+
+    // Error 500: Fallo del servidor
+    if (status === 500) {
+      console.error("DEBUG - Axios: Error 500 - Error interno del servidor");
     }
 
     return Promise.reject(error);
-  },
+  }
 );
 
 export default api;

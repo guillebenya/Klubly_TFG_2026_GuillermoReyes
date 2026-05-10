@@ -5,7 +5,7 @@ Este repositorio contiene el ecosistema completo de **Klubly** (Frontend, Backen
 ## Requisitos
 
 - Docker Desktop instalado y en ejecución
-- Puerto 80 (Frontend), 8080(Backend API), 5432 (PostgreSQL) y 8888 (Adminer) libres en el sistema
+- Puerto 80 (Frontend), 8080 (Backend API), 5432 (PostgreSQL) y 8888 (Adminer) libres en el sistema
 
 ## Obtención del proyecto
 
@@ -53,13 +53,13 @@ Para facilitar la evaluación, el sistema carga automáticamente los siguientes 
 IMPORTANTE: La contraseña para todos los usuarios es la que hayas definido en la variable APP_DEFAULT_PASSWORD de tu archivo .env
 
 USUARIO - ROL - DESCRIPCIÓN
-admin - Rol ADMIN - Acceso total. Director general del sistema.
-staff - Rol STAFF - Técnico con equipos asignados (Equipo de Prueba y Juvenil).
-member - Rol MEMBER - Socio activo con afiliación al "Equipo de Prueba".
-aspirante - Rol MEMBER - Usuario con registro pendiente de aprobación (Inactivo). NO PODRÁS ACCEDER CON ESTA CUENTA HASTA QUE UN ADMIN NO TE APRUEBE
-staff_sin_equipo - Rol STAFF - Usuario técnico sin equipos ni afiliaciones asignadas
-usuario.borrado - Rol MEMBER - Usuario marcada como eliminado (soft delete). SIRVE PARA HACER COMPROBACIONES DEL HISTORIAL LOGGEÁNDOTE COMO ADMIN, PERO NO PODRÁS ACCEDER CON ESTE USUARIO
-user_rol_informativo - Rol ROL INFORMATIVO - Usuario del rol que no es de los principales del sistema llamado ROL INFORMATIVO. Con él podrás ver directamente la pantalla creada para los roles que no son de sistema.
+1. admin - Rol ADMIN - Acceso total. Director general del sistema.
+2. staff - Rol STAFF - Técnico con equipos asignados (Equipo de Prueba y Juvenil).
+3. member - Rol MEMBER - Socio activo con afiliación al "Equipo de Prueba".
+4. aspirante - Rol MEMBER - Usuario con registro pendiente de aprobación (Inactivo). NO PODRÁS ACCEDER CON ESTA CUENTA HASTA QUE UN ADMIN NO TE APRUEBE
+5. staff_sin_equipo - Rol STAFF - Usuario técnico sin equipos ni afiliaciones asignadas
+6. usuario.borrado - Rol MEMBER - Usuario marcada como eliminado (soft delete). SIRVE PARA HACER COMPROBACIONES DEL HISTORIAL LOGGEÁNDOTE COMO ADMIN, PERO NO PODRÁS ACCEDER CON ESTE USUARIO
+7. user_rol_informativo - Rol ROL INFORMATIVO - Usuario del rol que no es de los principales del sistema llamado ROL INFORMATIVO. Con él podrás ver directamente la pantalla creada para los roles que no son de sistema.
 
 ## Cómo probar la API (Swagger)
 
