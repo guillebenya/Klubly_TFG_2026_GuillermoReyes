@@ -8,6 +8,115 @@ import TeamCard from "./TeamCard";
 import TeamDetails from "./TeamDetails";
 import { teamService, type Team } from "../services/team.service";
 
+//Componentes extraídos para reducir complejidad
+const TeamsSectionHeader = ({
+  isHistoryMode,
+  onToggleHistory,
+  onAddNew,
+}: {
+  isHistoryMode: boolean;
+  onToggleHistory: (val: boolean) => void;
+  onAddNew: () => void;
+}) => (
+  <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+    <div className="flex items-center gap-3">
+      <div
+        className={`p-2 rounded-lg ${isHistoryMode ? "bg-amber-50 text-amber-600" : "bg-indigo-50 text-indigo-600"}`}
+      >
+        {isHistoryMode ? <History size={20} /> : <Users2 size={20} />}
+      </div>
+      <div>
+        <h3 className="text-lg font-bold text-gray-800 uppercase tracking-tight">
+          {isHistoryMode ? "Historial de Equipos" : "Listado de Equipos"}
+        </h3>
+        <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
+          {isHistoryMode
+            ? "Bajas registradas"
+            : "Administra los equipos del club"}
+        </p>
+      </div>
+    </div>
+    <div className="flex items-center gap-2">
+      {isHistoryMode ? (
+        <Button
+          variant="secondary"
+          size="sm"
+          icon={<ArrowLeft size={18} />}
+          onClick={() => onToggleHistory(false)}
+        >
+          Volver
+        </Button>
+      ) : (
+        <>
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={<History size={18} />}
+            className="!text-indigo-600 hover:!bg-indigo-50"
+            onClick={() => onToggleHistory(true)}
+            title="Ver equipos eliminados"
+          >
+            Ver Bajas
+          </Button>
+          <Button
+            variant="add"
+            size="sm"
+            icon={<Plus size={18} />}
+            onClick={onAddNew}
+          >
+            Añadir Equipo
+          </Button>
+        </>
+      )}
+    </div>
+  </div>
+);
+
+const ActiveToggle = ({
+  active,
+  hasMembers,
+  onChange,
+}: {
+  active: boolean;
+  hasMembers: boolean | null;
+  onChange: () => void;
+}) => (
+  <div className="flex flex-col gap-1 py-2">
+    <div className="flex items-center gap-3">
+      <button
+        type="button"
+        role="switch"
+        aria-checked={active}
+        aria-label="Alternar estado activo del equipo"
+        onClick={() => {
+          //Si tiene miembros y está activo, no permitimos ponerlo como inactivo
+          if (hasMembers && active) {
+            alert(
+              "No puedes desactivar un equipo que tiene integrantes activos. Primero debes quitarlos del equipo.",
+            );
+            return;
+          }
+          onChange();
+        }}
+        className={`w-10 h-5 rounded-full relative transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${active ? "bg-indigo-600" : "bg-gray-300"} ${hasMembers && active ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+      >
+        <div
+          className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-200 ${active ? "left-6" : "left-1"}`}
+        />
+      </button>
+      <span className="text-xs font-bold text-gray-700 uppercase">
+        {active ? "Equipo Activo" : "Equipo Inactivo"}
+      </span>
+    </div>
+    {/* Mensaje de ayuda visual si el equipo tiene miembros */}
+    {hasMembers && active && (
+      <p className="text-[10px] text-amber-600 font-medium ml-1">
+        * No se puede desactivar: tiene integrantes vinculados.
+      </p>
+    )}
+  </div>
+);
+
 const TeamsSection = () => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [loading, setLoading] = useState(true);
@@ -67,7 +176,7 @@ const TeamsSection = () => {
     });
     setIsFormOpen(true);
   };
-  const handleSaveTrigger = (e: React.FormEvent) => {
+  const handleSaveTrigger = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setConfirmConfig({ isOpen: true, type: "save", data: formData });
   };
@@ -75,27 +184,35 @@ const TeamsSection = () => {
     setConfirmConfig({ isOpen: true, type: "delete", data: id });
   };
 
+  const executeSave = async () => {
+    selectedTeam
+      ? await teamService.update(selectedTeam.id, confirmConfig.data)
+      : await teamService.create(confirmConfig.data);
+    setSuccessConfig({
+      isOpen: true,
+      title: "¡Éxito!",
+      desc: "La información del equipo se ha actualizado correctamente.",
+    });
+  };
+
+  const executeDelete = async () => {
+    await teamService.delete(confirmConfig.data);
+    setSuccessConfig({
+      isOpen: true,
+      title: "Equipo eliminado",
+      desc: "El equipo y sus afiliaciones han sido retirados.",
+    });
+  };
+
   const executeAction = async () => {
     try {
       setFormLoading(true);
       if (confirmConfig.type === "delete") {
-        await teamService.delete(confirmConfig.data);
-        setSuccessConfig({
-          isOpen: true,
-          title: "Equipo eliminado",
-          desc: "El equipo y sus afiliaciones han sido retirados.",
-        });
+        await executeDelete();
       } else {
-        selectedTeam
-          ? await teamService.update(selectedTeam.id, confirmConfig.data)
-          : await teamService.create(confirmConfig.data);
-        setSuccessConfig({
-          isOpen: true,
-          title: "¡Éxito!",
-          desc: "La información del equipo se ha actualizado correctamente.",
-        });
+        await executeSave();
       }
-      setConfirmConfig({ ...confirmConfig, isOpen: false });
+      setConfirmConfig((prev) => ({ ...prev, isOpen: false }));
     } finally {
       setFormLoading(false);
     }
@@ -106,59 +223,11 @@ const TeamsSection = () => {
   return (
     <div className="space-y-6">
       {/* CABECERA DINÁMICA */}
-      <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div
-            className={`p-2 rounded-lg ${isHistoryMode ? "bg-amber-50 text-amber-600" : "bg-indigo-50 text-indigo-600"}`}
-          >
-            {isHistoryMode ? <History size={20} /> : <Users2 size={20} />}
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-gray-800 uppercase tracking-tight">
-              {isHistoryMode ? "Historial de Equipos" : "Listado de Equipos"}
-            </h3>
-            <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
-              {isHistoryMode
-                ? "Bajas registradas"
-                : "Administra los equipos del club"}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {isHistoryMode ? (
-            <Button
-              variant="secondary"
-              size="sm"
-              icon={<ArrowLeft size={18} />}
-              onClick={() => setIsHistoryMode(false)}
-            >
-              Volver
-            </Button>
-          ) : (
-            <>
-              <Button
-                variant="ghost"
-                size="sm"
-                icon={<History size={18} />}
-                className="!text-indigo-600 hover:!bg-indigo-50"
-                onClick={() => setIsHistoryMode(true)}
-                title="Ver equipos eliminados"
-              >
-                Ver Bajas
-              </Button>
-              <Button
-                variant="add"
-                size="sm"
-                icon={<Plus size={18} />}
-                onClick={handleAddNew}
-              >
-                Añadir Equipo
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
+      <TeamsSectionHeader
+        isHistoryMode={isHistoryMode}
+        onToggleHistory={setIsHistoryMode}
+        onAddNew={handleAddNew}
+      />
 
       {loading ? (
         <div className="flex justify-center py-20">
@@ -203,10 +272,14 @@ const TeamsSection = () => {
       >
         <form onSubmit={handleSaveTrigger} className="space-y-4">
           <div>
-            <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">
+            <label
+              htmlFor="teamName"
+              className="text-[10px] font-bold text-gray-400 uppercase ml-1"
+            >
               Nombre del Equipo<span className="text-red-500">*</span>
             </label>
             <input
+              id="teamName"
               required
               value={formData.name}
               onChange={(e) =>
@@ -217,10 +290,14 @@ const TeamsSection = () => {
             />
           </div>
           <div>
-            <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">
+            <label
+              htmlFor="description"
+              className="text-[10px] font-bold text-gray-400 uppercase ml-1"
+            >
               Descripción
             </label>
             <textarea
+              id="description"
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
@@ -229,42 +306,16 @@ const TeamsSection = () => {
               className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm min-h-[100px]"
             />
           </div>
-          {/* Toggle de Estado Activo */}
-          <div className="flex flex-col gap-1 py-2">
-            <div className="flex items-center gap-3">
-              <div
-                onClick={() => {
-                  // REGLA: Si tiene miembros y está activo, no permitimos ponerlo como inactivo
-                  if (hasMembers && formData.active) {
-                    alert(
-                      "No puedes desactivar un equipo que tiene integrantes activos. Primero debes quitarlos del equipo.",
-                    );
-                    return;
-                  }
-                  setFormData({ ...formData, active: !formData.active });
-                }}
-                className={`w-10 h-5 rounded-full relative transition-colors ${
-                  formData.active ? "bg-indigo-600" : "bg-gray-300"
-                } ${hasMembers && formData.active ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
-              >
-                <div
-                  className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all ${
-                    formData.active ? "left-6" : "left-1"
-                  }`}
-                />
-              </div>
-              <span className="text-xs font-bold text-gray-700 uppercase">
-                {formData.active ? "Equipo Activo" : "Equipo Inactivo"}
-              </span>
-            </div>
 
-            {/* Mensaje de ayuda visual si el equipo tiene miembros */}
-            {hasMembers && formData.active && (
-              <p className="text-[10px] text-amber-600 font-medium ml-1">
-                * No se puede desactivar: tiene integrantes vinculados.
-              </p>
-            )}
-          </div>
+          {/* Toggle de Estado Activo */}
+          <ActiveToggle
+            active={formData.active}
+            hasMembers={!!hasMembers}
+            onChange={() =>
+              setFormData((prev) => ({ ...prev, active: !prev.active }))
+            }
+          />
+
           <div className="flex justify-end gap-3 pt-1">
             <Button
               type="button"

@@ -13,13 +13,14 @@ import com.klubly.modules.identity.entity.User;
 import com.klubly.modules.identity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +30,7 @@ public class RegistrationService {
     private final RegistrationRepository registrationRepository;
     private final ActivityRepository activityRepository;
     private final UserRepository userRepository;
+    private static final String ACTIVITY_NOT_FOUND_MSG = "Actividad no encontrada";
 
     // CONSULTAS
 
@@ -38,12 +40,12 @@ public class RegistrationService {
         
         // Validar que la actividad existe
         activityRepository.findByIdAndDeletedAtIsNull(activityId)
-                .orElseThrow(() -> new ResourceNotFoundException("Actividad no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException(ACTIVITY_NOT_FOUND_MSG));
 
         return registrationRepository.findByActivityIdAndDeletedAtIsNull(activityId)
                 .stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     // ACCIÓN PARA MEMBER (Apuntarse/Desapuntarse)
@@ -52,7 +54,7 @@ public class RegistrationService {
     public RegistrationDTO registerCurrentUser(Long activityId) {
         User user = getCurrentUser();
         Activity activity = activityRepository.findByIdAndDeletedAtIsNull(activityId)
-                .orElseThrow(() -> new ResourceNotFoundException("Actividad no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException(ACTIVITY_NOT_FOUND_MSG));
 
         // Validar duplicados (Si ya está apuntado)
         if (registrationRepository.findByUserIdAndActivityIdAndDeletedAtIsNull(user.getId(), activityId).isPresent()) {
@@ -94,7 +96,7 @@ public class RegistrationService {
         User user = userRepository.findByIdAndDeletedAtIsNull(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
         Activity activity = activityRepository.findByIdAndDeletedAtIsNull(activityId)
-                .orElseThrow(() -> new ResourceNotFoundException("Actividad no encontrada"));
+                .orElseThrow(() -> new ResourceNotFoundException(ACTIVITY_NOT_FOUND_MSG));
 
         if (registrationRepository.findByUserIdAndActivityIdAndDeletedAtIsNull(userId, activityId).isPresent()) {
             throw new BadRequestException("El usuario ya está inscrito.");
@@ -135,7 +137,7 @@ public class RegistrationService {
     if (!activity.getTeams().isEmpty()) {
         List<Long> userTeamIds = user.getAffiliations().stream()
                 .map(aff -> aff.getTeam().getId())
-                .collect(Collectors.toList());
+                .toList();
 
         
         boolean isAuthorized = activity.getTeams().stream()
@@ -165,7 +167,7 @@ public class RegistrationService {
         // Buscamos el equipo y posición del usuario dentro del contexto de la actividad
         if (!reg.getActivity().getTeams().isEmpty()) {
             List<Long> activityTeamIds = reg.getActivity().getTeams().stream()
-                    .map(Team::getId).collect(Collectors.toList());
+                    .map(Team::getId).toList();
             
             reg.getUser().getAffiliations().stream()
                 .filter(aff -> activityTeamIds.contains(aff.getTeam().getId()))
@@ -180,10 +182,13 @@ public class RegistrationService {
     }
 
     private User getCurrentUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByUsernameAndDeletedAtIsNull(username)
-                .orElseThrow(() -> new UnauthorizedException("Usuario no autenticado"));
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !authentication.isAuthenticated()) {
+        throw new UnauthorizedException("Usuario no autenticado");
     }
+    return userRepository.findByUsernameAndDeletedAtIsNull(authentication.getName())
+            .orElseThrow(() -> new UnauthorizedException("Usuario no autenticado"));
+}
 
     private void checkStaffOrAdminRole() {
         String role = getCurrentUser().getRole().getName();

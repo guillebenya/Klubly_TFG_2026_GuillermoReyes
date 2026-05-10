@@ -1,4 +1,3 @@
-import React from "react";
 import { Users2, Edit2, Trash2, Eye } from "lucide-react";
 import Button from "../../../components/shared/Button";
 import Badge from "../../../components/shared/Badge"; // Importado

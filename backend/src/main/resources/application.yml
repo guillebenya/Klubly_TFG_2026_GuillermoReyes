@@ -15,7 +15,7 @@ spring:
     open-in-view: false
     properties:
       hibernate:
-        format_sql: true
+        "[format_sql]": true
 
 #Configuración del logger
 logging:
@@ -29,8 +29,9 @@ logging:
       max-history: 7 #Días para mantener los archivos de log antiguos
   level:
     root: INFO
-    com.klubly: DEBUG
+    "[com.klubly]": DEBUG
 
 app:
   jwt-secret: "ClaveSecretaMuyLargaParaQueSeaSegura2026!"
   jwt-expiration-milliseconds: 3600000
+  default-password: "klubly2026" #Contraseña por defecto para el seeding

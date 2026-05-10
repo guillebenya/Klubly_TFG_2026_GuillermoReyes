@@ -1,8 +1,8 @@
 package com.klubly.modules.inventory.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,7 +27,7 @@ public class CategoryService {
         return categoryRepository.findByDeletedAtIsNull()
                 .stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -36,7 +36,7 @@ public class CategoryService {
         return categoryRepository.findByDeletedAtIsNotNull()
                 .stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -63,7 +63,7 @@ public class CategoryService {
         Category category = new Category();
         category.setName(categoryDTO.getName());
         category.setDescription(categoryDTO.getDescription());
-        category.setActive(categoryDTO.getActive() != null ? categoryDTO.getActive() : true);
+        category.setActive(categoryDTO.getActive() == null || categoryDTO.getActive());
 
         Category savedCategory = categoryRepository.save(category);
         return convertToDTO(savedCategory);
@@ -76,7 +76,7 @@ public class CategoryService {
                 .orElseThrow(() -> new ResourceNotFoundException(CATEGORY_NOT_FOUND_MSG));
 
         String role = getContextRole();
-        if (!role.equals("ROLE_ADMIN")){
+        if (!"ROLE_ADMIN".equals(role)){
             categoryDTO.setActive(category.getActive());
         }
 
@@ -138,12 +138,15 @@ public class CategoryService {
 
     //Métodos auxiliares
     private String getContextRole() {
-        return SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                .iterator().next().getAuthority();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UnauthorizedException("Usuario no autenticado");
+        }
+        return authentication.getAuthorities().iterator().next().getAuthority();
     }
 
     private void checkAdminRole() {
-        if (!getContextRole().equals("ROLE_ADMIN")) {
+        if (!"ROLE_ADMIN".equals(getContextRole())) {
             throw new UnauthorizedException("Acceso denegado: Se requieren permisos de administrador");
         }
     }

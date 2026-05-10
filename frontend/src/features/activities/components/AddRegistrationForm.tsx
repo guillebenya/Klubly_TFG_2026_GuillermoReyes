@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Save, X, Loader2 } from "lucide-react"; 
+import { Save, X, Loader2 } from "lucide-react";
 import Button from "../../../components/shared/Button";
 import { registrationService } from "../services/registration.service";
 import { teamService, type Team } from "../../identity/services/team.service";
@@ -35,11 +35,13 @@ const AddRegistrationForm: React.FC<AddRegistrationFormProps> = ({
   useEffect(() => {
     const fetchUsers = async () => {
       if (selectedTeam) {
-        setUsers([]); 
-        setSelectedUser(""); 
+        setUsers([]);
+        setSelectedUser("");
         setLoadingUsers(true);
         try {
-          const resp = await userService.getByTeam(parseInt(selectedTeam));
+          const resp = await userService.getByTeam(
+            Number.parseInt(selectedTeam),
+          );
           const data = resp.data || [];
           setUsers(Array.isArray(data) ? data : []);
         } catch (error) {
@@ -69,37 +71,38 @@ const AddRegistrationForm: React.FC<AddRegistrationFormProps> = ({
 
       if (isAdmin) {
         // El ADMIN puede elegir cualquier equipo de la actividad (o todos si es global)
-        filteredTeams = isGlobalActivity 
-          ? allTeams 
-          : allTeams.filter(t => activityTeamIds.includes(t.id));
+        filteredTeams = isGlobalActivity
+          ? allTeams
+          : allTeams.filter((t) => activityTeamIds.includes(t.id));
+      } else if (isGlobalActivity) {
+        // Si es Global: Puede elegir cualquiera de SUS equipos
+        filteredTeams = allTeams.filter((t) =>
+          userManagedTeamIds.includes(t.id),
+        );
       } else {
-        // LÓGICA PARA STAFF:
-        if (isGlobalActivity) {
-          // Si es Global: Puede elegir cualquiera de SUS equipos
-          filteredTeams = allTeams.filter(t => userManagedTeamIds.includes(t.id));
-        } else {
-          // Si es de equipo: Solo puede elegir equipos que estén en la actividad Y que él gestione
-          filteredTeams = allTeams.filter(t => 
-            activityTeamIds.includes(t.id) && userManagedTeamIds.includes(t.id)
-          );
-        }
+        // Si es de equipo: Solo puede elegir equipos que estén en la actividad Y que él gestione
+        filteredTeams = allTeams.filter(
+          (t) =>
+            activityTeamIds.includes(t.id) && userManagedTeamIds.includes(t.id),
+        );
       }
-      
+
       setTeams(filteredTeams);
     } catch (error) {
       console.error("Error cargando equipos", error);
     }
   };
 
-  // ... (handleSubmit y selectStyles se mantienen igual)
-
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!selectedUser) return;
 
     try {
       setLoading(true);
-      await registrationService.addManual(activity.id, parseInt(selectedUser));
+      await registrationService.addManual(
+        activity.id,
+        Number.parseInt(selectedUser),
+      );
       onSuccess();
     } catch (error: any) {
       alert(error.response?.data?.message || "Error al inscribir al usuario.");
@@ -116,9 +119,9 @@ const AddRegistrationForm: React.FC<AddRegistrationFormProps> = ({
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <div className="flex flex-col gap-1.5 w-full">
-        <label className="text-sm font-bold text-gray-700 ml-1">
+        <span className="text-sm font-bold text-gray-700 ml-1">
           Equipo de procedencia <span className="text-red-500">*</span>
-        </label>
+        </span>
         <select
           value={selectedTeam}
           onChange={(e) => setSelectedTeam(e.target.value)}
@@ -127,20 +130,22 @@ const AddRegistrationForm: React.FC<AddRegistrationFormProps> = ({
         >
           <option value="">-- Seleccionar origen --</option>
           {teams.map((t) => (
-            <option key={t.id} value={t.id.toString()}>{t.name}</option>
+            <option key={t.id} value={t.id.toString()}>
+              {t.name}
+            </option>
           ))}
         </select>
         <p className="text-[10px] text-gray-400 ml-1 italic">
-          {activity.teamIds.length > 0 
+          {activity.teamIds.length > 0
             ? "Solo puedes añadir miembros de los equipos vinculados a esta actividad."
             : "Actividad global: puedes añadir miembros de tus equipos gestionados."}
         </p>
       </div>
 
       <div className="flex flex-col gap-1.5 w-full">
-        <label className="text-sm font-bold text-gray-700 ml-1">
+        <span className="text-sm font-bold text-gray-700 ml-1">
           Seleccionar Integrante <span className="text-red-500">*</span>
-        </label>
+        </span>
         <div className="relative">
           <select
             value={selectedUser}
@@ -167,7 +172,12 @@ const AddRegistrationForm: React.FC<AddRegistrationFormProps> = ({
       </div>
 
       <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
-        <Button variant="secondary" onClick={onCancel} type="button" icon={<X size={18} />}>
+        <Button
+          variant="secondary"
+          onClick={onCancel}
+          type="button"
+          icon={<X size={18} />}
+        >
           Cancelar
         </Button>
         <Button

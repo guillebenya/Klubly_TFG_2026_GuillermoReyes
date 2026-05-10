@@ -8,6 +8,69 @@ import RoleCard from "./RoleCard";
 import RoleDetails from "./RoleDetails"; // Asegúrate de tener este archivo creado
 import { roleService, type Role } from "../services/role.service";
 
+//Header extraído para reducir complejidad
+const RolesSectionHeader = ({
+  isHistoryMode,
+  onToggleHistory,
+  onAddNew,
+}: {
+  isHistoryMode: boolean;
+  onToggleHistory: (val: boolean) => void;
+  onAddNew: () => void;
+}) => (
+  <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+    <div className="flex items-center gap-3">
+      <div
+        className={`p-2 rounded-lg ${isHistoryMode ? "bg-amber-50 text-amber-600" : "bg-indigo-50 text-indigo-600"}`}
+      >
+        {isHistoryMode ? <History size={20} /> : <Shield size={20} />}
+      </div>
+      <div>
+        <h3 className="text-lg font-bold text-gray-800 uppercase tracking-tight">
+          {isHistoryMode ? "Historial de Roles" : "Listado de Roles"}
+        </h3>
+        <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
+          {isHistoryMode
+            ? "Consulta roles eliminados del club."
+            : "Administra los roles del club"}
+        </p>
+      </div>
+    </div>
+    <div className="flex items-center gap-2">
+      {isHistoryMode ? (
+        <Button
+          variant="secondary"
+          size="sm"
+          icon={<ArrowLeft size={18} />}
+          onClick={() => onToggleHistory(false)}
+        >
+          Volver a Roles
+        </Button>
+      ) : (
+        <>
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={<History size={18} />}
+            className="!text-indigo-600 hover:!bg-indigo-50"
+            onClick={() => onToggleHistory(true)}
+          >
+            Ver Bajas
+          </Button>
+          <Button
+            variant="add"
+            size="sm"
+            icon={<Plus size={18} />}
+            onClick={onAddNew}
+          >
+            Añadir Rol
+          </Button>
+        </>
+      )}
+    </div>
+  </div>
+);
+
 const RolesSection = () => {
   // --- ESTADOS DE DATOS ---
   const [roles, setRoles] = useState<Role[]>([]);
@@ -83,7 +146,7 @@ const RolesSection = () => {
     setIsFormOpen(true);
   };
 
-  const handleSaveTrigger = (e: React.FormEvent) => {
+  const handleSaveTrigger = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setConfirmConfig({ isOpen: true, type: "save", data: formData });
   };
@@ -92,31 +155,37 @@ const RolesSection = () => {
     setConfirmConfig({ isOpen: true, type: "delete", data: id });
   };
 
-  // --- EJECUCIÓN REAL (API) ---
+  const executeSave = async () => {
+    if (selectedRole) {
+      await roleService.update(selectedRole.id, confirmConfig.data);
+    } else {
+      await roleService.create(confirmConfig.data);
+    }
+    setSuccessConfig({
+      isOpen: true,
+      title: "¡Configuración guardada!",
+      desc: "Los datos del rol han sido actualizados con éxito.",
+    });
+  };
+
+  const executeDelete = async () => {
+    await roleService.delete(confirmConfig.data);
+    setSuccessConfig({
+      isOpen: true,
+      title: "Rol eliminado",
+      desc: "El rol se ha borrado correctamente del sistema.",
+    });
+  };
 
   const executeAction = async () => {
     try {
       setFormLoading(true);
       if (confirmConfig.type === "delete") {
-        await roleService.delete(confirmConfig.data);
-        setSuccessConfig({
-          isOpen: true,
-          title: "Rol eliminado",
-          desc: "El rol se ha borrado correctamente del sistema.",
-        });
+        await executeDelete();
       } else {
-        if (selectedRole) {
-          await roleService.update(selectedRole.id, confirmConfig.data);
-        } else {
-          await roleService.create(confirmConfig.data);
-        }
-        setSuccessConfig({
-          isOpen: true,
-          title: "¡Configuración guardada!",
-          desc: "Los datos del rol han sido actualizados con éxito.",
-        });
+        await executeSave();
       }
-      setConfirmConfig({ ...confirmConfig, isOpen: false });
+      setConfirmConfig((prev) => ({ ...prev, isOpen: false }));
     } catch (error) {
       console.error("Error en la operación:", error);
       alert("Hubo un error al procesar la solicitud.");
@@ -126,7 +195,7 @@ const RolesSection = () => {
   };
 
   const handleSuccessClose = () => {
-    setSuccessConfig({ ...successConfig, isOpen: false });
+    setSuccessConfig((prev) => ({ ...prev, isOpen: false }));
     setIsFormOpen(false);
     fetchRoles();
   };
@@ -134,58 +203,11 @@ const RolesSection = () => {
   return (
     <div className="space-y-6">
       {/* CABECERA DINÁMICA */}
-      <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div
-            className={`p-2 rounded-lg ${isHistoryMode ? "bg-amber-50 text-amber-600" : "bg-indigo-50 text-indigo-600"}`}
-          >
-            {isHistoryMode ? <History size={20} /> : <Shield size={20} />}
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-gray-800 uppercase tracking-tight">
-              {isHistoryMode ? "Historial de Roles" : "Listado de Roles"}
-            </h3>
-            <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
-              {isHistoryMode
-                ? "Consulta roles eliminados del club."
-                : "Administra los roles del club"}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {isHistoryMode ? (
-            <Button
-              variant="secondary"
-              size="sm"
-              icon={<ArrowLeft size={18} />}
-              onClick={() => setIsHistoryMode(false)}
-            >
-              Volver a Roles
-            </Button>
-          ) : (
-            <>
-              <Button
-                variant="ghost"
-                size="sm"
-                icon={<History size={18} />}
-                className="!text-indigo-600 hover:!bg-indigo-50"
-                onClick={() => setIsHistoryMode(true)}
-              >
-                Ver Bajas
-              </Button>
-              <Button
-                variant="add"
-                size="sm"
-                icon={<Plus size={18} />}
-                onClick={handleAddNew}
-              >
-                Añadir Rol
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
+      <RolesSectionHeader
+        isHistoryMode={isHistoryMode}
+        onToggleHistory={setIsHistoryMode}
+        onAddNew={handleAddNew}
+      />
 
       {/* Listado de Cards */}
       {loading ? (
@@ -234,10 +256,14 @@ const RolesSection = () => {
       >
         <form onSubmit={handleSaveTrigger} className="space-y-4">
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">
+            <label
+              htmlFor="roleName"
+              className="text-[10px] font-bold text-gray-400 uppercase ml-1"
+            >
               Nombre del Rol<span className="text-red-500">*</span>
             </label>
             <input
+              id="roleName"
               required
               value={formData.name}
               onChange={(e) =>
@@ -249,10 +275,14 @@ const RolesSection = () => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">
+            <label
+              htmlFor="description"
+              className="text-[10px] font-bold text-gray-400 uppercase ml-1"
+            >
               Descripción
             </label>
             <textarea
+              id="description"
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
@@ -264,16 +294,24 @@ const RolesSection = () => {
 
           {/* Toggle de Estado Activo */}
           <div className="flex items-center gap-3 py-2 ml-1">
-            <div
+            <button
+              type="button"
+              role="switch"
+              aria-checked={formData.active}
+              aria-label="Alternar estado del rol"
               onClick={() =>
                 setFormData({ ...formData, active: !formData.active })
               }
-              className={`w-10 h-5 rounded-full relative cursor-pointer transition-colors duration-200 ${formData.active ? "bg-indigo-600" : "bg-gray-300"}`}
+              className={`w-10 h-5 rounded-full relative transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${
+                formData.active ? "bg-indigo-600" : "bg-gray-300"
+              } cursor-pointer`}
             >
               <div
-                className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-200 ${formData.active ? "left-6" : "left-1"}`}
+                className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-200 ${
+                  formData.active ? "left-6" : "left-1"
+                }`}
               />
-            </div>
+            </button>
             <span className="text-xs font-bold text-gray-700 uppercase tracking-tight">
               {formData.active ? "Rol Activo" : "Rol Inactivo"}
             </span>
@@ -297,7 +335,7 @@ const RolesSection = () => {
       {/* DIÁLOGOS DE SISTEMA */}
       <ConfirmDialog
         isOpen={confirmConfig.isOpen}
-        onClose={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}
+        onClose={() => setConfirmConfig((prev) => ({ ...prev, isOpen: false }))}
         onConfirm={executeAction}
         title="¿Confirmar acción?"
         description={

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Plus,
   Filter,
@@ -24,6 +24,97 @@ import MemberTeamsManager from "../components/MemberTeamsManager.tsx";
 import { teamService } from "../services/team.service.ts";
 import MemberFilters from "../components/MemberFilters.tsx";
 import { authService } from "../../auth/services/auth.service.ts";
+
+//Función extraída para reducir complejidad
+const filterMembers = (
+  members: any[],
+  searchTerm: string,
+  activeFilters: {
+    roles: string[];
+    status: boolean[];
+    teams: number[];
+    isPending: boolean[];
+  },
+  isHistoryMode: boolean,
+) =>
+  members.filter((m) => {
+    const searchString =
+      `${m.firstName} ${m.lastName} ${m.email} ${m.username}`.toLowerCase();
+    const matchesSearch = searchString.includes(searchTerm.toLowerCase());
+    const matchesRole =
+      activeFilters.roles.length === 0 ||
+      activeFilters.roles.includes(m.roleName);
+
+    if (isHistoryMode) return matchesSearch && matchesRole;
+
+    const matchesStatus =
+      activeFilters.status.length === 0 ||
+      activeFilters.status.includes(m.active);
+    const matchesTeam =
+      activeFilters.teams.length === 0 ||
+      m.affiliations?.some((aff: any) =>
+        activeFilters.teams.includes(aff.teamId),
+      );
+    const matchesPending =
+      activeFilters.isPending.length === 0 ||
+      activeFilters.isPending.includes(m.isPending);
+
+    return (
+      matchesSearch &&
+      matchesRole &&
+      matchesStatus &&
+      matchesTeam &&
+      matchesPending
+    );
+  });
+
+//Componente extraído para reducir complejidad
+const SummaryCards = ({
+  isAdmin,
+  totalMembersCount,
+  activeMembersCount,
+  pendingMembersCount,
+}: {
+  isAdmin: boolean;
+  totalMembersCount: number;
+  activeMembersCount: number;
+  pendingMembersCount: number;
+}) => (
+  <>
+    <div className="flex items-center gap-1.5 px-1 mb-2 opacity-80">
+      <div className="h-1 w-1 rounded-full bg-indigo-400" />
+      <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 italic">
+        {isAdmin
+          ? "Nota: Totales globales del club (no afectados por filtros)."
+          : "Nota: Usuarios bajo tu gestión en tus equipos asignados. Los filtros no afectan a estos totales."}
+      </p>
+    </div>
+    <div
+      className={`grid grid-cols-1 ${isAdmin ? "md:grid-cols-3" : "md:grid-cols-2"} gap-4`}
+    >
+      <SummaryCard
+        title={isAdmin ? "Total Usuarios" : "Usuarios Gestionados"}
+        value={totalMembersCount}
+        icon={<Users size={20} />}
+        variant="indigo"
+      />
+      <SummaryCard
+        title="Usuarios Activos"
+        value={activeMembersCount}
+        icon={<UserCheck size={20} />}
+        variant="emerald"
+      />
+      {isAdmin && (
+        <SummaryCard
+          title="Solicitudes Pendientes"
+          value={pendingMembersCount}
+          icon={<Clock size={20} />}
+          variant={pendingMembersCount > 0 ? "rose" : "indigo"}
+        />
+      )}
+    </div>
+  </>
+);
 
 const MembersPage = () => {
   // ESTADOS DE DATOS
@@ -100,30 +191,38 @@ const MembersPage = () => {
     setConfirmConfig({ isOpen: true, type: "save", data: formData });
   };
 
+  const executeSave = async () => {
+    const formData = confirmConfig.data;
+    if (selectedMember) {
+      await userService.update(selectedMember.id, formData);
+    } else {
+      await userService.create(formData);
+    }
+    setSuccessConfig({
+      isOpen: true,
+      title: "¡Guardado!",
+      desc: "La información del miembro se ha actualizado con éxito.",
+    });
+  };
+
+  const executeDelete = async () => {
+    await userService.delete(confirmConfig.data);
+    setSuccessConfig({
+      isOpen: true,
+      title: "¡Eliminado!",
+      desc: "El miembro ha sido dado de baja correctamente del sistema.",
+    });
+  };
+
   const executeAction = async () => {
     try {
       setFormLoading(true);
       if (confirmConfig.type === "delete") {
-        await userService.delete(confirmConfig.data);
-        setSuccessConfig({
-          isOpen: true,
-          title: "¡Eliminado!",
-          desc: "El miembro ha sido dado de baja correctamente del sistema.",
-        });
+        await executeDelete();
       } else {
-        const formData = confirmConfig.data;
-        if (selectedMember) {
-          await userService.update(selectedMember.id, formData);
-        } else {
-          await userService.create(formData);
-        }
-        setSuccessConfig({
-          isOpen: true,
-          title: "¡Guardado!",
-          desc: "La información del miembro se ha actualizado con éxito.",
-        });
+        await executeSave();
       }
-      setConfirmConfig({ ...confirmConfig, isOpen: false });
+      setConfirmConfig((prev) => ({ ...prev, isOpen: false }));
     } catch (error) {
       console.error("Error en la operación:", error);
       alert("Hubo un error al procesar la solicitud.");
@@ -154,7 +253,7 @@ const MembersPage = () => {
   };
 
   const handleSuccessClose = () => {
-    setSuccessConfig({ ...successConfig, isOpen: false });
+    setSuccessConfig((prev) => ({ ...prev, isOpen: false }));
     setIsFormOpen(false);
     fetchMembers();
   };
@@ -162,7 +261,7 @@ const MembersPage = () => {
   const staffTeamIds = currentUser?.teamIds || [];
 
   const managedMembers = members.filter((m) => {
-    if (isAdmin) return true; 
+    if (isAdmin) return true;
 
     if (m.roleName === "ADMIN") return false;
     const hasCommonTeam = m.affiliations?.some((aff: any) =>
@@ -173,36 +272,23 @@ const MembersPage = () => {
 
   // CÁLCULOS PARA TARJETAS INFORMATIVAS
   const totalMembersCount = managedMembers.length;
-  const activeMembersCount = managedMembers.filter((m) => m.active && !m.isPending).length;
+  const activeMembersCount = managedMembers.filter(
+    (m) => m.active && !m.isPending,
+  ).length;
   const pendingMembersCount = managedMembers.filter((m) => m.isPending).length;
 
-  const filteredMembers = managedMembers.filter((m) => {
-    const searchString =
-      `${m.firstName} ${m.lastName} ${m.email} ${m.username}`.toLowerCase();
-    const matchesSearch = searchString.includes(searchTerm.toLowerCase());
+  const activeFilterCount =
+    activeFilters.roles.length +
+    activeFilters.status.length +
+    activeFilters.teams.length +
+    activeFilters.isPending.length;
 
-    const matchesRole =
-      activeFilters.roles.length === 0 ||
-      activeFilters.roles.includes(m.roleName);
-
-    if (isHistoryMode) return matchesSearch && matchesRole;
-
-    const matchesStatus =
-      activeFilters.status.length === 0 ||
-      activeFilters.status.includes(m.active);
-
-    const matchesTeam =
-      activeFilters.teams.length === 0 ||
-      m.affiliations?.some((aff: any) =>
-        activeFilters.teams.includes(aff.teamId),
-      );
-    
-    const matchesPending = 
-      activeFilters.isPending.length === 0 || 
-      activeFilters.isPending.includes(m.isPending);
-
-    return matchesSearch && matchesRole && matchesStatus && matchesTeam && matchesPending;
-  });
+  const filteredMembers = filterMembers(
+    managedMembers,
+    searchTerm,
+    activeFilters,
+    isHistoryMode,
+  );
 
   return (
     <div className="space-y-6">
@@ -227,24 +313,11 @@ const MembersPage = () => {
             ) : (
               <>
                 <Button
-                  variant={
-                    activeFilters.roles.length +
-                    activeFilters.status.length +
-                    activeFilters.teams.length +
-                    activeFilters.isPending.length >
-                    0
-                      ? "primary"
-                      : "secondary"
-                  }
+                  variant={activeFilterCount > 0 ? "primary" : "secondary"}
                   icon={<Filter size={18} />}
                   onClick={() => setIsFilterOpen(true)}
                 >
-                  Filtros{" "}
-                  {activeFilters.roles.length +
-                    activeFilters.status.length +
-                    activeFilters.teams.length +
-                    activeFilters.isPending.length >
-                    0}
+                  Filtros {activeFilterCount > 0}
                 </Button>
 
                 {isAdmin && (
@@ -275,39 +348,12 @@ const MembersPage = () => {
 
       {/* TARJETAS DE RESUMEN */}
       {!isHistoryMode && !loading && (
-        <>
-          <div className="flex items-center gap-1.5 px-1 mb-2 opacity-80">
-            <div className="h-1 w-1 rounded-full bg-indigo-400" />
-            <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 italic">
-              {isAdmin
-                ? "Nota: Totales globales del club (no afectados por filtros)."
-                : "Nota: Usuarios bajo tu gestión en tus equipos asignados. Los filtros no afectan a estos totales."}
-            </p>
-          </div>
-
-          <div className={`grid grid-cols-1 ${isAdmin ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-4`}>
-            <SummaryCard
-              title={isAdmin ? "Total Usuarios" : "Usuarios Gestionados"}
-              value={totalMembersCount}
-              icon={<Users size={20} />}
-              variant="indigo"
-            />
-            <SummaryCard
-              title="Usuarios Activos"
-              value={activeMembersCount}
-              icon={<UserCheck size={20} />}
-              variant="emerald"
-            />
-            {isAdmin && (
-              <SummaryCard
-                title="Solicitudes Pendientes"
-                value={pendingMembersCount}
-                icon={<Clock size={20} />}
-                variant={pendingMembersCount > 0 ? "rose" : "indigo"}
-              />
-            )}
-          </div>
-        </>
+        <SummaryCards
+          isAdmin={isAdmin}
+          totalMembersCount={totalMembersCount}
+          activeMembersCount={activeMembersCount}
+          pendingMembersCount={pendingMembersCount}
+        />
       )}
 
       {loading ? (
@@ -412,7 +458,7 @@ const MembersPage = () => {
 
       <ConfirmDialog
         isOpen={confirmConfig.isOpen}
-        onClose={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}
+        onClose={() => setConfirmConfig((prev) => ({ ...prev, isOpen: false }))}
         onConfirm={executeAction}
         title="¿Confirmar operación?"
         description={

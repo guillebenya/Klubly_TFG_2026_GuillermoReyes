@@ -1,6 +1,4 @@
-// src/features/identity/components/MyTeamsTableCard.tsx
-import React from "react";
-import { Users, Shield, Briefcase } from "lucide-react";
+import { Users } from "lucide-react";
 import Card from "../../../components/shared/Card";
 import Badge from "../../../components/shared/Badge";
 

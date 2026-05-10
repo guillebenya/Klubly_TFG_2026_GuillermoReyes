@@ -11,7 +11,7 @@ const LoginPage = () => {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError("");
     setLoading(true);
@@ -20,6 +20,7 @@ const LoginPage = () => {
       await authService.login(username, password);
       navigate("/dashboard");
     } catch (err: any) {
+      console.error("Login error:", err);
       setError("Credenciales incorrectas o cuenta pendiente de aprobación.");
     } finally {
       setLoading(false);
@@ -46,7 +47,7 @@ const LoginPage = () => {
           )}
 
           <div>
-            <label className="block text-sm font-medium text-slate-500">
+            <label htmlFor="username" className="block text-sm font-medium text-slate-500">
               Usuario
             </label>
             <div className="relative mt-1">
@@ -56,6 +57,7 @@ const LoginPage = () => {
               />
               <input
                 type="text"
+                id="username"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 className="w-full rounded-lg bg-gray-200 py-2.5 pr-4 pl-10 text-slate-900 placeholder-slate-400 outline-none ring-1 ring-slate-300 focus:ring-2 focus:ring-sky-500 transition-all"
@@ -66,7 +68,7 @@ const LoginPage = () => {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-slate-500">
+            <label htmlFor="password" className="block text-sm font-medium text-slate-500">
               Contraseña
             </label>
             <div className="relative mt-1">
@@ -76,6 +78,7 @@ const LoginPage = () => {
               />
               <input
                 type="password"
+                id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full rounded-lg bg-gray-200 py-2.5 pr-4 pl-10 text-slate-900 placeholder-slate-400 outline-none ring-1 ring-slate-300 focus:ring-2 focus:ring-sky-500 transition-all"

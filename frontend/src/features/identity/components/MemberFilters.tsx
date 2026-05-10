@@ -1,4 +1,3 @@
-import React from "react";
 import { Shield, Activity, Users, RotateCcw, AlertCircle } from "lucide-react";
 import Button from "../../../components/shared/Button";
 import { authService } from "../../auth/services/auth.service";
@@ -117,10 +116,11 @@ const MemberFilters = ({
         <div className="max-h-40 overflow-y-auto pr-2 space-y-1 custom-scrollbar">
           {displayedTeams.length > 0 ? (
             displayedTeams.map((team) => (
-              <div
+              <button
                 key={team.id}
+                type="button"
                 onClick={() => toggleFilter("teams", team.id)}
-                className="flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors group"
+                className="w-full flex items-center justify-between p-2 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors group text-left"
               >
                 <span
                   className={`text-xs font-bold ${
@@ -142,7 +142,7 @@ const MemberFilters = ({
                     <div className="w-1.5 h-1.5 bg-white rounded-full" />
                   )}
                 </div>
-              </div>
+              </button>
             ))
           ) : (
             <div className="flex flex-col items-center justify-center p-4 bg-amber-50 rounded-xl border border-amber-100 text-center">

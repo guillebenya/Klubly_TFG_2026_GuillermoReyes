@@ -1,11 +1,10 @@
-import React from "react";
-import { 
-  Tag, 
-  Activity, 
-  AlertTriangle, 
-  RotateCcw, 
+import {
+  Tag,
+  Activity,
+  AlertTriangle,
+  RotateCcw,
   Layers,
-  CheckCircle2
+  CheckCircle2,
 } from "lucide-react";
 import Button from "../../../components/shared/Button";
 import { type Category } from "../../configuration/services/category.service";
@@ -58,7 +57,7 @@ const ItemFilters = ({
 
   return (
     <div className="space-y-6">
-      {/* SECCIÓN 1: ESTADO DE EXISTENCIAS (Visible para todos) */}
+      {/* ESTADO DE EXISTENCIAS (Visible para todos) */}
       <div className="space-y-3">
         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
           <AlertTriangle size={14} /> Nivel de Stock
@@ -85,7 +84,7 @@ const ItemFilters = ({
         </div>
       </div>
 
-      {/* SECCIÓN 2: DISPONIBILIDAD (SOLO ADMIN) */}
+      {/* DISPONIBILIDAD (SOLO ADMIN) */}
       {isAdmin && (
         <div className="space-y-3">
           <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
@@ -121,7 +120,7 @@ const ItemFilters = ({
         </div>
       )}
 
-      {/* SECCIÓN 3: CATEGORÍAS (Visible para todos) */}
+      {/* CATEGORÍAS (Visible para todos) */}
       <div className="space-y-3">
         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
           <Layers size={14} /> Categorías
@@ -129,28 +128,40 @@ const ItemFilters = ({
         <div className="max-h-48 overflow-y-auto pr-2 space-y-1 custom-scrollbar border border-gray-50 rounded-xl p-2 bg-gray-50/30">
           {availableCategories.length > 0 ? (
             availableCategories.map((cat) => (
-              <div
+              <button
                 key={cat.id}
+                type="button"
                 onClick={() => toggleCategory(cat.id)}
-                className={`flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all ${
+                className={`w-full flex items-center justify-between p-2.5 rounded-xl cursor-pointer transition-all text-left ${
                   filters.categories.includes(cat.id)
                     ? "bg-white shadow-sm ring-1 ring-indigo-100"
                     : "hover:bg-gray-50"
                 }`}
               >
                 <div className="flex items-center gap-2">
-                  <Tag size={12} className={filters.categories.includes(cat.id) ? "text-indigo-500" : "text-gray-400"} />
-                  <span className={`text-xs font-bold ${filters.categories.includes(cat.id) ? "text-gray-900" : "text-gray-500"}`}>
+                  <Tag
+                    size={12}
+                    className={
+                      filters.categories.includes(cat.id)
+                        ? "text-indigo-500"
+                        : "text-gray-400"
+                    }
+                  />
+                  <span
+                    className={`text-xs font-bold ${filters.categories.includes(cat.id) ? "text-gray-900" : "text-gray-500"}`}
+                  >
                     {cat.name}
                   </span>
                 </div>
                 {filters.categories.includes(cat.id) && (
                   <CheckCircle2 size={14} className="text-indigo-600" />
                 )}
-              </div>
+              </button>
             ))
           ) : (
-            <p className="text-[10px] text-gray-400 italic text-center py-4">No hay categorías disponibles</p>
+            <p className="text-[10px] text-gray-400 italic text-center py-4">
+              No hay categorías disponibles
+            </p>
           )}
         </div>
       </div>

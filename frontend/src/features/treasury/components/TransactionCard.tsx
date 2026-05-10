@@ -1,4 +1,3 @@
-import React from "react";
 import {
   TrendingUp,
   TrendingDown,
@@ -31,6 +30,15 @@ interface TransactionCardProps {
   onDelete?: (id: number) => void;
   isMemberView?: boolean;
 }
+
+const Column = ({ title, children, className = "" }: any) => (
+  <div className={`flex flex-col gap-0.5 ${className}`}>
+    <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none">
+      {title}
+    </span>
+    <div className="min-h-[20px] flex items-center">{children}</div>
+  </div>
+);
 
 const TransactionCard = ({
   transaction,
@@ -107,39 +115,36 @@ const TransactionCard = ({
     }
   };
 
-  const Column = ({ title, children, className = "" }: any) => (
-    <div className={`flex flex-col gap-0.5 ${className}`}>
-      <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest leading-none">
-        {title}
-      </span>
-      <div className="min-h-[20px] flex items-center">{children}</div>
-    </div>
-  );
+  const borderColorClubIncome = isClubIncome
+    ? "border-l-red-500"
+    : "border-l-emerald-500";
+
+  const borderColorNotClubIncome = isClubIncome
+    ? "border-l-emerald-500"
+    : "border-l-red-500";
+
+  const borderColor = isMemberView
+    ? borderColorClubIncome
+    : borderColorNotClubIncome;
+
+  const iconStyleClubIncome = isClubIncome
+    ? "bg-red-50 text-red-600 border-red-100"
+    : "bg-emerald-50 text-emerald-600 border-emerald-100";
+
+  const iconStyleNotClubIncome = isClubIncome
+    ? "bg-emerald-50 text-emerald-600 border-emerald-100"
+    : "bg-red-50 text-red-600 border-red-100";
+
+  const iconStyle = isMemberView ? iconStyleClubIncome : iconStyleNotClubIncome;
 
   return (
     <Card
-      className={`flex items-center gap-4 py-3 px-6 hover:border-indigo-600 transition-all shadow-sm group border-l-4 ${transaction.active ? "" : "opacity-65"} ${
-        isMemberView
-          ? isClubIncome
-            ? "border-l-red-500"
-            : "border-l-emerald-500"
-          : isClubIncome
-            ? "border-l-emerald-500"
-            : "border-l-rose-500"
-      }`}
+      className={`flex items-center gap-4 py-3 px-6 hover:border-indigo-600 transition-all shadow-sm group border-l-4 ${transaction.active ? "" : "opacity-65"} ${borderColor}`}
     >
       <div className="flex items-center justify-between flex-1 min-w-0 gap-4">
         {/* ICONO DE ACTIVIDAD */}
         <div
-          className={`flex-shrink-0 p-3 rounded-2xl border transition-all ${
-            isMemberView
-              ? isClubIncome
-                ? "bg-red-50 text-red-600 border-red-100"
-                : "bg-emerald-50 text-emerald-600 border-emerald-100"
-              : isClubIncome
-                ? "bg-emerald-50 text-emerald-600 border-emerald-100"
-                : "bg-rose-50 text-rose-600 border-rose-100"
-          }`}
+          className={`flex-shrink-0 p-3 rounded-2xl border transition-all ${iconStyle}`}
         >
           <ArrowUpDown size={24} />
         </div>

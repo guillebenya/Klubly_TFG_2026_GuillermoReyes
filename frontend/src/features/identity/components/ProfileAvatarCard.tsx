@@ -1,5 +1,4 @@
-import React from "react";
-import { User, Pencil, UserIcon } from "lucide-react";
+import { Pencil, UserIcon } from "lucide-react";
 import Card from "../../../components/shared/Card";
 import Badge from "../../../components/shared/Badge";
 

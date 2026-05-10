@@ -1,4 +1,3 @@
-// src/components/shared/SummaryCard.tsx
 import React from "react";
 import Card from "./Card";
 

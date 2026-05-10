@@ -1,4 +1,3 @@
-import React from "react";
 import { type Item } from "../services/item.service";
 import {
   Package,
@@ -7,7 +6,6 @@ import {
   Calendar,
   Clock,
   Info,
-  ShieldAlert,
   Trash,
 } from "lucide-react";
 import Badge from "../../../components/shared/Badge";

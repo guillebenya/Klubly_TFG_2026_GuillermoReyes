@@ -1,8 +1,6 @@
-import React, { useEffect, useState } from "react";
-import { Outlet, useLocation, useNavigate, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
+import { Outlet, useLocation, Link } from "react-router-dom";
 import {
-  Users,
-  Wallet,
   Package,
   LogOut,
   ChevronDown,
@@ -19,7 +17,7 @@ import { authService } from "../features/auth/services/auth.service";
 const MainLayout = () => {
   const [isProfileOpen, setIsProfileOpen] = useState(false);
   const location = useLocation();
-  const navigate = useNavigate();
+
 
   const currentUser = authService.getCurrentUser();
   console.log("CONTENIDO REAL DEL USER EN STORAGE:", currentUser);
@@ -103,7 +101,7 @@ const MainLayout = () => {
 
   return (
     <div className="flex h-screen flex-col bg-gray-100">
-      {/* HEADER (Ocupa todo el ancho superior) */}
+      {/* HEADER (Ocupa el ancho superior entero) */}
       <header className="h-20 w-full bg-white border-b border-gray-200 flex items-center justify-between px-8 shadow-sm z-20">
         {/* LOGO */}
         <Link
@@ -228,7 +226,6 @@ const MainLayout = () => {
                   <span className="font-bold text-indigo-600">
                     no se muestra el menú lateral ni acceso a módulos, y el dashboard no contiene más información que esta.
                   </span>
-                  .
                 </p>
               </div>
             </div>

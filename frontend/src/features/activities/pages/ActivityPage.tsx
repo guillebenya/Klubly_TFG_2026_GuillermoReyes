@@ -1,32 +1,92 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import {
-  Plus,
-  Filter,
-  Loader2,
-  History,
-  ArrowLeft,
   Calendar,
-  CheckCircle,
+  Filter,
+  History,
+  Plus,
+  ArrowLeft,
   AlertCircle,
+  CheckCircle,
+  Loader2,
 } from "lucide-react";
-
-// Componentes Compartidos
 import PageHeader from "../../../components/shared/PageHeader";
 import Button from "../../../components/shared/Button";
 import Modal from "../../../components/shared/Modal";
-import SummaryCard from "../../../components/shared/SummaryCard"; // Importamos el shared
+import SummaryCard from "../../../components/shared/SummaryCard";
 import ConfirmDialog from "../../../components/shared/ConfirmDialog";
 import SuccessDialog from "../../../components/shared/SuccessDialog";
-
-// Componentes del Dominio
 import ActivityCard from "../components/ActivityCard";
 import ActivityDetails from "../components/ActivityDetails";
 import ActivityForm from "../components/ActivityForm";
 import ActivityFilters from "../components/ActivityFilters";
-
-// Servicios y Tipos
 import { activityService, type Activity } from "../services/activity.service";
 import { authService } from "../../auth/services/auth.service";
+
+//Lógica de filtrado extraída para reducir la complejidad cognitiva del componente principal
+const getFilteredActivities = (activities: Activity[], params: any) => {
+  const {
+    isAdmin,
+    isStaff,
+    currentUser,
+    searchTerm,
+    activeFilters,
+    isHistoryMode,
+  } = params;
+
+  return activities.filter((a) => {
+    // Verificación de visibilidad 
+    const isGlobal = a.teamIds.length === 0;
+    const isMyTeam = a.teamIds.some((id) =>
+      (currentUser?.teamIds || []).includes(id),
+    );
+    const canView = isAdmin || isGlobal || isMyTeam;
+
+    if (!canView) return false;
+
+    // Verificación de Búsqueda y Filtros básicos
+    const matchesSearch = `${a.name} ${a.location}`
+      .toLowerCase()
+      .includes(searchTerm.toLowerCase());
+
+    const matchesTeam =
+      activeFilters.teams.length === 0 ||
+      a.teamIds.some((id) => activeFilters.teams.includes(id)) ||
+      (activeFilters.teams.includes(0) && isGlobal);
+
+    const actDate = new Date(a.startDate);
+    const matchesDate =
+      (!activeFilters.dateRange.start ||
+        actDate >= new Date(activeFilters.dateRange.start)) &&
+      (!activeFilters.dateRange.end ||
+        actDate <= new Date(activeFilters.dateRange.end));
+
+    if (!matchesSearch || !matchesTeam || !matchesDate) return false;
+
+    //Verificación de Estado / Historial
+    if (isHistoryMode) return true;
+
+    const statusAllowed =
+      activeFilters.status.length === 0 ||
+      activeFilters.status.includes(a.active);
+
+    // Si es Admin/Staff depende del filtro de estado, si es Member solo ve las activas
+    return isAdmin || isStaff ? statusAllowed : a.active;
+  });
+};
+
+//Lógica de ordenación extraída
+const getSortedActivities = (activities: Activity[]) => {
+  const nowTime = Date.now();
+  return [...activities].sort((a, b) => {
+    const timeA = new Date(a.startDate).getTime();
+    const timeB = new Date(b.startDate).getTime();
+    const isPastA = timeA < nowTime;
+    const isPastB = timeB < nowTime;
+
+    if (isPastA !== isPastB) return isPastA ? 1 : -1;
+    return isPastA ? timeB - timeA : timeA - timeB;
+  });
+};
 
 const ActivityPage = () => {
   // SEGURIDAD
@@ -41,7 +101,7 @@ const ActivityPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isHistoryMode, setIsHistoryMode] = useState(false);
 
-  // ESTADOS PARA MODALES
+  // ESTADOS PARA MODALES Y FILTROS
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
     null,
   );
@@ -49,8 +109,6 @@ const ActivityPage = () => {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
-
-  // ESTADO DE FILTROS
   const [activeFilters, setActiveFilters] = useState({
     teams: [] as number[],
     status: [] as boolean[],
@@ -58,19 +116,16 @@ const ActivityPage = () => {
   });
 
   // CONFIRMACIÓN Y ÉXITO
-  const [confirmConfig, setConfirmConfig] = useState<{
-    isOpen: boolean;
-    type: "save" | "delete";
-    data?: any;
-  }>({ isOpen: false, type: "save" });
-
+  const [confirmConfig, setConfirmConfig] = useState<any>({
+    isOpen: false,
+    type: "save",
+  });
   const [successConfig, setSuccessConfig] = useState({
     isOpen: false,
     title: "",
     desc: "",
   });
 
-  // Cargar datos
   useEffect(() => {
     fetchActivities();
   }, [isHistoryMode]);
@@ -89,42 +144,50 @@ const ActivityPage = () => {
     }
   };
 
-  // CÁLCULOS PARA TARJETAS INFORMATIVAS
-  const now = new Date();
-  const activitiesThisMonth = activities.filter((a) => {
-    const d = new Date(a.startDate);
-    return (
-      d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()
-    );
-  }).length;
+  // Lógica de filtrado y ordenación mediante useMemo
+  const filteredAndSorted = useMemo(() => {
+    const filtered = getFilteredActivities(activities, {
+      isAdmin,
+      isStaff,
+      currentUser,
+      searchTerm,
+      activeFilters,
+      isHistoryMode,
+    });
+    return getSortedActivities(filtered);
+  }, [
+    activities,
+    searchTerm,
+    activeFilters,
+    isHistoryMode,
+    isAdmin,
+    isStaff,
+    currentUser,
+  ]);
 
-  const fullActivities = activities.filter(
-    (a) => a.registeredCount >= a.capacity,
-  ).length;
-  const totalActivities = activities.length;
+  // Estadísticas para SummaryCards
+  const stats = useMemo(() => {
+    const now = new Date();
+    return {
+      thisMonth: activities.filter((a) => {
+        const d = new Date(a.startDate);
+        return (
+          d.getMonth() === now.getMonth() &&
+          d.getFullYear() === now.getFullYear()
+        );
+      }).length,
+      full: activities.filter((a) => a.registeredCount >= a.capacity).length,
+    };
+  }, [activities]);
 
-  // HANDLERS
   const handleView = (activity: Activity) => {
     setSelectedActivity(activity);
     setIsViewOpen(true);
   };
 
-  const handleAddNew = () => {
-    setSelectedActivity(null);
-    setIsFormOpen(true);
-  };
-
   const handleEdit = (activity: Activity) => {
     setSelectedActivity(activity);
     setIsFormOpen(true);
-  };
-
-  const handleDeleteTrigger = (id: number) => {
-    setConfirmConfig({ isOpen: true, type: "delete", data: id });
-  };
-
-  const handleSaveTrigger = (formData: any) => {
-    setConfirmConfig({ isOpen: true, type: "save", data: formData });
   };
 
   const executeAction = async () => {
@@ -135,107 +198,32 @@ const ActivityPage = () => {
         setSuccessConfig({
           isOpen: true,
           title: "¡Eliminada!",
-          desc: "La actividad ha sido enviada al historial de bajas.",
+          desc: "La actividad ha sido enviada al historial.",
         });
       } else {
         const data = confirmConfig.data;
-        if (selectedActivity) {
+        if (selectedActivity)
           await activityService.update(selectedActivity.id, data);
-        } else {
-          await activityService.create(data);
-        }
+        else await activityService.create(data);
         setSuccessConfig({
           isOpen: true,
           title: "¡Guardado!",
-          desc: "La información de la actividad se ha actualizado correctamente.",
+          desc: "La información se ha actualizado correctamente.",
         });
       }
       setConfirmConfig({ ...confirmConfig, isOpen: false });
     } catch (error) {
-      alert("Error al procesar la solicitud.");
+      console.error("Error al procesar:", error);
     } finally {
       setFormLoading(false);
     }
   };
-
-  const handleSuccessClose = () => {
-    setSuccessConfig({ ...successConfig, isOpen: false });
-    setIsFormOpen(false);
-    fetchActivities();
-  };
-
-  // LÓGICA DE FILTRADO
-  const filteredActivities = activities.filter((a) => {
-    if (!isAdmin) {
-      const userTeamIds = currentUser?.teamIds || [];
-      const isGlobalActivity = a.teamIds.length === 0;
-      const isMyTeamActivity = a.teamIds.some((id) => userTeamIds.includes(id));
-      if (!isGlobalActivity && !isMyTeamActivity) return false;
-    }
-
-    const searchString = `${a.name} ${a.location}`.toLowerCase();
-    const matchesSearch = searchString.includes(searchTerm.toLowerCase());
-
-    const matchesTeam =
-      activeFilters.teams.length === 0 ||
-      a.teamIds.some((id) => activeFilters.teams.includes(id)) ||
-      (activeFilters.teams.includes(0) && a.teamIds.length === 0);
-
-    const actDate = new Date(a.startDate);
-    const matchesDate =
-      (!activeFilters.dateRange.start ||
-        actDate >= new Date(activeFilters.dateRange.start)) &&
-      (!activeFilters.dateRange.end ||
-        actDate <= new Date(activeFilters.dateRange.end));
-
-    if (isHistoryMode) return matchesSearch && matchesTeam && matchesDate;
-
-    if (!isAdmin && !isStaff) {
-      if (!a.active) return false;
-    } else {
-      if (
-        activeFilters.status.length > 0 &&
-        !activeFilters.status.includes(a.active)
-      ) {
-        return false;
-      }
-    }
-
-    return matchesSearch && matchesTeam && matchesDate;
-  });
-
-  // LÓGICA DE ORDENACIÓN
-  const sortedActivities = [...filteredActivities].sort((a, b) => {
-    const nowTime = new Date().getTime();
-    const timeA = new Date(a.startDate).getTime();
-    const timeB = new Date(b.startDate).getTime();
-
-    const isPastA = timeA < nowTime;
-    const isPastB = timeB < nowTime;
-
-    // Si una ya pasó y la otra no, la futura va primero
-    if (isPastA && !isPastB) return 1;
-    if (!isPastA && isPastB) return -1;
-
-    // Si ambas son futuras, orden ascendente (la más próxima primero)
-    if (!isPastA && !isPastB) {
-      return timeA - timeB;
-    }
-
-    // Si ambas son pasadas, orden descendente (la más reciente primero)
-    return timeB - timeA;
-  });
 
   return (
     <div className="space-y-6">
       <PageHeader
         title={
           isHistoryMode ? "Historial de Actividades" : "Gestión de Actividades"
-        }
-        subtitle={
-          isHistoryMode
-            ? "Consulta de eventos y entrenamientos dados de baja."
-            : "Organiza y supervisa las actividades del club."
         }
         onSearch={setSearchTerm}
         actions={
@@ -249,11 +237,10 @@ const ActivityPage = () => {
                 Volver al listado
               </Button>
             ) : (
-              <>
+              <div className="flex gap-2">
                 <Button
                   variant={
-                    activeFilters.teams.length + activeFilters.status.length >
-                      0 || activeFilters.dateRange.start !== ""
+                    activeFilters.teams.length + activeFilters.status.length > 0
                       ? "primary"
                       : "secondary"
                   }
@@ -268,7 +255,7 @@ const ActivityPage = () => {
                       <Button
                         variant="ghost"
                         icon={<History size={18} />}
-                        className="!text-indigo-600 hover:!bg-indigo-50"
+                        className="!text-indigo-600"
                         onClick={() => setIsHistoryMode(true)}
                       >
                         Ver Bajas
@@ -277,53 +264,42 @@ const ActivityPage = () => {
                     <Button
                       variant="add"
                       icon={<Plus size={18} />}
-                      onClick={handleAddNew}
+                      onClick={() => {
+                        setSelectedActivity(null);
+                        setIsFormOpen(true);
+                      }}
                     >
                       Añadir Actividad
                     </Button>
                   </>
                 )}
-              </>
+              </div>
             )}
           </>
         }
       />
 
-      {/* TARJETAS DE RESUMEN (Globales) */}
       {!isHistoryMode && !loading && (
-        <>
-          {/* Nota informativa */}
-          <div className="flex items-center gap-1.5 px-1 mb-2 opacity-80">
-            <div className="h-1 w-1 rounded-full bg-indigo-400" />
-            <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 italic">
-              {isAdmin
-                ? "Nota: Las tarjetas resumen muestran totales globales y no se ven afectados por los filtros de búsqueda."
-                : "Nota: Las tarjetas resumen muestran totales de tus actividades asignadas. Los filtros no afectan a estos totales."}
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <SummaryCard
-              title="Actividades este mes"
-              value={activitiesThisMonth}
-              icon={<Calendar size={20} />}
-              variant="indigo"
-            />
-            <SummaryCard
-              title="Ocupación de plazas"
-              value={`${fullActivities} de ${totalActivities} llenas`}
-              icon={
-                fullActivities > 0 ? (
-                  <AlertCircle size={20} />
-                ) : (
-                  <CheckCircle size={20} />
-                )
-              }
-              variant={
-                fullActivities > totalActivities / 2 ? "rose" : "emerald"
-              }
-            />
-          </div>
-        </>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <SummaryCard
+            title="Actividades este mes"
+            value={stats.thisMonth}
+            icon={<Calendar size={20} />}
+            variant="indigo"
+          />
+          <SummaryCard
+            title="Ocupación de plazas"
+            value={`${stats.full} de ${activities.length} llenas`}
+            icon={
+              stats.full > 0 ? (
+                <AlertCircle size={20} />
+              ) : (
+                <CheckCircle size={20} />
+              )
+            }
+            variant={stats.full > activities.length / 2 ? "rose" : "emerald"}
+          />
+        </div>
       )}
 
       {loading ? (
@@ -333,15 +309,14 @@ const ActivityPage = () => {
         </div>
       ) : (
         <div className="flex flex-col gap-3">
-          {sortedActivities.length > 0 ? (
-            sortedActivities.map((activity) => {
+          {filteredAndSorted.length > 0 ? (
+            filteredAndSorted.map((activity) => {
               const isPast = new Date(activity.startDate) < new Date();
               return (
                 <ActivityCard
                   key={activity.id}
                   activity={activity}
                   onView={handleView}
-                  // Si ya pasó, no enviamos funciones de editar/borrar
                   onEdit={
                     (isAdmin || isStaff) && !isHistoryMode && !isPast
                       ? handleEdit
@@ -349,10 +324,15 @@ const ActivityPage = () => {
                   }
                   onDelete={
                     (isAdmin || isStaff) && !isHistoryMode && !isPast
-                      ? handleDeleteTrigger
+                      ? (id) =>
+                          setConfirmConfig({
+                            isOpen: true,
+                            type: "delete",
+                            data: id,
+                          })
                       : undefined
                   }
-                  isMember={isMember && !isPast} 
+                  isMember={isMember && !isPast}
                   onRefresh={fetchActivities}
                 />
               );
@@ -368,11 +348,11 @@ const ActivityPage = () => {
         </div>
       )}
 
-      {/* MODALES, CONFIRMACIONES Y ÉXITO */}
+      {/* Modales y Diálogos */}
       <Modal
         isOpen={isFilterOpen}
         onClose={() => setIsFilterOpen(false)}
-        title="Filtros de Actividades"
+        title="Filtros"
         size="sm"
       >
         <ActivityFilters
@@ -385,7 +365,7 @@ const ActivityPage = () => {
       <Modal
         isOpen={isViewOpen}
         onClose={() => setIsViewOpen(false)}
-        title="Detalle de la Actividad"
+        title="Detalle"
         size="lg"
       >
         {selectedActivity && (
@@ -399,11 +379,13 @@ const ActivityPage = () => {
       <Modal
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
-        title={selectedActivity ? "Editar Actividad" : "Nueva Actividad"}
+        title={selectedActivity ? "Editar" : "Nueva"}
       >
         <ActivityForm
           initialData={selectedActivity}
-          onSubmit={handleSaveTrigger}
+          onSubmit={(data) =>
+            setConfirmConfig({ isOpen: true, type: "save", data })
+          }
           onCancel={() => setIsFormOpen(false)}
           loading={formLoading}
         />
@@ -416,7 +398,7 @@ const ActivityPage = () => {
         title="¿Confirmar operación?"
         description={
           confirmConfig.type === "delete"
-            ? "¿Estás seguro de dar de baja esta actividad?"
+            ? "¿Dar de baja esta actividad?"
             : "¿Guardar cambios?"
         }
         confirmLabel={confirmConfig.type === "delete" ? "Eliminar" : "Guardar"}
@@ -426,7 +408,11 @@ const ActivityPage = () => {
 
       <SuccessDialog
         isOpen={successConfig.isOpen}
-        onClose={handleSuccessClose}
+        onClose={() => {
+          setSuccessConfig({ ...successConfig, isOpen: false });
+          setIsFormOpen(false);
+          fetchActivities();
+        }}
         title={successConfig.title}
         description={successConfig.desc}
       />

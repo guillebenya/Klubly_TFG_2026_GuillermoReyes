@@ -36,9 +36,8 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 }) => {
   const [loadingAction, setLoadingAction] = useState(false);
 
-  // Estados derivados del DTO
   const isFull = activity.registeredCount >= activity.capacity;
-  const isAlreadyRegistered = activity.userRegistered; // Coincidiendo con el booleano del Backend
+  const isAlreadyRegistered = activity.userRegistered;
 
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
@@ -77,18 +76,58 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     }
   };
 
+  const renderMemberActions = () => {
+    if (isAlreadyRegistered) {
+      return (
+        <Button
+          variant="delete"
+          size="sm"
+          className="whitespace-nowrap"
+          icon={<UserMinus size={18} />}
+          onClick={handleUnregister}
+          isLoading={loadingAction}
+        >
+          Desapuntarse
+        </Button>
+      );
+    }
+
+    if (isFull) {
+      return (
+        <Badge
+          variant="red"
+          textSize="mediano"
+          className="py-1 px-11 uppercase font-bold"
+        >
+          Lleno
+        </Badge>
+      );
+    }
+
+    return (
+      <Button
+        variant="add"
+        size="sm"
+        className="whitespace-nowrap px-5"
+        icon={<UserPlus size={18} />}
+        onClick={handleRegister}
+        isLoading={loadingAction}
+      >
+        Apuntarse
+      </Button>
+    );
+  };
+
   const isPast = new Date(activity.startDate) < new Date();
 
   return (
     <Card
       className={`flex flex-col lg:flex-row items-center w-full gap-4 !p-4 border-l-4 border-l-indigo-300 hover:border-indigo-600 transition-all ${activity.active ? "" : "opacity-65"} ${isPast ? "grayscale-[0.5] opacity-70 bg-gray-50" : ""}`}
     >
-      {/* 1. ICONO */}
       <div className="flex-shrink-0 p-3 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-100">
         <Calendar size={24} />
       </div>
 
-      {/* 2. NOMBRE */}
       <div className="flex-[2] min-w-0 w-full lg:w-auto">
         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
           Actividad
@@ -101,7 +140,6 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         </h3>
       </div>
 
-      {/* 3. FECHA */}
       <div className="flex-1 min-w-0 w-full lg:w-auto">
         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
           Fecha y Hora
@@ -114,7 +152,6 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         </div>
       </div>
 
-      {/* 4. UBICACIÓN */}
       <div className="flex-1 min-w-0 w-full lg:w-auto">
         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
           Ubicación
@@ -127,15 +164,14 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         </div>
       </div>
 
-      {/* 5. EQUIPOS */}
       <div className="flex-[1.2] min-w-0 w-full lg:w-auto">
         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
           Equipo/s
         </span>
         <div className="flex flex-wrap gap-1">
           {activity.teamNames.length > 0 ? (
-            activity.teamNames.map((team, idx) => (
-              <Badge key={idx} variant="indigo">
+            activity.teamNames.map((team) => (
+              <Badge key={team} variant="indigo">
                 {team}
               </Badge>
             ))
@@ -145,7 +181,6 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         </div>
       </div>
 
-      {/* 6. CUPO */}
       <div className="flex-[0.7] min-w-0 w-full lg:w-auto">
         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
           Inscritos
@@ -163,7 +198,6 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         </div>
       </div>
 
-      {/* 7. ESTADO */}
       <div className="flex-[0.7] min-w-0 w-full lg:w-auto">
         <span className="text-[10px] font-black text-gray-400 uppercase tracking-widest block mb-1">
           Estado
@@ -178,7 +212,6 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         </Badge>
       </div>
 
-      {/* 8. ACCIONES */}
       <div className="flex-shrink-0 flex items-center gap-2 w-full lg:w-auto justify-end">
         <div className="flex gap-1">
           <Button
@@ -199,6 +232,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           )}
           {onDelete && (
             <Button
+              aria-label="Eliminar"
               variant="ghost"
               size="sm"
               className="!text-red-600"
@@ -220,40 +254,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 
         {isMember && (
           <div className="ml-2 min-w-[130px] flex justify-end">
-            {isAlreadyRegistered ? (
-              /* CASO 1: YA INSCRITO -> Botón de Desapuntarse */
-              <Button
-                variant="delete"
-                size="sm"
-                className="whitespace-nowrap"
-                icon={<UserMinus size={18} />}
-                onClick={handleUnregister}
-                isLoading={loadingAction}
-              >
-                Desapuntarse
-              </Button>
-            ) : isFull ? (
-              /* CASO 2: NO INSCRITO Y LLENO -> Badge de Lleno */
-              <Badge
-                variant="red"
-                textSize="mediano"
-                className="py-1 px-11 uppercase font-bold"
-              >
-                Lleno
-              </Badge>
-            ) : (
-              /* CASO 3: NO INSCRITO Y CON CUPO -> Botón de Apuntarse */
-              <Button
-                variant="add"
-                size="sm"
-                className="whitespace-nowrap px-5"
-                icon={<UserPlus size={18} />}
-                onClick={handleRegister}
-                isLoading={loadingAction}
-              >
-                Apuntarse
-              </Button>
-            )}
+            {renderMemberActions()}
           </div>
         )}
       </div>

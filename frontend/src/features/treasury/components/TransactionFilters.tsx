@@ -1,5 +1,4 @@
-import React from "react";
-import { Calendar, DollarSign, Tag, CreditCard, RotateCcw, Euro } from "lucide-react";
+import { Calendar, Tag, CreditCard, RotateCcw, Euro } from "lucide-react";
 import Button from "../../../components/shared/Button";
 import { TransactionType, PaymentMethod } from "../services/treasury.service";
 

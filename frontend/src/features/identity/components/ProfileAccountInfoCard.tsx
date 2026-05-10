@@ -1,4 +1,3 @@
-import React from "react";
 import { AtSign, Mail } from "lucide-react";
 import Card from "../../../components/shared/Card";
 

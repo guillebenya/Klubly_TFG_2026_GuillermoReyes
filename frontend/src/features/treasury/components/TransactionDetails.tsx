@@ -1,18 +1,13 @@
-import React from "react";
 import {
   Calendar,
   User,
   Tag,
   CreditCard,
-  Clock,
-  History,
   Euro,
   Trash2,
   RefreshCcw,
   Shield,
   FileText,
-  ArrowUpRight,
-  ArrowDownLeft,
 } from "lucide-react";
 import {
   type Transaction,
@@ -21,60 +16,112 @@ import {
 import { authService } from "../../auth/services/auth.service";
 import Badge from "../../../components/shared/Badge";
 
+interface DetailItemProps {
+  icon: React.ElementType;
+  label: string;
+  value: string;
+  color?: string;
+}
+
+//Componentes extraidos para reducir la complejidad
+const DetailItem = ({
+  icon: Icon,
+  label,
+  value,
+  color = "text-gray-600",
+}: DetailItemProps) => (
+  <div className="flex flex-col gap-1 p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
+    <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
+      <Icon size={12} /> {label}
+    </div>
+    <div className={`text-sm font-bold ${color}`}>{value}</div>
+  </div>
+);
+
+const AuditBlock = ({
+  transaction,
+  formatDate,
+}: {
+  transaction: Transaction;
+  formatDate: (d?: string) => string;
+}) => (
+  <div className="space-y-4">
+    <div className="p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
+      <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 mb-2">
+        <User size={12} /> Socio vinculado
+      </label>
+      <p className="text-sm font-bold text-indigo-600 uppercase">
+        {transaction.userFullName || "Movimiento General del Club"}
+      </p>
+    </div>
+
+    <div
+      className={`p-4 bg-slate-900 rounded-2xl grid gap-4 ${transaction.deletedAt ? "grid-cols-1 sm:grid-cols-3" : "grid-cols-2"}`}
+    >
+      <div className="flex flex-col">
+        <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
+          <Calendar size={10} /> Registrado el
+        </span>
+        <span className="text-[11px] font-medium text-white mt-1">
+          {formatDate(transaction.createdAt)}
+        </span>
+      </div>
+
+      <div className="flex flex-col border-t border-slate-800 sm:border-t-0 sm:border-l sm:pl-4 pt-3 sm:pt-0">
+        <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
+          <RefreshCcw size={10} /> Último cambio
+        </span>
+        <span className="text-[11px] font-medium text-white mt-1">
+          {formatDate(transaction.updatedAt)}
+        </span>
+      </div>
+
+      {transaction.deletedAt && (
+        <div className="flex flex-col border-t border-slate-800 sm:border-t-0 sm:border-l sm:pl-4 pt-3 sm:pt-0">
+          <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
+            <Trash2 size={10} /> Eliminado el
+          </span>
+          <span className="text-[11px] font-medium text-red-400 mt-1">
+            {formatDate(transaction.deletedAt)}
+          </span>
+        </div>
+      )}
+    </div>
+  </div>
+);
+
+const formatDate = (dateString?: string) =>
+  dateString ? new Date(dateString).toLocaleString("es-ES") : "---";
+
+const buildMemberConfig = (isClubIncome: boolean) => ({
+  symbol: isClubIncome ? "-" : "+",
+  color: isClubIncome ? "text-rose-600" : "text-emerald-600", // Pago es rojo (sale), Reembolso es verde (entra)
+  headerBg: isClubIncome ? "bg-rose-600 shadow-rose-100" : "bg-emerald-600 shadow-emerald-100",
+  label: isClubIncome ? "Pago Realizado" : "Reembolso / Recibido",
+  badgeText: isClubIncome ? "GASTO" : "INGRESO",
+  regLabel: "Tipo de Transacción",
+  regValue: isClubIncome ? "PAGO REALIZADO" : "RECIBIDO / REEMBOLSO",
+  badgeVariant: isClubIncome ? ("red" as const) : ("green" as const),
+});
+
+const buildAdminConfig = (isClubIncome: boolean) => ({
+  symbol: isClubIncome ? "+" : "-",
+  color: isClubIncome ? "text-emerald-600" : "text-rose-600",
+  headerBg: isClubIncome ? "bg-emerald-600 shadow-emerald-100" : "bg-rose-600 shadow-rose-100",
+  label: "Importe",
+  badgeText: isClubIncome ? "INGRESO" : "GASTO",
+  regLabel: "Tipo de Transacción",
+  regValue: isClubIncome ? "INGRESO CLUB" : "GASTO CLUB",
+  badgeVariant: isClubIncome ? ("red" as const) : ("green" as const),
+});
+
+const buildConfig = (isAdmin: boolean, isClubIncome: boolean) =>
+  isAdmin ? buildAdminConfig(isClubIncome) : buildMemberConfig(isClubIncome);
+
 const TransactionDetails = ({ transaction }: { transaction: Transaction }) => {
   const isAdmin = authService.getCurrentUser()?.roleName === "ADMIN";
   const isClubIncome = transaction.type === TransactionType.INCOME;
-
-  // --- LÓGICA DE PERSPECTIVA TOTAL ---
-  const getVisualConfig = () => {
-    if (!isAdmin) {
-      // PERSPECTIVA SOCIO (MEMBER)
-      return {
-        symbol: isClubIncome ? "-" : "+",
-        color: isClubIncome ? "text-rose-600" : "text-emerald-600", // Pago es rojo (sale), Reembolso es verde (entra)
-        headerBg: isClubIncome
-          ? "bg-rose-600 shadow-rose-100"
-          : "bg-emerald-600 shadow-emerald-100",
-        label: isClubIncome ? "Pago Realizado" : "Reembolso / Recibido",
-        badgeText: isClubIncome ? "GASTO" : "INGRESO",
-        regLabel: "Tipo de Transacción",
-        regValue: isClubIncome ? "PAGO REALIZADO" : "RECIBIDO / REEMBOLSO",
-        badgeVariant: isClubIncome ? ("red" as const) : ("green" as const),
-      };
-    }
-    // PERSPECTIVA ADMINISTRADOR
-    return {
-      symbol: isClubIncome ? "+" : "-",
-      color: isClubIncome ? "text-emerald-600" : "text-rose-600",
-      headerBg: isClubIncome
-        ? "bg-emerald-600 shadow-emerald-100"
-        : "bg-rose-600 shadow-rose-100",
-      label: "Importe",
-      badgeText: isClubIncome ? "INGRESO" : "GASTO",
-      regLabel: "Tipo de Transacción",
-      regValue: isClubIncome ? "INGRESO CLUB" : "GASTO CLUB",
-      badgeVariant: isClubIncome ? ("red" as const) : ("green" as const),
-    };
-  };
-
-  const config = getVisualConfig();
-
-  const formatDate = (dateString?: string) =>
-    dateString ? new Date(dateString).toLocaleString("es-ES") : "---";
-
-  const DetailItem = ({
-    icon: Icon,
-    label,
-    value,
-    color = "text-gray-600",
-  }: any) => (
-    <div className="flex flex-col gap-1 p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
-      <div className="flex items-center gap-2 text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-1">
-        <Icon size={12} /> {label}
-      </div>
-      <div className={`text-sm font-bold ${color}`}>{value}</div>
-    </div>
-  );
+  const config = buildConfig(isAdmin, isClubIncome);
 
   return (
     <div className="space-y-6 max-h-[75vh] overflow-y-auto pr-2 custom-scrollbar">
@@ -138,53 +185,7 @@ const TransactionDetails = ({ transaction }: { transaction: Transaction }) => {
 
       {/* SECCIÓN DE GESTIÓN (Solo ADMIN) */}
       {isAdmin && (
-        <div className="space-y-4">
-          <div className="p-4 bg-white border border-gray-100 rounded-xl shadow-sm">
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-1.5 mb-2">
-              <User size={12} /> Socio vinculado
-            </label>
-            <p className="text-sm font-bold text-indigo-600 uppercase">
-              {transaction.userFullName || "Movimiento General del Club"}
-            </p>
-          </div>
-
-          <div
-            className={`p-4 bg-slate-900 rounded-2xl grid gap-4 ${
-              transaction.deletedAt
-                ? "grid-cols-1 sm:grid-cols-3"
-                : "grid-cols-2"
-            }`}
-          >
-            <div className="flex flex-col">
-              <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
-                <Calendar size={10} /> Registrado el
-              </span>
-              <span className="text-[11px] font-medium text-white mt-1">
-                {formatDate(transaction.createdAt)}
-              </span>
-            </div>
-
-            <div className="flex flex-col border-t border-slate-800 sm:border-t-0 sm:border-l sm:pl-4 pt-3 sm:pt-0">
-              <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
-                <RefreshCcw size={10} /> Último cambio
-              </span>
-              <span className="text-[11px] font-medium text-white mt-1">
-                {formatDate(transaction.updatedAt)}
-              </span>
-            </div>
-
-            {transaction.deletedAt && (
-              <div className="flex flex-col border-t border-slate-800 sm:border-t-0 sm:border-l sm:pl-4 pt-3 sm:pt-0">
-                <span className="text-[9px] font-bold text-slate-400 uppercase flex items-center gap-1">
-                  <Trash2 size={10} /> Eliminado el
-                </span>
-                <span className="text-[11px] font-medium text-red-400 mt-1">
-                  {formatDate(transaction.deletedAt)}
-                </span>
-              </div>
-            )}
-          </div>
-        </div>
+        <AuditBlock transaction={transaction} formatDate={formatDate} />
       )}
     </div>
   );

@@ -5,7 +5,6 @@ import com.klubly.core.exception.ResourceNotFoundException;
 import com.klubly.core.exception.UnauthorizedException;
 import com.klubly.modules.activities.dto.ActivityDTO;
 import com.klubly.modules.activities.entity.Activity;
-import com.klubly.modules.activities.entity.Registration;
 import com.klubly.modules.activities.repository.ActivityRepository;
 import com.klubly.modules.activities.repository.RegistrationRepository;
 import com.klubly.modules.identity.entity.Team;
@@ -14,13 +13,14 @@ import com.klubly.modules.identity.repository.TeamRepository;
 import com.klubly.modules.identity.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,28 +33,29 @@ public class ActivityService {
     private final UserRepository userRepository;
 
     private static final String ACT_NOT_FOUND = "Actividad no encontrada";
+    private static final String ADMIN_ROLE = "ADMIN";
 
    @Transactional(readOnly = true)
     public List<ActivityDTO> getActivitiesForCurrentUser() {
         User user = getCurrentUser(); 
         String role = user.getRole().getName();
 
-        if (role.equals("ADMIN")) {
+        if (role.equals(ADMIN_ROLE)) {
             return activityRepository.findByDeletedAtIsNullOrderByStartDateAsc()
                     .stream()
                     .map(a -> convertToDTO(a, user.getId())) 
-                    .collect(Collectors.toList());
+                    .toList();
         }
 
         // STAFF y MEMBER solo ven actividades de sus equipos o globales
         List<Long> teamIds = user.getAffiliations().stream()
                 .map(aff -> aff.getTeam().getId())
-                .collect(Collectors.toList());
+                .toList();
 
         return activityRepository.findByTeamIdsInOrGlobal(teamIds)
                 .stream()
                 .map(a -> convertToDTO(a, user.getId())) 
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -64,7 +65,7 @@ public class ActivityService {
         return activityRepository.findAllDeletedNative()
                 .stream()
                 .map(a -> convertToDTO(a, user.getId())) 
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -75,15 +76,15 @@ public class ActivityService {
         User user = getCurrentUser();
         String role = user.getRole().getName();
 
-        if (!role.equals("ADMIN")) {
+        if (!role.equals(ADMIN_ROLE)) {
             List<Long> activityTeamIds = activity.getTeams().stream()
                     .map(Team::getId)
-                    .collect(Collectors.toList());
+                    .toList();
 
             if (!activityTeamIds.isEmpty()) {
                 List<Long> userTeamIds = user.getAffiliations().stream()
                         .map(aff -> aff.getTeam().getId())
-                        .collect(Collectors.toList());
+                        .toList();
 
                 boolean isMemberOfTeam = activityTeamIds.stream()
                         .anyMatch(userTeamIds::contains);
@@ -156,10 +157,11 @@ public class ActivityService {
         log.info("Actividad '{}' y sus inscripciones han sido enviadas al historial de bajas", activity.getName());
     }
 
-    // --- MÉTODOS AUXILIARES ---
+    // MÉTODOS AUXILIARES
 
     private void validateDates(LocalDateTime start, LocalDateTime end) {
         if (start.isBefore(LocalDateTime.now()) && start.isAfter(LocalDateTime.now().minusMinutes(1))) {
+            throw new BadRequestException("La fecha de inicio no puede ser en el pasado");
         }
         if (end.isBefore(start)) {
             throw new BadRequestException("La fecha de fin no puede ser anterior a la de inicio");
@@ -173,7 +175,7 @@ public class ActivityService {
         entity.setEndDate(dto.getEndDate());
         entity.setCapacity(dto.getCapacity());
         entity.setLocation(dto.getLocation());
-        entity.setActive(dto.getActive() != null ? dto.getActive() : true);
+        entity.setActive(dto.getActive() == null || dto.getActive());
 
         // Vincular equipos
         if (dto.getTeamIds() != null) {
@@ -199,8 +201,8 @@ public class ActivityService {
         dto.setDeletedAt(a.getDeletedAt());
 
         // Mapeo de equipos
-    dto.setTeamIds(a.getTeams().stream().map(Team::getId).collect(Collectors.toList()));
-    dto.setTeamNames(a.getTeams().stream().map(Team::getName).collect(Collectors.toList()));
+    dto.setTeamIds(a.getTeams().stream().map(Team::getId).toList());
+    dto.setTeamNames(a.getTeams().stream().map(Team::getName).toList());
 
     // Cálculo de aforo
     dto.setRegisteredCount(registrationRepository.countByActivityIdAndDeletedAtIsNull(a.getId()));
@@ -217,20 +219,23 @@ public class ActivityService {
     }
 
     private User getCurrentUser() {
-        String username = SecurityContextHolder.getContext().getAuthentication().getName();
-        return userRepository.findByUsernameAndDeletedAtIsNull(username)
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UnauthorizedException("Usuario no autenticado");
+        }
+        return userRepository.findByUsernameAndDeletedAtIsNull(authentication.getName())
                 .orElseThrow(() -> new UnauthorizedException("Usuario no autenticado"));
     }
 
     private void checkAdminRole() {
-        if (!getCurrentUser().getRole().getName().equals("ADMIN")) {
+        if (!getCurrentUser().getRole().getName().equals(ADMIN_ROLE)) {
             throw new UnauthorizedException("Acceso denegado: Se requieren permisos de Administrador");
         }
     }
 
     private void checkStaffOrAdminRole() {
         String role = getCurrentUser().getRole().getName();
-        if (!role.equals("ADMIN") && !role.equals("STAFF")) {
+        if (!role.equals(ADMIN_ROLE) && !role.equals("STAFF")) {
             throw new UnauthorizedException("Acceso denegado: Solo Admin o Staff pueden gestionar actividades");
         }
     }

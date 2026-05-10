@@ -8,6 +8,123 @@ import CategoryCard from "./CategoryCard";
 import CategoryDetails from "./CategoryDetails";
 import { categoryService, type Category } from "../services/category.service";
 
+// Toggle button fuera de la función principal para reducir complejidad.
+const ActiveToggle = ({
+  active,
+  hasItems,
+  itemCount,
+  onChange,
+}: {
+  active: boolean;
+  hasItems: boolean | null;
+  itemCount: number;
+  onChange: () => void;
+}) => {
+  const handleClick = () => {
+    // REGLA: Si tiene ítems y está activa, bloqueamos el cambio a inactiva
+    if (hasItems && active) {
+      alert(
+        `No puedes desactivar esta categoría porque todavía tiene ${itemCount} productos vinculados. Primero debes mover esos productos a otra categoría o eliminarlos.`,
+      );
+      return;
+    }
+    onChange();
+  };
+
+  return (
+    <div className="flex flex-col gap-1 py-2 ml-1">
+      <div className="flex items-center gap-3">
+        <button
+          type="button"
+          role="switch"
+          aria-checked={active}
+          aria-label="Alternar estado de categoría"
+          onClick={handleClick}
+          className={`w-10 h-5 rounded-full relative transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 ${active ? "bg-indigo-600" : "bg-gray-300"} ${hasItems && active ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+        >
+          <div
+            className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-200 ${active ? "left-6" : "left-1"}`}
+          />
+        </button>
+        <span className="text-xs font-bold text-gray-700 uppercase tracking-tight">
+          {active ? "Categoría Activa" : "Categoría Inactiva"}
+        </span>
+      </div>
+      {/* Mensaje de aviso visual si hay ítems vinculados */}
+      {hasItems && active && (
+        <p className="text-[10px] text-amber-600 font-medium ml-1">
+          * No se puede desactivar: hay productos vinculados a esta categoría.
+        </p>
+      )}
+    </div>
+  );
+};
+
+//Header fuera de la función principal para reducir la complejidad.
+const SectionHeader = ({
+  isHistoryMode,
+  onToggleHistory,
+  onAddNew,
+}: {
+  isHistoryMode: boolean;
+  onToggleHistory: (val: boolean) => void;
+  onAddNew: () => void;
+}) => (
+  <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
+    <div className="flex items-center gap-3">
+      <div
+        className={`p-2 rounded-lg ${isHistoryMode ? "bg-amber-50 text-amber-600" : "bg-indigo-50 text-indigo-600"}`}
+      >
+        {isHistoryMode ? <History size={20} /> : <Tag size={20} />}
+      </div>
+      <div>
+        <h3 className="text-lg font-bold text-gray-800 uppercase tracking-tight">
+          {isHistoryMode
+            ? "Historial de Categorías"
+            : "Categorías de Inventario"}
+        </h3>
+        <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
+          {isHistoryMode
+            ? "Registros de categorías eliminadas"
+            : "Administra las categorías de los productos"}
+        </p>
+      </div>
+    </div>
+    <div className="flex items-center gap-2">
+      {isHistoryMode ? (
+        <Button
+          variant="secondary"
+          size="sm"
+          icon={<ArrowLeft size={18} />}
+          onClick={() => onToggleHistory(false)}
+        >
+          Volver a Activas
+        </Button>
+      ) : (
+        <>
+          <Button
+            variant="ghost"
+            size="sm"
+            icon={<History size={18} />}
+            className="!text-indigo-600 hover:!bg-indigo-50"
+            onClick={() => onToggleHistory(true)}
+          >
+            Ver Bajas
+          </Button>
+          <Button
+            variant="add"
+            size="sm"
+            icon={<Plus size={18} />}
+            onClick={onAddNew}
+          >
+            Añadir Categoría
+          </Button>
+        </>
+      )}
+    </div>
+  </div>
+);
+
 const CategoriesSection = () => {
   // --- ESTADOS DE DATOS ---
   const [categories, setCategories] = useState<Category[]>([]);
@@ -86,34 +203,42 @@ const CategoriesSection = () => {
     setConfirmConfig({ isOpen: true, type: "delete", data: id });
   };
 
-  const handleSaveTrigger = (e: React.FormEvent) => {
+  const handleSaveTrigger = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setConfirmConfig({ isOpen: true, type: "save", data: formData });
+  };
+
+  const executeSave = async () => {
+    if (selectedCategory) {
+      await categoryService.update(selectedCategory.id, confirmConfig.data);
+    } else {
+      await categoryService.create(confirmConfig.data);
+    }
+    setSuccessConfig({
+      isOpen: true,
+      title: "¡Configuración guardada!",
+      desc: "Los datos de la categoría se han actualizado en el sistema.",
+    });
+  };
+
+  const executeDelete = async () => {
+    await categoryService.delete(confirmConfig.data);
+    setSuccessConfig({
+      isOpen: true,
+      title: "Categoría eliminada",
+      desc: "La categoría ha sido enviada al historial de bajas correctamente.",
+    });
   };
 
   const executeAction = async () => {
     try {
       setFormLoading(true);
       if (confirmConfig.type === "delete") {
-        await categoryService.delete(confirmConfig.data);
-        setSuccessConfig({
-          isOpen: true,
-          title: "Categoría eliminada",
-          desc: "La categoría ha sido enviada al historial de bajas correctamente.",
-        });
+        await executeDelete();
       } else {
-        if (selectedCategory) {
-          await categoryService.update(selectedCategory.id, confirmConfig.data);
-        } else {
-          await categoryService.create(confirmConfig.data);
-        }
-        setSuccessConfig({
-          isOpen: true,
-          title: "¡Configuración guardada!",
-          desc: "Los datos de la categoría se han actualizado en el sistema.",
-        });
+        await executeSave();
       }
-      setConfirmConfig({ ...confirmConfig, isOpen: false });
+      setConfirmConfig((prev) => ({ ...prev, isOpen: false }));
     } catch (error) {
       console.error("Error en la operación:", error);
     } finally {
@@ -122,7 +247,7 @@ const CategoriesSection = () => {
   };
 
   const handleSuccessClose = () => {
-    setSuccessConfig({ ...successConfig, isOpen: false });
+    setSuccessConfig((prev) => ({ ...prev, isOpen: false }));
     setIsFormOpen(false);
     fetchCategories();
   };
@@ -132,60 +257,11 @@ const CategoriesSection = () => {
   return (
     <div className="space-y-6">
       {/* CABECERA DE SECCIÓN */}
-      <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
-        <div className="flex items-center gap-3">
-          <div
-            className={`p-2 rounded-lg ${isHistoryMode ? "bg-amber-50 text-amber-600" : "bg-indigo-50 text-indigo-600"}`}
-          >
-            {isHistoryMode ? <History size={20} /> : <Tag size={20} />}
-          </div>
-          <div>
-            <h3 className="text-lg font-bold text-gray-800 uppercase tracking-tight">
-              {isHistoryMode
-                ? "Historial de Categorías"
-                : "Categorías de Inventario"}
-            </h3>
-            <p className="text-[10px] text-gray-400 font-medium uppercase tracking-widest">
-              {isHistoryMode
-                ? "Registros de categorías eliminadas"
-                : "Administra las categorías de los productos"}
-            </p>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-2">
-          {isHistoryMode ? (
-            <Button
-              variant="secondary"
-              size="sm"
-              icon={<ArrowLeft size={18} />}
-              onClick={() => setIsHistoryMode(false)}
-            >
-              Volver a Activas
-            </Button>
-          ) : (
-            <>
-              <Button
-                variant="ghost"
-                size="sm"
-                icon={<History size={18} />}
-                className="!text-indigo-600 hover:!bg-indigo-50"
-                onClick={() => setIsHistoryMode(true)}
-              >
-                Ver Bajas
-              </Button>
-              <Button
-                variant="add"
-                size="sm"
-                icon={<Plus size={18} />}
-                onClick={handleAddNew}
-              >
-                Añadir Categoría
-              </Button>
-            </>
-          )}
-        </div>
-      </div>
+      <SectionHeader
+        isHistoryMode={isHistoryMode}
+        onToggleHistory={setIsHistoryMode}
+        onAddNew={handleAddNew}
+      />
 
       {/* LISTADO DE CARDS */}
       {loading ? (
@@ -235,10 +311,14 @@ const CategoriesSection = () => {
       >
         <form onSubmit={handleSaveTrigger} className="space-y-4">
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">
+            <label
+              htmlFor="name"
+              className="text-[10px] font-bold text-gray-400 uppercase ml-1"
+            >
               Nombre<span className="text-red-500">*</span>
             </label>
             <input
+              id="name"
               required
               value={formData.name}
               onChange={(e) =>
@@ -250,10 +330,14 @@ const CategoriesSection = () => {
           </div>
 
           <div className="space-y-1">
-            <label className="text-[10px] font-bold text-gray-400 uppercase ml-1">
+            <label
+              htmlFor="description"
+              className="text-[10px] font-bold text-gray-400 uppercase ml-1"
+            >
               Descripción
             </label>
             <textarea
+              id="description"
               value={formData.description}
               onChange={(e) =>
                 setFormData({ ...formData, description: e.target.value })
@@ -264,48 +348,14 @@ const CategoriesSection = () => {
           </div>
 
           {/* Toggle de Estado Activo */}
-          <div className="flex flex-col gap-1 py-2 ml-1">
-            <div className="flex items-center gap-3">
-              <div
-                onClick={() => {
-                  // REGLA: Si tiene ítems y está activa, bloqueamos el cambio a inactiva
-                  if (hasItems && formData.active) {
-                    alert(
-                      `No puedes desactivar esta categoría porque todavía tiene ${
-                        (selectedCategory as any).itemCount
-                      } productos vinculados. Primero debes mover esos productos a otra categoría o eliminarlos.`,
-                    );
-                    return;
-                  }
-                  setFormData({ ...formData, active: !formData.active });
-                }}
-                className={`w-10 h-5 rounded-full relative transition-colors duration-200 ${
-                  formData.active ? "bg-indigo-600" : "bg-gray-300"
-                } ${
-                  hasItems && formData.active
-                    ? "opacity-50 cursor-not-allowed"
-                    : "cursor-pointer"
-                }`}
-              >
-                <div
-                  className={`absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-200 ${
-                    formData.active ? "left-6" : "left-1"
-                  }`}
-                />
-              </div>
-              <span className="text-xs font-bold text-gray-700 uppercase tracking-tight">
-                {formData.active ? "Categoría Activa" : "Categoría Inactiva"}
-              </span>
-            </div>
-
-            {/* Mensaje de aviso visual si hay ítems vinculados */}
-            {hasItems && formData.active && (
-              <p className="text-[10px] text-amber-600 font-medium ml-1">
-                * No se puede desactivar: hay productos vinculados a esta
-                categoría.
-              </p>
-            )}
-          </div>
+          <ActiveToggle
+            active={formData.active}
+            hasItems={!!hasItems}
+            itemCount={(selectedCategory as any)?.itemCount ?? 0}
+            onChange={() =>
+              setFormData((prev) => ({ ...prev, active: !prev.active }))
+            }
+          />
 
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
             <Button
@@ -325,7 +375,7 @@ const CategoriesSection = () => {
       {/* DIÁLOGOS DE CONFIRMACIÓN Y ÉXITO */}
       <ConfirmDialog
         isOpen={confirmConfig.isOpen}
-        onClose={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}
+        onClose={() => setConfirmConfig((prev) => ({ ...prev, isOpen: false }))}
         onConfirm={executeAction}
         title="¿Confirmar acción?"
         description={

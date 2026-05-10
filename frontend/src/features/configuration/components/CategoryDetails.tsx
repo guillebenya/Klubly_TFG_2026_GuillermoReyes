@@ -1,10 +1,8 @@
-import React from "react";
 import { Tag, Calendar, Clock, Trash2, Info, Package } from "lucide-react";
 import Badge from "../../../components/shared/Badge";
-import { type Category } from "../services/category.service";
 
 interface CategoryDetailsProps {
-  category: any; // Usamos any para incluir el itemCount del DTO
+  category: any;
 }
 
 const CategoryDetails = ({ category }: CategoryDetailsProps) => {

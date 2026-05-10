@@ -26,19 +26,19 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) {
         return configuration.getAuthenticationManager();
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
             .cors(Customizer.withDefaults()) // Activa la configuración de WebConfig
             .csrf(csrf -> csrf.disable())    // Desactiva CSRF (necesario para APIs con JWT)
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll() // Login público
                 .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/users/username/**").authenticated()
-                .anyRequest().authenticated()                // Todo lo demás protegido
+                .anyRequest().authenticated()                // Lo demás protegido
             )
             // Le decimos a Spring que no guarde sesiones (Stateless)
             .sessionManagement(session -> session

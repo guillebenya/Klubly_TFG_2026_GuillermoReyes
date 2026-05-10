@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { ShieldCheck, Users2, Package, Settings } from "lucide-react";
+import { useState } from "react";
+import { ShieldCheck, Users2, Package } from "lucide-react";
 import PageHeader from "../../../components/shared/PageHeader";
 import RolesSection from "../components/RolesSection";
 import TeamsSection from "../components/TeamsSection";

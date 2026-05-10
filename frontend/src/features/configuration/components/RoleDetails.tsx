@@ -1,5 +1,3 @@
-// src/features/configuration/components/RoleDetails.tsx
-import React from "react";
 import {
   Calendar,
   Clock,

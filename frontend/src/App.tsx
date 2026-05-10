@@ -9,7 +9,7 @@ import TreasuryPage from "./features/treasury/pages/TreasuryPage";
 import MyPaymentsPage from "./features/treasury/pages/MyPaymentsPage";
 import ActivityPage from "./features/activities/pages/ActivityPage";
 import DashboardPage from "./features/dashboard/pages/DashboardPage";
-import UsersPage from "./features/identity/pages/UsersPage";
+import UsersPage from "./features/identity/pages/MembersPage";
 import RegisterPage from "./features/auth/pages/RegisterPage";
 
 function App() {

@@ -28,6 +28,124 @@ interface MemberFormProps {
   isRegistration?: boolean; // Prop para modo registro público
 }
 
+//Componentes fuera de MemberForm para reducir complejidad
+const PendingUserBanner = () => (
+  <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-3 mb-2">
+    <CheckCircle className="text-emerald-500 shrink-0" size={18} />
+    <p className="text-[11px] text-emerald-700 font-medium">
+      Este usuario ha solicitado unirse al club. Al guardar los cambios, se le
+      asignará el rol y cargo indicados y podrá acceder a la plataforma.
+    </p>
+  </div>
+);
+
+const SelfEditBanner = () => (
+  <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center gap-3 mb-2">
+    <AlertCircle className="text-amber-500 shrink-0" size={18} />
+    <p className="text-[11px] text-amber-700 font-medium">
+      Estás editando tu propio perfil. Por seguridad, no puedes modificar tu rol
+      ni desactivar tu cuenta.
+    </p>
+  </div>
+);
+
+const StaffOnlyFields = ({
+  isSelf,
+  loadingRoles,
+  roles,
+  formData,
+  onRoleChange,
+  onActiveToggle,
+}: {
+  isSelf: boolean | null;
+  loadingRoles: boolean;
+  roles: Role[];
+  formData: { roleId: number; active: boolean; clubPosition: string };
+  onRoleChange: (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => void;
+  onActiveToggle: () => void;
+}) => (
+  <>
+    <div className="space-y-1">
+      <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
+        Cargo Club{" "}
+        <span className="text-[10px] text-gray-400 font-medium italic leading-tight">
+          (Opcional)
+        </span>
+      </label>
+      <div className="relative">
+        <Tag className="absolute left-3 top-3 text-gray-400" size={18} />
+        <input
+          name="clubPosition"
+          value={formData.clubPosition}
+          onChange={onRoleChange}
+          className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm"
+          placeholder="Ej: Socio, Delegado..."
+        />
+      </div>
+    </div>
+
+    <div className="space-y-1">
+      <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
+        Rol {isSelf && "(Bloqueado)"}
+        <span className="text-red-500">*</span>
+      </label>
+      <div className="relative">
+        <Shield className="absolute left-3 top-3 text-gray-400" size={18} />
+        <select
+          name="roleId"
+          value={formData.roleId}
+          onChange={onRoleChange}
+          className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm appearance-none"
+          disabled={loadingRoles || !!isSelf}
+          required
+        >
+          {loadingRoles ? (
+            <option>Cargando roles...</option>
+          ) : (
+            roles.map((role) => (
+              <option key={role.id} value={role.id}>
+                {role.name.toUpperCase()}
+              </option>
+            ))
+          )}
+        </select>
+      </div>
+    </div>
+
+    <div className="flex items-start pt-7">
+      <button
+        type="button"
+        role="switch"
+        aria-checked={formData.active}
+        aria-label="Alternar estado del usuario"
+        onClick={onActiveToggle}
+        disabled={!!isSelf}
+        className={`flex items-center gap-3 select-none w-fit ${isSelf ? "opacity-50 cursor-not-allowed" : "cursor-pointer"}`}
+      >
+        <div
+          className={`w-10 h-5 flex items-center rounded-full p-1 transition-colors duration-300 ${formData.active ? "bg-indigo-600" : "bg-gray-300"}`}
+        >
+          <div
+            className={`bg-white w-3 h-3 rounded-full transform transition-transform duration-300 ${formData.active ? "translate-x-5" : "translate-x-0"}`}
+          />
+        </div>
+        <div className="flex flex-col text-left">
+          <span
+            className={`text-sm font-bold uppercase tracking-tight transition-colors ${formData.active ? "text-gray-700" : "text-gray-500"}`}
+          >
+            {formData.active ? "Usuario Activo" : "Usuario Inactivo"}
+          </span>
+          {isSelf && (
+            <span className="text-[10px] font-medium text-indigo-500 italic leading-none mt-0.5">
+              No puedes desactivar tu propia cuenta
+            </span>
+          )}
+        </div>
+      </button>
+    </div>
+  </>
+);
+
 const MemberForm = ({
   initialData,
   onSubmit,
@@ -42,10 +160,6 @@ const MemberForm = ({
   const [roles, setRoles] = useState<Role[]>([]);
   const [loadingRoles, setLoadingRoles] = useState(true);
 
-  const currentUser = authService.getCurrentUser();
-  const isSelf =
-    initialData && currentUser && initialData.id === currentUser.id;
-
   const [formData, setFormData] = useState({
     username: "",
     email: "",
@@ -56,9 +170,25 @@ const MemberForm = ({
     clubPosition: "",
     avatarURL: "",
     roleId: 3,
-    active: isRegistration ? false : true,
-    isPending: isRegistration ? true : false,
+    active: !isRegistration,
+    isPending: isRegistration,
   });
+
+  //Variables para reducir complejidad
+  const currentUser = authService.getCurrentUser();
+  const isSelf =
+    initialData && currentUser && initialData.id === currentUser.id;
+
+  const isInitialData = initialData ? "Guardar Cambios" : "Crear Miembro";
+  const submitLabel = isRegistration ? "Crear cuenta" : isInitialData;
+  const submitVariant = isRegistration || initialData ? "primary" : "add";
+
+  const isEditMode = !!initialData && !isRegistration;
+  const isNewOrRegistration = !initialData || isRegistration;
+  const passwordRequired = isNewOrRegistration;
+  const showEditHint = !!initialData && !isRegistration;
+  const confirmPasswordRequired =
+    formData.password.length > 0 || isNewOrRegistration;
 
   useEffect(() => {
     const fetchRoles = async () => {
@@ -86,34 +216,39 @@ const MemberForm = ({
     }
   }, [initialData]);
 
-  const handleChange = (
+  const parseInputValue = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
     const { name, value, type } = e.target;
-    const val =
-      type === "checkbox"
-        ? (e.target as HTMLInputElement).checked
-        : name === "roleId"
-          ? parseInt(value)
-          : value;
-    setFormData((prev) => ({ ...prev, [name]: val }));
-
-    if (name === "password") setPasswordError(false);
+    if (type === "checkbox") return (e.target as HTMLInputElement).checked;
+    if (name === "roleId") return Number.parseInt(value);
+    return value;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
+  ) => {
+    setFormData((prev) => ({ ...prev, [e.target.name]: parseInputValue(e) }));
+    if (e.target.name === "password") setPasswordError(false);
+  };
+
+  const isPasswordValid = () => {
+    const hasPassword = formData.password.length > 0;
+    const isNewUser = !initialData || isRegistration;
+    if (hasPassword || isNewUser) {
+      return formData.password === confirmPassword;
+    }
+    return true;
+  };
+
+  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Validación: Solo comprobamos si coinciden si el usuario ha escrito algo
     // o si es un registro/creación nueva (donde es obligatorio)
-    const hasPassword = formData.password.length > 0;
-    const isNewUser = !initialData || isRegistration;
-
-    if (hasPassword || isNewUser) {
-      if (formData.password !== confirmPassword) {
-        setPasswordError(true);
-        return;
-      }
+    if (!isPasswordValid()) {
+      setPasswordError(true);
+      return;
     }
 
     const submissionData = {
@@ -126,32 +261,15 @@ const MemberForm = ({
 
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
-      {isSelf && !isRegistration && (
-        <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center gap-3 mb-2">
-          <AlertCircle className="text-amber-500 shrink-0" size={18} />
-          <p className="text-[11px] text-amber-700 font-medium">
-            Estás editando tu propio perfil. Por seguridad, no puedes modificar
-            tu rol ni desactivar tu cuenta.
-          </p>
-        </div>
-      )}
+      {isSelf && !isRegistration && <SelfEditBanner />}
 
-      {initialData?.isPending && !isRegistration && (
-        <div className="bg-emerald-50 border border-emerald-200 rounded-xl p-3 flex items-center gap-3 mb-2">
-          <CheckCircle className="text-emerald-500 shrink-0" size={18} />
-          <p className="text-[11px] text-emerald-700 font-medium">
-            Este usuario ha solicitado unirse al club. Al guardar los cambios,
-            se le asignará el rol y cargo indicados y podrá acceder a la
-            plataforma.
-          </p>
-        </div>
-      )}
+      {initialData?.isPending && !isRegistration && <PendingUserBanner />}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
+          <span className="text-[11px] font-bold text-gray-500 uppercase ml-1">
             Username<span className="text-red-500">*</span>
-          </label>
+          </span>
           <div className="relative">
             <User className="absolute left-3 top-3 text-gray-400" size={18} />
             <input
@@ -166,12 +284,16 @@ const MemberForm = ({
         </div>
 
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
+          <label
+            htmlFor="email"
+            className="text-[11px] font-bold text-gray-500 uppercase ml-1"
+          >
             Email<span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <Mail className="absolute left-3 top-3 text-gray-400" size={18} />
             <input
+              id="email"
               name="email"
               type="email"
               value={formData.email}
@@ -184,10 +306,14 @@ const MemberForm = ({
         </div>
 
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
+          <label
+            htmlFor="firstName"
+            className="text-[11px] font-bold text-gray-500 uppercase ml-1"
+          >
             Nombre<span className="text-red-500">*</span>
           </label>
           <input
+            id="firstName"
             name="firstName"
             value={formData.firstName}
             onChange={handleChange}
@@ -197,10 +323,14 @@ const MemberForm = ({
         </div>
 
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
+          <label
+            htmlFor="lastName"
+            className="text-[11px] font-bold text-gray-500 uppercase ml-1"
+          >
             Apellidos<span className="text-red-500">*</span>
           </label>
           <input
+            id="lastName"
             name="lastName"
             value={formData.lastName}
             onChange={handleChange}
@@ -213,11 +343,9 @@ const MemberForm = ({
           <div className="flex flex-col ml-1">
             <label className="text-[11px] font-bold text-gray-500">
               Contraseña{" "}
-              {(!initialData || isRegistration) && (
-                <span className="text-red-500">*</span>
-              )}
+              {isNewOrRegistration && <span className="text-red-500">*</span>}
             </label>
-            {initialData && !isRegistration && (
+            {showEditHint && (
               <span className="text-[10px] text-gray-400 font-medium italic leading-tight">
                 Dejar en blanco para no modificar
               </span>
@@ -231,8 +359,8 @@ const MemberForm = ({
               value={formData.password}
               onChange={handleChange}
               className={`w-full pl-10 pr-12 py-2.5 bg-gray-50 border ${passwordError ? "border-red-500" : "border-gray-200"} rounded-xl focus:ring-2 outline-none text-sm`}
-              required={!initialData || isRegistration}
-              placeholder={initialData ? "••••••••" : "Mínimo 6 caracteres"}
+              required={passwordRequired}
+              placeholder={isEditMode ? "••••••••" : "Mínimo 6 caracteres"}
             />
           </div>
         </div>
@@ -242,13 +370,11 @@ const MemberForm = ({
           <div className="flex flex-col ml-1">
             <label className="text-[11px] font-bold text-gray-500">
               Repetir Contraseña
-              {(!initialData || isRegistration) && (
-                <span className="text-red-500 ml-0.5">*</span>
-              )}
+              {isNewOrRegistration && <span className="text-red-500">*</span>}
             </label>
 
             {/* Mensaje de ayuda debajo (solo en edición) */}
-            {initialData && !isRegistration && (
+            {showEditHint && (
               <span className="text-[10px] text-gray-400 font-medium italic leading-tight">
                 Dejar en blanco para no modificar
               </span>
@@ -267,10 +393,8 @@ const MemberForm = ({
               className={`w-full pl-10 pr-12 py-2.5 bg-gray-50 border ${
                 passwordError ? "border-red-500" : "border-gray-200"
               } rounded-xl focus:ring-2 outline-none text-sm`}
-              required={
-                formData.password.length > 0 || !initialData || isRegistration
-              }
-              placeholder={initialData ? "••••••••" : "Repite la contraseña"}
+              required={confirmPasswordRequired}
+              placeholder={isEditMode ? "••••••••" : "Repite la contraseña"}
             />
             <button
               type="button"
@@ -290,9 +414,10 @@ const MemberForm = ({
 
         <div className="space-y-1">
           <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
-            Teléfono <span className="text-[10px] text-gray-400 font-medium italic leading-tight">
-                (Opcional)
-              </span>
+            Teléfono{" "}
+            <span className="text-[10px] text-gray-400 font-medium italic leading-tight">
+              (Opcional)
+            </span>
           </label>
           <div className="relative">
             <Phone className="absolute left-3 top-3 text-gray-400" size={18} />
@@ -305,31 +430,12 @@ const MemberForm = ({
           </div>
         </div>
 
-        {!isRegistration && (
-          <div className="space-y-1">
-            <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
-              Cargo Club <span className="text-[10px] text-gray-400 font-medium italic leading-tight">
-                (Opcional)
-              </span>
-            </label>
-            <div className="relative">
-              <Tag className="absolute left-3 top-3 text-gray-400" size={18} />
-              <input
-                name="clubPosition"
-                value={formData.clubPosition}
-                onChange={handleChange}
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm"
-                placeholder="Ej: Socio, Delegado..."
-              />
-            </div>
-          </div>
-        )}
-
-        <div className="space-y-1 md:col-span-2">
+        <div className="space-y-1 md:col-span-1">
           <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
-            URL Avatar (String) <span className="text-[10px] text-gray-400 font-medium italic leading-tight">
-                (Opcional)
-              </span>
+            URL Avatar (String){" "}
+            <span className="text-[10px] text-gray-400 font-medium italic leading-tight">
+              (Opcional)
+            </span>
           </label>
           <div className="relative">
             <Link className="absolute left-3 top-3 text-gray-400" size={18} />
@@ -344,78 +450,16 @@ const MemberForm = ({
         </div>
 
         {!isRegistration && (
-          <div className="space-y-1">
-            <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
-              Rol {isSelf && "(Bloqueado)"}
-              <span className="text-red-500">*</span>
-            </label>
-            <div className="relative">
-              <Shield
-                className="absolute left-3 top-3 text-gray-400"
-                size={18}
-              />
-              <select
-                name="roleId"
-                value={formData.roleId}
-                onChange={handleChange}
-                className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm appearance-none"
-                disabled={loadingRoles || isSelf}
-                required
-              >
-                {loadingRoles ? (
-                  <option>Cargando roles...</option>
-                ) : (
-                  roles.map((role) => (
-                    <option key={role.id} value={role.id}>
-                      {role.name.toUpperCase()}
-                    </option>
-                  ))
-                )}
-              </select>
-            </div>
-          </div>
-        )}
-
-        {!isRegistration && (
-          <div className="flex items-start pt-7">
-            <div
-              onClick={() => {
-                if (isSelf) return;
-                setFormData({ ...formData, active: !formData.active });
-              }}
-              className={`flex items-center gap-3 select-none w-fit ${
-                isSelf ? "opacity-50 cursor-not-allowed" : "cursor-pointer"
-              }`}
-            >
-              <div
-                className={`w-10 h-5 flex items-center rounded-full p-1 transition-colors duration-300 ${
-                  formData.active ? "bg-indigo-600" : "bg-gray-300"
-                }`}
-              >
-                <div
-                  className={`bg-white w-3 h-3 rounded-full transform transition-transform duration-300 ${
-                    formData.active ? "translate-x-5" : "translate-x-0"
-                  }`}
-                />
-              </div>
-
-              <div className="flex flex-col">
-                <span
-                  className={`text-sm font-bold uppercase tracking-tight transition-colors ${
-                    formData.active ? "text-gray-700" : "text-gray-500"
-                  }`}
-                >
-                  {formData.active ? "Usuario Activo" : "Usuario Inactivo"}
-                </span>
-
-                {isSelf && (
-                  <span className="text-[10px] font-medium text-indigo-500 italic leading-none mt-0.5">
-                    No puedes desactivar tu propia cuenta
-                  </span>
-                )}
-              </div>
-            </div>
-          </div>
+          <StaffOnlyFields
+            isSelf={isSelf}
+            loadingRoles={loadingRoles}
+            roles={roles}
+            formData={formData}
+            onRoleChange={handleChange}
+            onActiveToggle={() => {
+              if (!isSelf) setFormData((prev) => ({ ...prev, active: !prev.active }));
+            }}
+          />
         )}
       </div>
 
@@ -429,16 +473,8 @@ const MemberForm = ({
         >
           {isRegistration ? "Volver al Login" : "Cancelar"}
         </Button>
-        <Button
-          type="submit"
-          variant={isRegistration ? "primary" : initialData ? "primary" : "add"}
-          isLoading={loading}
-        >
-          {isRegistration
-            ? "Crear cuenta"
-            : initialData
-              ? "Guardar Cambios"
-              : "Crear Miembro"}
+        <Button type="submit" variant={submitVariant} isLoading={loading}>
+          {submitLabel}
         </Button>
       </div>
     </form>

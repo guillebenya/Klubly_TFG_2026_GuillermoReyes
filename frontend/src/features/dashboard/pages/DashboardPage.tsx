@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Users,
@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   Scale,
   Settings,
+  Loader2,
 } from "lucide-react";
 
 // Componentes Compartidos
@@ -56,8 +57,7 @@ const DashboardPage = () => {
 
       // Añadimos llamadas específicas según el rol
       if (isAdmin) {
-        promises.push(treasuryService.getGlobalSummary());
-        promises.push(itemService.getAll());
+        promises.push(treasuryService.getGlobalSummary(), itemService.getAll());
       } else if (isStaff) {
         promises.push(itemService.getAll());
       } else if (isMember) {
@@ -105,7 +105,7 @@ const DashboardPage = () => {
       });
 
       const upcomingActivitiesCount = activitiesResp.data.filter(
-        (a: any) => new Date(a.startDate) > new Date()
+        (a: any) => new Date(a.startDate) > new Date(),
       ).length;
 
       setStats({
@@ -132,6 +132,7 @@ const DashboardPage = () => {
     if (isAdmin) {
       return [
         {
+          order: 1,
           title: "Gestión de Usuarios",
           icon: <UserPlus size={24} />,
           path: "/usuarios",
@@ -139,6 +140,7 @@ const DashboardPage = () => {
           desc: "Altas, bajas y edición",
         },
         {
+          order: 2,
           title: "Estado de Caja",
           icon: <TrendingUp size={24} />,
           path: "/tesoreria",
@@ -146,6 +148,7 @@ const DashboardPage = () => {
           desc: "Ingresos y gastos",
         },
         {
+          order: 3,
           title: "Control de Inventario",
           icon: <Package size={24} />,
           path: "/inventario",
@@ -153,6 +156,7 @@ const DashboardPage = () => {
           desc: "Stock y materiales",
         },
         {
+          order: 4,
           title: "Actividades",
           icon: <Calendar size={24} />,
           path: "/actividades",
@@ -160,6 +164,7 @@ const DashboardPage = () => {
           desc: "Organizar eventos",
         },
         {
+          order: 5,
           title: "Configuración",
           icon: <Settings size={24} />,
           path: "/configuracion",
@@ -171,6 +176,7 @@ const DashboardPage = () => {
     if (isStaff) {
       return [
         {
+          order: 1,
           title: "Ver Usuarios",
           icon: <Users size={24} />,
           path: "/usuarios",
@@ -178,6 +184,7 @@ const DashboardPage = () => {
           desc: "Jugadores de mis equipos",
         },
         {
+          order: 2,
           title: "Inventario",
           icon: <Package size={24} />,
           path: "/inventario",
@@ -185,6 +192,7 @@ const DashboardPage = () => {
           desc: "Consultar material",
         },
         {
+          order: 3,
           title: "Actividades",
           icon: <ClipboardList size={24} />,
           path: "/actividades",
@@ -192,6 +200,7 @@ const DashboardPage = () => {
           desc: "Próximos eventos",
         },
         {
+          order: 4,
           title: "Mi Perfil",
           icon: <UserCircle size={24} />,
           path: "/mi-perfil",
@@ -202,6 +211,7 @@ const DashboardPage = () => {
     }
     return [
       {
+        order: 1,
         title: "Próximas Actividades",
         icon: <Calendar size={24} />,
         path: "/actividades",
@@ -209,6 +219,7 @@ const DashboardPage = () => {
         desc: "Ver próximos eventos",
       },
       {
+        order: 2,
         title: "Mis Pagos",
         icon: <Wallet size={24} />,
         path: "/mis-pagos",
@@ -216,6 +227,7 @@ const DashboardPage = () => {
         desc: "Recibos y cuotas",
       },
       {
+        order: 3,
         title: "Mi Perfil",
         icon: <UserCircle size={24} />,
         path: "/mi-perfil",
@@ -224,6 +236,14 @@ const DashboardPage = () => {
       },
     ];
   };
+
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center py-20">
+        <Loader2 className="animate-spin text-indigo-600" size={32} />
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-10 pb-10">
@@ -293,9 +313,9 @@ const DashboardPage = () => {
         <div
           className={`grid grid-cols-1 sm:grid-cols-2 ${isAdmin || isStaff ? "lg:grid-cols-4" : "lg:grid-cols-3"} gap-4`}
         >
-          {getQuickActions().map((action, idx) => (
+          {getQuickActions().map((action) => (
             <button
-              key={idx}
+              key={action.order}
               onClick={() => navigate(action.path)}
               className="group relative flex flex-col gap-4 p-6 bg-white rounded-2xl border-2 border-gray-50 hover:border-indigo-500 hover:shadow-xl transition-all text-left overflow-hidden"
             >

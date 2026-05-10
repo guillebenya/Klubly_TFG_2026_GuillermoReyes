@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Loader2,
   CreditCard,
@@ -87,10 +87,10 @@ const MyPaymentsPage = () => {
       transDate <= new Date(activeFilters.dateEnd).getTime();
     const matchesMinAmount =
       !activeFilters.minAmount ||
-      t.amount >= parseFloat(activeFilters.minAmount);
+      t.amount >= Number.parseFloat(activeFilters.minAmount);
     const matchesMaxAmount =
       !activeFilters.maxAmount ||
-      t.amount <= parseFloat(activeFilters.maxAmount);
+      t.amount <= Number.parseFloat(activeFilters.maxAmount);
 
     return (
       matchesSearch &&

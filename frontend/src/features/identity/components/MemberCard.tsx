@@ -1,4 +1,3 @@
-import React from "react";
 import {
   User as UserIcon,
   Mail,
@@ -17,6 +16,42 @@ import Badge from "../../../components/shared/Badge";
 import Button from "../../../components/shared/Button";
 import { authService } from "../../auth/services/auth.service";
 
+//Componente extraido de MemberCard para reducir complejidad
+const getRoleIcon = (role: string) => {
+  switch (role?.toUpperCase()) {
+    case "ADMIN":
+      return <ShieldCheck size={10} />;
+    case "STAFF":
+      return <ClipboardList size={10} />;
+    default:
+      return <UserIcon size={10} />;
+  }
+};
+
+const MemberStatusBadge = ({
+  isPending,
+  active,
+}: {
+  isPending: boolean;
+  active: boolean;
+}) => {
+  if (isPending) {
+    return (
+      <Badge variant="amber" icon={<Clock size={10} />}>
+        PENDIENTE
+      </Badge>
+    );
+  }
+  return (
+    <Badge
+      variant={active ? "green" : "red"}
+      icon={active ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
+    >
+      {active ? "ACTIVO" : "INACTIVO"}
+    </Badge>
+  );
+};
+
 interface MemberCardProps {
   member: any;
   onView: (member: any) => void;
@@ -34,29 +69,26 @@ const MemberCard = ({
   isStaffView = false,
   commonTeamsCount = 0,
 }: MemberCardProps) => {
-  const getRoleIcon = (role: string) => {
-    switch (role?.toUpperCase()) {
-      case "ADMIN":
-        return <ShieldCheck size={10} />;
-      case "STAFF":
-        return <ClipboardList size={10} />;
-      default:
-        return <UserIcon size={10} />;
-    }
-  };
-
   const currentUser = authService.getCurrentUser();
   const isAdmin = currentUser?.roleName === "ADMIN";
   const isSelf = currentUser && member.id === currentUser.id;
+  const teamCount = isStaffView
+    ? commonTeamsCount
+    : (member.affiliations?.length ?? 0);
+  const teamLabel = teamCount === 1 ? "EQUIPO" : "EQUIPOS";
 
   // Lógica de colores dinámica según estado
   const getBorderColor = () => {
     if (member.isPending) return "border-l-amber-400 bg-amber-50/30";
-    return member.active ? "border-l-indigo-300" : "border-l-red-300 opacity-65";
+    return member.active
+      ? "border-l-indigo-300"
+      : "border-l-red-300 opacity-65";
   };
 
   return (
-    <Card className={`flex items-center gap-4 py-3 px-6 border-l-4 transition-all shadow-sm hover:shadow-md ${getBorderColor()}`}>
+    <Card
+      className={`flex items-center gap-4 py-3 px-6 border-l-4 transition-all shadow-sm hover:shadow-md ${getBorderColor()}`}
+    >
       {/* Avatar */}
       <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border border-indigo-50 shrink-0">
         {member.avatarURL ? (
@@ -108,25 +140,15 @@ const MemberCard = ({
           </Badge>
         </div>
 
-        {/* Estado Mejorado: Ahora diferencia pendientes de inactivos */}
+        {/* Estado */}
         <div className="hidden sm:flex flex-col items-start min-w-[110px]">
           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
             Estado
           </span>
-          {member.isPending ? (
-            <Badge variant="amber" icon={<Clock size={10} />}>
-              PENDIENTE
-            </Badge>
-          ) : (
-            <Badge
-              variant={member.active ? "green" : "red"}
-              icon={
-                member.active ? <CheckCircle2 size={10} /> : <XCircle size={10} />
-              }
-            >
-              {member.active ? "ACTIVO" : "INACTIVO"}
-            </Badge>
-          )}
+          <MemberStatusBadge
+            isPending={member.isPending}
+            active={member.active}
+          />
         </div>
 
         {/* Cargo Club */}
@@ -134,8 +156,10 @@ const MemberCard = ({
           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
             Cargo Institucional
           </span>
-          <p className={`text-xs font-semibold truncate ${member.isPending ? "text-amber-600 italic" : "text-gray-600"}`}>
-            {member.isPending ? "Por asignar" : (member.clubPosition || "Socio")}
+          <p
+            className={`text-xs font-semibold truncate ${member.isPending ? "text-amber-600 italic" : "text-gray-600"}`}
+          >
+            {member.isPending ? "Por asignar" : member.clubPosition || "Socio"}
           </p>
         </div>
 
@@ -145,17 +169,11 @@ const MemberCard = ({
             {isStaffView ? "Equipos en común" : "Nº Equipos"}
           </span>
           <div className="flex items-center gap-1.5">
-            {((isStaffView ? commonTeamsCount : member.affiliations?.length) ||
-              0) > 0 ? (
+            {teamCount > 0 ? (
               <div className="flex items-center gap-1 px-2 py-0.5 bg-indigo-50 text-indigo-700 border border-indigo-100 rounded-full">
                 <Users size={10} className="text-indigo-500" />
                 <span className="text-[10px] font-black">
-                  {isStaffView ? commonTeamsCount : member.affiliations.length}{" "}
-                  {(isStaffView
-                    ? commonTeamsCount
-                    : member.affiliations.length) === 1
-                    ? "EQUIPO"
-                    : "EQUIPOS"}
+                  {teamCount} {teamLabel}
                 </span>
               </div>
             ) : (
@@ -186,7 +204,11 @@ const MemberCard = ({
             icon={<Edit2 size={16} />}
             onClick={() => onEdit(member)}
             className={`!text-amber-500 hover:!bg-amber-50 ${member.isPending ? "animate-pulse" : ""}`}
-            title={member.isPending ? "Aprobar y configurar miembro" : "Editar miembro"}
+            title={
+              member.isPending
+                ? "Aprobar y configurar miembro"
+                : "Editar miembro"
+            }
           />
         )}
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Plus,
   Filter,
@@ -127,6 +127,11 @@ const InventoryPage = () => {
     setConfirmConfig({ isOpen: true, type: "save", data: formData });
   };
 
+  const getDeleteHandler = () => {
+    if (isHistoryMode || !isAdmin) return undefined;
+    return handleDeleteTrigger;
+  };
+
   const executeAction = async () => {
     try {
       setFormLoading(true);
@@ -152,6 +157,7 @@ const InventoryPage = () => {
       }
       setConfirmConfig({ ...confirmConfig, isOpen: false });
     } catch (error) {
+      console.error("Error al ejecutar la acción:", error);
       alert("Error al procesar la solicitud.");
     } finally {
       setFormLoading(false);
@@ -181,14 +187,14 @@ const InventoryPage = () => {
 
     if (isHistoryMode) return matchesSearch && matchesCategory;
 
-    if (!isAdmin) {
-      if (!m.active) return false;
-    } else {
+    if (isAdmin) {
       if (
         activeFilters.status.length > 0 &&
         !activeFilters.status.includes(m.active)
       )
         return false;
+    } else if (!m.active) {
+      return false;
     }
 
     return matchesSearch && matchesCategory && matchesStock;
@@ -298,13 +304,7 @@ const InventoryPage = () => {
                 item={item}
                 onView={handleView}
                 onEdit={isHistoryMode ? undefined : handleEdit}
-                onDelete={
-                  isHistoryMode
-                    ? undefined
-                    : isAdmin
-                      ? handleDeleteTrigger
-                      : undefined
-                }
+                onDelete={getDeleteHandler()}
               />
             ))
           ) : (

@@ -1,8 +1,8 @@
 package com.klubly.modules.identity.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +34,7 @@ public class AffiliationService {
         return affiliationRepository.findByDeletedAtIsNull()
                 .stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     //Obtener afiliación por id
@@ -49,7 +49,7 @@ public class AffiliationService {
         return affiliationRepository.findByUserIdAndDeletedAtIsNull(userId)
                 .stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     //Obtener afiliaciones por equipo
@@ -57,7 +57,7 @@ public class AffiliationService {
         return affiliationRepository.findByTeamIdAndDeletedAtIsNull(teamId)
                 .stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
     
     //Crear Afiliación
@@ -89,7 +89,7 @@ public class AffiliationService {
         checkAdminRole();
         Affiliation affiliation = affiliationRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException(AFFILIATION_NOT_FOUND_MSG));
-        affiliation.setTeamPosition(affiliationDTO.getTeamPosition()); // Actualizar solo la posición específica en el equipo
+        affiliation.setTeamPosition(affiliationDTO.getTeamPosition());
         Affiliation updatedAffiliation = affiliationRepository.save(affiliation);
         return convertToDTO(updatedAffiliation);
     }
@@ -125,12 +125,15 @@ public class AffiliationService {
 
     //Métodos auxiliares
     private String getContextRole() {
-        return SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                .iterator().next().getAuthority();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UnauthorizedException("Usuario no autenticado");
+        }
+        return authentication.getAuthorities().iterator().next().getAuthority();
     }
 
     private void checkAdminRole() {
-        if (!getContextRole().equals("ROLE_ADMIN")) {
+        if (!"ROLE_ADMIN".equals(getContextRole())) {
             throw new UnauthorizedException("Acceso denegado: Se requieren permisos de administrador");
         }
     }

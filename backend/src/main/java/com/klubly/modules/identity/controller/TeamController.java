@@ -1,7 +1,6 @@
 package com.klubly.modules.identity.controller;
 
 import com.klubly.modules.identity.dto.TeamDTO;
-import com.klubly.modules.identity.dto.UserDTO;
 import com.klubly.modules.identity.service.TeamService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

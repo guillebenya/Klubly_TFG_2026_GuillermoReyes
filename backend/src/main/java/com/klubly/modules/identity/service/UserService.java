@@ -2,8 +2,8 @@ package com.klubly.modules.identity.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -38,7 +38,7 @@ public class UserService {
         return userRepository.findByDeletedAtIsNull()
                 .stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
     
     @Transactional(readOnly = true)
@@ -46,7 +46,7 @@ public class UserService {
         return userRepository.findByDeletedAtIsNotNull()
                 .stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -66,7 +66,7 @@ public class UserService {
     public List<UserDTO> getUsersByTeam(Long teamId) {
     return userRepository.findByTeamId(teamId).stream()
             .map(this::convertToDTO)
-            .collect(Collectors.toList());
+            .toList();
 }
 
     @Transactional
@@ -91,10 +91,10 @@ public class UserService {
         user.setPhone(userDTO.getPhone());
         user.setClubPosition(userDTO.getClubPosition());
         user.setAvatarURL(userDTO.getAvatarURL());
-        user.setActive(userDTO.getActive() != null ? userDTO.getActive() : true);
+        user.setActive(userDTO.getActive() == null || userDTO.getActive());
         
         // Al crear desde Admin, el usuario no nace como pendiente
-        user.setIsPending(userDTO.getIsPending() != null ? userDTO.getIsPending() : false);
+        user.setIsPending(userDTO.getIsPending() != null && userDTO.getIsPending());
         
         user.setRole(role);
 
@@ -104,11 +104,8 @@ public class UserService {
     }
     
     @Transactional
-    public UserDTO updateUser(Long id, UserDTO userDTO){
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
-        User actor = userRepository.findByUsernameAndDeletedAtIsNull(currentUsername)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario autenticado no encontrado"));
-
+    public UserDTO updateUser(Long id, UserDTO userDTO) {
+        User actor = getAuthenticatedUser();
         boolean isAdmin = actor.getRole().getName().equals("ADMIN");
         boolean isOwner = actor.getId().equals(id);
 
@@ -120,61 +117,22 @@ public class UserService {
                 .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_MSG));
 
         if (isAdmin) {
-            if (!user.getUsername().equals(userDTO.getUsername())) {
-                if (userRepository.existsByUsernameAndDeletedAtIsNull(userDTO.getUsername())) {
-                    throw new BadRequestException("El nombre de usuario ya existe");
-                }
-                user.setUsername(userDTO.getUsername());
-            }
-            
-            if (!user.getEmail().equals(userDTO.getEmail())) {
-                if (userRepository.existsByEmailAndDeletedAtIsNull(userDTO.getEmail())) {
-                    throw new BadRequestException("El correo electrónico ya existe");
-                }
-                user.setEmail(userDTO.getEmail());
-            }
-
-            if (userDTO.getRoleId() != null && !user.getRole().getId().equals(userDTO.getRoleId())) {
-                if (isOwner) {
-                    throw new BadRequestException("Por seguridad, no puedes cambiar tu propio rol de Administrador");
-                }
-                Role role = roleRepository.findByIdAndDeletedAtIsNull(userDTO.getRoleId())
-                        .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado"));
-                user.setRole(role);
-            }
-
-            user.setClubPosition(userDTO.getClubPosition());
-
-            if (userDTO.getActive() != null) {
-                if (isOwner && !userDTO.getActive()) {
-                    throw new BadRequestException("No puedes desactivar tu propia cuenta de Administrador");
-                }
-                user.setActive(userDTO.getActive());
-            }
-
-            // Permite al Admin gestionar el estado de pendiente (Aprobar usuario)
-            if (userDTO.getIsPending() != null) {
-                user.setIsPending(userDTO.getIsPending());
-            }
+            updateAdminRestrictedFields(user, userDTO, isOwner);
         }
 
-        user.setFirstName(userDTO.getFirstName());
-        user.setLastName(userDTO.getLastName());
-        user.setPhone(userDTO.getPhone());
-        user.setAvatarURL(userDTO.getAvatarURL());
+        updateBasicFields(user, userDTO);
 
-        if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
-            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
-        }
-
-        User updatedUser = userRepository.save(user);
-        return convertToDTO(updatedUser);
+        return convertToDTO(userRepository.save(user));
     }
     
     @Transactional
     public void deleteUser(Long id){
         checkAdminRole();
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UnauthorizedException("Usuario no autenticado");
+        }
+        String currentUsername = authentication.getName();
         User actor = userRepository.findByUsernameAndDeletedAtIsNull(currentUsername)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario autenticado no encontrado"));
 
@@ -196,7 +154,7 @@ public class UserService {
                                     .getContext().getAuthentication().getName();
 
         User user = userRepository.findByUsernameAndDeletedAtIsNull(currentUsername)
-                .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
+                .orElseThrow(() -> new ResourceNotFoundException(USER_NOT_FOUND_MSG));
 
         if (!passwordEncoder.matches(request.currentPassword(), user.getPassword())) {
             throw new BadRequestException("La contraseña actual no es correcta");
@@ -211,6 +169,8 @@ public class UserService {
         
         log.info("Usuario {} ha cambiado su contraseña", currentUsername);
     }
+
+    // Métodos auxiliares
 
     private UserDTO convertToDTO(User user) {
         UserDTO dto = new UserDTO();
@@ -243,19 +203,82 @@ public class UserService {
                     affDto.setTeamPosition(aff.getTeamPosition());
                     return affDto;
                 })
-                .collect(Collectors.toList()));
+                .toList());
         }
         return dto;
     }
 
     private String getContextRole() {
-        return SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                .iterator().next().getAuthority();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UnauthorizedException("Usuario no autenticado");
+        }
+        return authentication.getAuthorities().iterator().next().getAuthority();
     }
 
     private void checkAdminRole() {
-        if (!getContextRole().equals("ROLE_ADMIN")) {
+        if (!"ROLE_ADMIN".equals(getContextRole())) {
             throw new UnauthorizedException("Acceso denegado: Se requieren permisos de administrador");
+        }
+    }
+
+    private User getAuthenticatedUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UnauthorizedException("Usuario no autenticado");
+        }
+        return userRepository.findByUsernameAndDeletedAtIsNull(authentication.getName())
+                .orElseThrow(() -> new ResourceNotFoundException("Usuario autenticado no encontrado"));
+    }
+
+    // Lógica exclusiva de administrador
+    private void updateAdminRestrictedFields(User user, UserDTO userDTO, boolean isOwner) {
+        if (!user.getUsername().equals(userDTO.getUsername())) {
+            if (userRepository.existsByUsernameAndDeletedAtIsNull(userDTO.getUsername())) {
+                throw new BadRequestException("El nombre de usuario ya existe");
+            }
+            user.setUsername(userDTO.getUsername());
+        }
+        
+        if (!user.getEmail().equals(userDTO.getEmail())) {
+            if (userRepository.existsByEmailAndDeletedAtIsNull(userDTO.getEmail())) {
+                throw new BadRequestException("El correo electrónico ya existe");
+            }
+            user.setEmail(userDTO.getEmail());
+        }
+
+        if (userDTO.getRoleId() != null && !user.getRole().getId().equals(userDTO.getRoleId())) {
+            if (isOwner) {
+                throw new BadRequestException("Por seguridad, no puedes cambiar tu propio rol de Administrador");
+            }
+            Role role = roleRepository.findByIdAndDeletedAtIsNull(userDTO.getRoleId())
+                    .orElseThrow(() -> new ResourceNotFoundException("Rol no encontrado"));
+            user.setRole(role);
+        }
+
+        user.setClubPosition(userDTO.getClubPosition());
+
+        if (userDTO.getActive() != null) {
+            if (isOwner && Boolean.FALSE.equals(userDTO.getActive())) {
+                throw new BadRequestException("No puedes desactivar tu propia cuenta de Administrador");
+            }
+            user.setActive(userDTO.getActive());
+        }
+
+        if (userDTO.getIsPending() != null) {
+            user.setIsPending(userDTO.getIsPending());
+        }
+    }
+
+    // Campos básicos que cualquiera puede editar
+    private void updateBasicFields(User user, UserDTO userDTO) {
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        user.setPhone(userDTO.getPhone());
+        user.setAvatarURL(userDTO.getAvatarURL());
+
+        if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
+            user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         }
     }
 }

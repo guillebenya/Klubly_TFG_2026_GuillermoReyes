@@ -1,0 +1,1160 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1778325801393" clover="3.2.0">
+  <project timestamp="1778325801393" name="All files">
+    <metrics statements="977" coveredstatements="458" conditionals="892" coveredconditionals="411" methods="335" coveredmethods="110" elements="2204" coveredelements="979" complexity="0" loc="977" ncloc="977" packages="18" files="41" classes="41"/>
+    <package name="api">
+      <metrics statements="22" coveredstatements="3" conditionals="10" coveredconditionals="0" methods="4" coveredmethods="0"/>
+      <file name="axios.ts" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\api\axios.ts">
+        <metrics statements="22" coveredstatements="3" conditionals="10" coveredconditionals="0" methods="4" coveredmethods="0"/>
+        <line num="4" count="4" type="stmt"/>
+        <line num="13" count="4" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="16" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="28" count="4" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="32" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="33" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="41" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="45" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="47" count="0" type="stmt"/>
+        <line num="50" count="0" type="stmt"/>
+        <line num="56" count="0" type="stmt"/>
+        <line num="61" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="66" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="assets">
+      <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      <file name="Klubly_Logo.png" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\assets\Klubly_Logo.png">
+        <metrics statements="0" coveredstatements="0" conditionals="0" coveredconditionals="0" methods="0" coveredmethods="0"/>
+      </file>
+    </package>
+    <package name="components.shared">
+      <metrics statements="33" coveredstatements="33" conditionals="39" coveredconditionals="37" methods="13" coveredmethods="13"/>
+      <file name="Badge.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\components\shared\Badge.tsx">
+        <metrics statements="4" coveredstatements="4" conditionals="5" coveredconditionals="5" methods="1" coveredmethods="1"/>
+        <line num="11" count="3" type="stmt"/>
+        <line num="18" count="118" type="stmt"/>
+        <line num="28" count="118" type="stmt"/>
+        <line num="36" count="118" type="stmt"/>
+      </file>
+      <file name="Button.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\components\shared\Button.tsx">
+        <metrics statements="4" coveredstatements="4" conditionals="11" coveredconditionals="11" methods="1" coveredmethods="1"/>
+        <line num="12" count="5" type="stmt"/>
+        <line num="23" count="642" type="stmt"/>
+        <line num="32" count="642" type="stmt"/>
+        <line num="38" count="642" type="stmt"/>
+      </file>
+      <file name="Card.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\components\shared\Card.tsx">
+        <metrics statements="2" coveredstatements="2" conditionals="3" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="9" count="3" type="cond" truecount="1" falsecount="0"/>
+        <line num="10" count="161" type="stmt"/>
+      </file>
+      <file name="ConfirmDialog.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\components\shared\ConfirmDialog.tsx">
+        <metrics statements="3" coveredstatements="3" conditionals="3" coveredconditionals="3" methods="1" coveredmethods="1"/>
+        <line num="16" count="3" type="stmt"/>
+        <line num="27" count="54" type="stmt"/>
+        <line num="33" count="54" type="stmt"/>
+      </file>
+      <file name="Modal.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\components\shared\Modal.tsx">
+        <metrics statements="9" coveredstatements="9" conditionals="7" coveredconditionals="6" methods="4" coveredmethods="4"/>
+        <line num="12" count="4" type="stmt"/>
+        <line num="20" count="294" type="stmt"/>
+        <line num="21" count="293" type="stmt"/>
+        <line num="22" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="24" count="293" type="cond" truecount="2" falsecount="0"/>
+        <line num="25" count="293" type="stmt"/>
+        <line num="28" count="294" type="cond" truecount="2" falsecount="0"/>
+        <line num="30" count="15" type="stmt"/>
+        <line num="37" count="15" type="stmt"/>
+      </file>
+      <file name="PageHeader.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\components\shared\PageHeader.tsx">
+        <metrics statements="2" coveredstatements="2" conditionals="6" coveredconditionals="6" methods="1" coveredmethods="1"/>
+        <line num="11" count="3" type="stmt"/>
+        <line num="12" count="54" type="stmt"/>
+      </file>
+      <file name="SearchBar.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\components\shared\SearchBar.tsx">
+        <metrics statements="3" coveredstatements="3" conditionals="2" coveredconditionals="2" methods="2" coveredmethods="2"/>
+        <line num="9" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="10" count="54" type="stmt"/>
+        <line num="16" count="16" type="stmt"/>
+      </file>
+      <file name="SuccessDialog.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\components\shared\SuccessDialog.tsx">
+        <metrics statements="2" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="1"/>
+        <line num="12" count="3" type="stmt"/>
+        <line num="13" count="54" type="stmt"/>
+      </file>
+      <file name="SummaryCard.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\components\shared\SummaryCard.tsx">
+        <metrics statements="4" coveredstatements="4" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="12" count="3" type="stmt"/>
+        <line num="19" count="91" type="stmt"/>
+        <line num="26" count="91" type="stmt"/>
+        <line num="28" count="91" type="stmt"/>
+      </file>
+    </package>
+    <package name="features.activities.components">
+      <metrics statements="241" coveredstatements="21" conditionals="204" coveredconditionals="20" methods="74" coveredmethods="5"/>
+      <file name="ActivityCard.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\activities\components\ActivityCard.tsx">
+        <metrics statements="33" coveredstatements="16" conditionals="34" coveredconditionals="20" methods="9" coveredmethods="5"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="37" count="22" type="stmt"/>
+        <line num="39" count="22" type="stmt"/>
+        <line num="40" count="22" type="stmt"/>
+        <line num="42" count="22" type="stmt"/>
+        <line num="43" count="22" type="stmt"/>
+        <line num="44" count="22" type="stmt"/>
+        <line num="53" count="22" type="stmt"/>
+        <line num="54" count="0" type="stmt"/>
+        <line num="55" count="0" type="stmt"/>
+        <line num="56" count="0" type="stmt"/>
+        <line num="57" count="0" type="stmt"/>
+        <line num="59" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="65" count="22" type="stmt"/>
+        <line num="66" count="0" type="stmt"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="68" count="0" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="71" count="0" type="stmt"/>
+        <line num="75" count="0" type="stmt"/>
+        <line num="79" count="22" type="stmt"/>
+        <line num="80" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="81" count="1" type="stmt"/>
+        <line num="95" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="96" count="0" type="stmt"/>
+        <line num="107" count="0" type="stmt"/>
+        <line num="121" count="22" type="stmt"/>
+        <line num="123" count="22" type="stmt"/>
+        <line num="174" count="8" type="stmt"/>
+        <line num="222" count="0" type="stmt"/>
+        <line num="230" count="0" type="stmt"/>
+        <line num="240" count="1" type="stmt"/>
+      </file>
+      <file name="ActivityDetails.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\activities\components\ActivityDetails.tsx">
+        <metrics statements="13" coveredstatements="1" conditionals="31" coveredconditionals="0" methods="6" coveredmethods="0"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="26" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="52" count="0" type="stmt"/>
+        <line num="136" count="0" type="stmt"/>
+        <line num="190" count="0" type="stmt"/>
+        <line num="196" count="0" type="stmt"/>
+      </file>
+      <file name="ActivityFilters.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\activities\components\ActivityFilters.tsx">
+        <metrics statements="38" coveredstatements="1" conditionals="18" coveredconditionals="0" methods="16" coveredmethods="0"/>
+        <line num="17" count="1" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="34" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="35" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="47" count="0" type="stmt"/>
+        <line num="50" count="0" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="58" count="0" type="stmt"/>
+        <line num="59" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="66" count="0" type="stmt"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="68" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="71" count="0" type="stmt"/>
+        <line num="74" count="0" type="stmt"/>
+        <line num="79" count="0" type="stmt"/>
+        <line num="81" count="0" type="stmt"/>
+        <line num="99" count="0" type="stmt"/>
+        <line num="116" count="0" type="stmt"/>
+        <line num="135" count="0" type="stmt"/>
+        <line num="147" count="0" type="stmt"/>
+        <line num="148" count="0" type="stmt"/>
+        <line num="152" count="0" type="stmt"/>
+        <line num="177" count="0" type="stmt"/>
+        <line num="180" count="0" type="stmt"/>
+      </file>
+      <file name="ActivityForm.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\activities\components\ActivityForm.tsx">
+        <metrics statements="48" coveredstatements="1" conditionals="71" coveredconditionals="0" methods="15" coveredmethods="0"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="45" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="47" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="50" count="0" type="stmt"/>
+        <line num="52" count="0" type="stmt"/>
+        <line num="54" count="0" type="stmt"/>
+        <line num="57" count="0" type="stmt"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="65" count="0" type="stmt"/>
+        <line num="66" count="0" type="stmt"/>
+        <line num="72" count="0" type="stmt"/>
+        <line num="73" count="0" type="stmt"/>
+        <line num="74" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="75" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="76" count="0" type="stmt"/>
+        <line num="77" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="78" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="83" count="0" type="stmt"/>
+        <line num="85" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="86" count="0" type="stmt"/>
+        <line num="88" count="0" type="stmt"/>
+        <line num="89" count="0" type="stmt"/>
+        <line num="92" count="0" type="stmt"/>
+        <line num="93" count="0" type="stmt"/>
+        <line num="94" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="97" count="0" type="stmt"/>
+        <line num="106" count="0" type="stmt"/>
+        <line num="107" count="0" type="stmt"/>
+        <line num="108" count="0" type="stmt"/>
+        <line num="109" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="110" count="0" type="stmt"/>
+        <line num="112" count="0" type="stmt"/>
+        <line num="116" count="0" type="stmt"/>
+        <line num="118" count="0" type="stmt"/>
+        <line num="243" count="0" type="stmt"/>
+        <line num="244" count="0" type="stmt"/>
+        <line num="248" count="0" type="stmt"/>
+        <line num="280" count="0" type="stmt"/>
+      </file>
+      <file name="AddRegistrationForm.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\activities\components\AddRegistrationForm.tsx">
+        <metrics statements="60" coveredstatements="1" conditionals="38" coveredconditionals="0" methods="14" coveredmethods="0"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="37" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="45" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="46" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="49" count="0" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="54" count="0" type="stmt"/>
+        <line num="55" count="0" type="stmt"/>
+        <line num="58" count="0" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="64" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="66" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="67" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="68" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="72" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="74" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="76" count="0" type="stmt"/>
+        <line num="77" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="79" count="0" type="stmt"/>
+        <line num="80" count="0" type="stmt"/>
+        <line num="84" count="0" type="stmt"/>
+        <line num="86" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="90" count="0" type="stmt"/>
+        <line num="92" count="0" type="stmt"/>
+        <line num="96" count="0" type="stmt"/>
+        <line num="97" count="0" type="stmt"/>
+        <line num="98" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="100" count="0" type="stmt"/>
+        <line num="101" count="0" type="stmt"/>
+        <line num="102" count="0" type="stmt"/>
+        <line num="106" count="0" type="stmt"/>
+        <line num="108" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="110" count="0" type="stmt"/>
+        <line num="114" count="0" type="stmt"/>
+        <line num="119" count="0" type="stmt"/>
+        <line num="127" count="0" type="stmt"/>
+        <line num="133" count="0" type="stmt"/>
+        <line num="152" count="0" type="stmt"/>
+        <line num="161" count="0" type="stmt"/>
+      </file>
+      <file name="RegistrationManager.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\activities\components\RegistrationManager.tsx">
+        <metrics statements="49" coveredstatements="1" conditionals="12" coveredconditionals="0" methods="14" coveredmethods="0"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="33" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="41" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="43" count="0" type="stmt"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="47" count="0" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="52" count="0" type="stmt"/>
+        <line num="53" count="0" type="stmt"/>
+        <line num="56" count="0" type="stmt"/>
+        <line num="57" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="58" count="0" type="stmt"/>
+        <line num="59" count="0" type="stmt"/>
+        <line num="60" count="0" type="stmt"/>
+        <line num="61" count="0" type="stmt"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="65" count="0" type="stmt"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="68" count="0" type="stmt"/>
+        <line num="72" count="0" type="stmt"/>
+        <line num="73" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="74" count="0" type="stmt"/>
+        <line num="81" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="82" count="0" type="stmt"/>
+        <line num="89" count="0" type="stmt"/>
+        <line num="90" count="0" type="stmt"/>
+        <line num="120" count="0" type="stmt"/>
+        <line num="127" count="0" type="stmt"/>
+        <line num="154" count="0" type="stmt"/>
+        <line num="168" count="0" type="stmt"/>
+        <line num="175" count="0" type="stmt"/>
+        <line num="176" count="0" type="stmt"/>
+        <line num="178" count="0" type="stmt"/>
+        <line num="185" count="0" type="stmt"/>
+        <line num="186" count="0" type="stmt"/>
+        <line num="196" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="features.activities.pages">
+      <metrics statements="98" coveredstatements="72" conditionals="88" coveredconditionals="67" methods="29" coveredmethods="15"/>
+      <file name="ActivityPage.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\activities\pages\ActivityPage.tsx">
+        <metrics statements="98" coveredstatements="72" conditionals="88" coveredconditionals="67" methods="29" coveredmethods="15"/>
+        <line num="26" count="1" type="stmt"/>
+        <line num="34" count="17" type="stmt"/>
+        <line num="36" count="17" type="stmt"/>
+        <line num="38" count="22" type="stmt"/>
+        <line num="39" count="22" type="stmt"/>
+        <line num="42" count="22" type="cond" truecount="3" falsecount="0"/>
+        <line num="44" count="22" type="cond" truecount="2" falsecount="0"/>
+        <line num="47" count="21" type="stmt"/>
+        <line num="52" count="21" type="cond" truecount="1" falsecount="3"/>
+        <line num="56" count="22" type="stmt"/>
+        <line num="57" count="22" type="cond" truecount="2" falsecount="2"/>
+        <line num="63" count="22" type="cond" truecount="5" falsecount="0"/>
+        <line num="66" count="16" type="cond" truecount="1" falsecount="1"/>
+        <line num="69" count="16" type="cond" truecount="1" falsecount="1"/>
+        <line num="73" count="22" type="cond" truecount="4" falsecount="0"/>
+        <line num="78" count="1" type="stmt"/>
+        <line num="79" count="17" type="stmt"/>
+        <line num="80" count="17" type="stmt"/>
+        <line num="81" count="5" type="stmt"/>
+        <line num="82" count="5" type="stmt"/>
+        <line num="83" count="5" type="stmt"/>
+        <line num="84" count="5" type="stmt"/>
+        <line num="86" count="5" type="cond" truecount="1" falsecount="3"/>
+        <line num="87" count="5" type="cond" truecount="1" falsecount="1"/>
+        <line num="91" count="1" type="stmt"/>
+        <line num="93" count="20" type="stmt"/>
+        <line num="94" count="20" type="stmt"/>
+        <line num="95" count="20" type="stmt"/>
+        <line num="96" count="20" type="stmt"/>
+        <line num="99" count="20" type="stmt"/>
+        <line num="100" count="20" type="stmt"/>
+        <line num="101" count="20" type="stmt"/>
+        <line num="102" count="20" type="stmt"/>
+        <line num="105" count="20" type="stmt"/>
+        <line num="108" count="20" type="stmt"/>
+        <line num="109" count="20" type="stmt"/>
+        <line num="110" count="20" type="stmt"/>
+        <line num="111" count="20" type="stmt"/>
+        <line num="112" count="20" type="stmt"/>
+        <line num="119" count="20" type="stmt"/>
+        <line num="123" count="20" type="stmt"/>
+        <line num="129" count="20" type="stmt"/>
+        <line num="130" count="5" type="stmt"/>
+        <line num="133" count="20" type="stmt"/>
+        <line num="134" count="5" type="stmt"/>
+        <line num="135" count="5" type="stmt"/>
+        <line num="136" count="5" type="cond" truecount="1" falsecount="1"/>
+        <line num="139" count="5" type="stmt"/>
+        <line num="141" count="0" type="stmt"/>
+        <line num="143" count="5" type="stmt"/>
+        <line num="148" count="20" type="stmt"/>
+        <line num="149" count="17" type="stmt"/>
+        <line num="157" count="17" type="stmt"/>
+        <line num="169" count="20" type="stmt"/>
+        <line num="170" count="10" type="stmt"/>
+        <line num="171" count="10" type="stmt"/>
+        <line num="173" count="8" type="stmt"/>
+        <line num="174" count="8" type="stmt"/>
+        <line num="179" count="8" type="stmt"/>
+        <line num="183" count="20" type="stmt"/>
+        <line num="184" count="0" type="stmt"/>
+        <line num="185" count="0" type="stmt"/>
+        <line num="188" count="20" type="stmt"/>
+        <line num="189" count="0" type="stmt"/>
+        <line num="190" count="0" type="stmt"/>
+        <line num="193" count="20" type="stmt"/>
+        <line num="194" count="1" type="stmt"/>
+        <line num="195" count="1" type="stmt"/>
+        <line num="196" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="197" count="1" type="stmt"/>
+        <line num="198" count="1" type="stmt"/>
+        <line num="204" count="0" type="stmt"/>
+        <line num="205" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="206" count="0" type="stmt"/>
+        <line num="207" count="0" type="stmt"/>
+        <line num="208" count="0" type="stmt"/>
+        <line num="214" count="1" type="stmt"/>
+        <line num="216" count="0" type="stmt"/>
+        <line num="218" count="1" type="stmt"/>
+        <line num="222" count="20" type="stmt"/>
+        <line num="235" count="0" type="stmt"/>
+        <line num="248" count="0" type="stmt"/>
+        <line num="259" count="0" type="stmt"/>
+        <line num="268" count="0" type="stmt"/>
+        <line num="269" count="0" type="stmt"/>
+        <line num="314" count="22" type="stmt"/>
+        <line num="315" count="22" type="stmt"/>
+        <line num="328" count="1" type="stmt"/>
+        <line num="354" count="0" type="stmt"/>
+        <line num="361" count="0" type="stmt"/>
+        <line num="367" count="0" type="stmt"/>
+        <line num="381" count="0" type="stmt"/>
+        <line num="387" count="0" type="stmt"/>
+        <line num="389" count="0" type="stmt"/>
+        <line num="396" count="0" type="stmt"/>
+        <line num="412" count="0" type="stmt"/>
+        <line num="413" count="0" type="stmt"/>
+        <line num="414" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="features.activities.services">
+      <metrics statements="7" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="5" coveredmethods="0"/>
+      <file name="registration.service.ts" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\activities\services\registration.service.ts">
+        <metrics statements="7" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="5" coveredmethods="0"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="features.auth.pages">
+      <metrics statements="36" coveredstatements="36" conditionals="10" coveredconditionals="9" methods="9" coveredmethods="9"/>
+      <file name="LoginPage.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\auth\pages\LoginPage.tsx">
+        <metrics statements="20" coveredstatements="20" conditionals="4" coveredconditionals="4" methods="5" coveredmethods="5"/>
+        <line num="7" count="1" type="stmt"/>
+        <line num="8" count="42" type="stmt"/>
+        <line num="9" count="42" type="stmt"/>
+        <line num="10" count="42" type="stmt"/>
+        <line num="11" count="42" type="stmt"/>
+        <line num="12" count="42" type="stmt"/>
+        <line num="14" count="42" type="stmt"/>
+        <line num="15" count="2" type="stmt"/>
+        <line num="16" count="2" type="stmt"/>
+        <line num="17" count="2" type="stmt"/>
+        <line num="19" count="2" type="stmt"/>
+        <line num="20" count="2" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="26" count="2" type="stmt"/>
+        <line num="30" count="42" type="stmt"/>
+        <line num="62" count="14" type="stmt"/>
+        <line num="83" count="20" type="stmt"/>
+        <line num="104" count="1" type="stmt"/>
+      </file>
+      <file name="RegisterPage.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\auth\pages\RegisterPage.tsx">
+        <metrics statements="16" coveredstatements="16" conditionals="6" coveredconditionals="5" methods="4" coveredmethods="4"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="9" count="11" type="stmt"/>
+        <line num="10" count="11" type="stmt"/>
+        <line num="11" count="11" type="stmt"/>
+        <line num="12" count="11" type="stmt"/>
+        <line num="14" count="11" type="stmt"/>
+        <line num="15" count="3" type="stmt"/>
+        <line num="16" count="3" type="stmt"/>
+        <line num="17" count="3" type="stmt"/>
+        <line num="19" count="3" type="stmt"/>
+        <line num="21" count="2" type="stmt"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="28" count="3" type="stmt"/>
+        <line num="32" count="11" type="stmt"/>
+        <line num="68" count="1" type="stmt"/>
+        <line num="77" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="features.auth.services">
+      <metrics statements="13" coveredstatements="11" conditionals="4" coveredconditionals="4" methods="4" coveredmethods="3"/>
+      <file name="auth.service.ts" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\auth\services\auth.service.ts">
+        <metrics statements="13" coveredstatements="11" conditionals="4" coveredconditionals="4" methods="4" coveredmethods="3"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="7" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="8" count="1" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="23" count="2" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="32" count="2" type="stmt"/>
+        <line num="33" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="37" count="1" type="stmt"/>
+        <line num="38" count="1" type="stmt"/>
+        <line num="39" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="features.configuration.services">
+      <metrics statements="8" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="6" coveredmethods="0"/>
+      <file name="role.service.ts" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\configuration\services\role.service.ts">
+        <metrics statements="8" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="6" coveredmethods="0"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="33" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="features.identity.components">
+      <metrics statements="162" coveredstatements="80" conditionals="225" coveredconditionals="124" methods="53" coveredmethods="19"/>
+      <file name="MemberCard.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\identity\components\MemberCard.tsx">
+        <metrics statements="22" coveredstatements="19" conditionals="51" coveredconditionals="43" methods="7" coveredmethods="5"/>
+        <line num="20" count="1" type="stmt"/>
+        <line num="21" count="26" type="cond" truecount="2" falsecount="1"/>
+        <line num="23" count="7" type="stmt"/>
+        <line num="25" count="0" type="stmt"/>
+        <line num="27" count="19" type="stmt"/>
+        <line num="31" count="1" type="stmt"/>
+        <line num="38" count="26" type="cond" truecount="2" falsecount="0"/>
+        <line num="39" count="7" type="stmt"/>
+        <line num="45" count="19" type="stmt"/>
+        <line num="64" count="1" type="stmt"/>
+        <line num="72" count="26" type="stmt"/>
+        <line num="73" count="26" type="stmt"/>
+        <line num="74" count="26" type="cond" truecount="2" falsecount="0"/>
+        <line num="75" count="26" type="cond" truecount="2" falsecount="0"/>
+        <line num="78" count="26" type="cond" truecount="2" falsecount="0"/>
+        <line num="81" count="26" type="stmt"/>
+        <line num="82" count="26" type="cond" truecount="2" falsecount="0"/>
+        <line num="83" count="19" type="cond" truecount="1" falsecount="1"/>
+        <line num="88" count="26" type="stmt"/>
+        <line num="195" count="0" type="stmt"/>
+        <line num="205" count="0" type="stmt"/>
+        <line num="220" count="1" type="stmt"/>
+      </file>
+      <file name="MemberDetails.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\identity\components\MemberDetails.tsx">
+        <metrics statements="13" coveredstatements="1" conditionals="40" coveredconditionals="0" methods="6" coveredmethods="0"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="25" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="30" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="33" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="40" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="134" count="0" type="stmt"/>
+        <line num="156" count="0" type="stmt"/>
+      </file>
+      <file name="MemberFilters.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\identity\components\MemberFilters.tsx">
+        <metrics statements="22" coveredstatements="1" conditionals="22" coveredconditionals="0" methods="10" coveredmethods="0"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="27" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="34" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="42" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="43" count="0" type="stmt"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="52" count="0" type="stmt"/>
+        <line num="55" count="0" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="66" count="0" type="stmt"/>
+        <line num="87" count="0" type="stmt"/>
+        <line num="97" count="0" type="stmt"/>
+        <line num="119" count="0" type="stmt"/>
+        <line num="122" count="0" type="stmt"/>
+      </file>
+      <file name="MemberForm.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\identity\components\MemberForm.tsx">
+        <metrics statements="62" coveredstatements="58" conditionals="96" coveredconditionals="81" methods="17" coveredmethods="14"/>
+        <line num="32" count="2" type="stmt"/>
+        <line num="33" count="2" type="stmt"/>
+        <line num="42" count="2" type="stmt"/>
+        <line num="43" count="3" type="stmt"/>
+        <line num="52" count="2" type="stmt"/>
+        <line num="67" count="51" type="stmt"/>
+        <line num="106" count="138" type="stmt"/>
+        <line num="149" count="2" type="stmt"/>
+        <line num="156" count="106" type="stmt"/>
+        <line num="157" count="106" type="stmt"/>
+        <line num="158" count="106" type="stmt"/>
+        <line num="160" count="106" type="stmt"/>
+        <line num="161" count="106" type="stmt"/>
+        <line num="163" count="106" type="stmt"/>
+        <line num="178" count="106" type="stmt"/>
+        <line num="180" count="106" type="cond" truecount="3" falsecount="0"/>
+        <line num="182" count="106" type="cond" truecount="2" falsecount="0"/>
+        <line num="183" count="106" type="cond" truecount="2" falsecount="0"/>
+        <line num="184" count="106" type="cond" truecount="4" falsecount="0"/>
+        <line num="186" count="106" type="cond" truecount="2" falsecount="0"/>
+        <line num="187" count="106" type="cond" truecount="2" falsecount="0"/>
+        <line num="188" count="106" type="stmt"/>
+        <line num="189" count="106" type="cond" truecount="2" falsecount="0"/>
+        <line num="191" count="106" type="cond" truecount="2" falsecount="0"/>
+        <line num="193" count="106" type="stmt"/>
+        <line num="194" count="5" type="stmt"/>
+        <line num="195" count="3" type="stmt"/>
+        <line num="196" count="3" type="stmt"/>
+        <line num="197" count="3" type="stmt"/>
+        <line num="198" count="3" type="stmt"/>
+        <line num="200" count="0" type="stmt"/>
+        <line num="202" count="3" type="stmt"/>
+        <line num="206" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="209" count="106" type="stmt"/>
+        <line num="210" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="211" count="2" type="stmt"/>
+        <line num="219" count="106" type="stmt"/>
+        <line num="222" count="79" type="stmt"/>
+        <line num="223" count="79" type="cond" truecount="1" falsecount="1"/>
+        <line num="224" count="79" type="cond" truecount="1" falsecount="1"/>
+        <line num="225" count="79" type="stmt"/>
+        <line num="228" count="106" type="stmt"/>
+        <line num="231" count="79" type="stmt"/>
+        <line num="232" count="79" type="cond" truecount="2" falsecount="0"/>
+        <line num="235" count="106" type="stmt"/>
+        <line num="236" count="2" type="stmt"/>
+        <line num="237" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="238" count="2" type="cond" truecount="2" falsecount="2"/>
+        <line num="239" count="2" type="stmt"/>
+        <line num="241" count="0" type="stmt"/>
+        <line num="244" count="106" type="stmt"/>
+        <line num="245" count="2" type="stmt"/>
+        <line num="249" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="250" count="1" type="stmt"/>
+        <line num="251" count="1" type="stmt"/>
+        <line num="254" count="1" type="stmt"/>
+        <line num="259" count="2" type="stmt"/>
+        <line num="262" count="106" type="stmt"/>
+        <line num="390" count="17" type="stmt"/>
+        <line num="391" count="17" type="stmt"/>
+        <line num="401" count="0" type="stmt"/>
+        <line num="460" count="0" type="cond" truecount="0" falsecount="2"/>
+      </file>
+      <file name="MemberTeamsManager.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\identity\components\MemberTeamsManager.tsx">
+        <metrics statements="43" coveredstatements="1" conditionals="16" coveredconditionals="0" methods="13" coveredmethods="0"/>
+        <line num="14" count="1" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="33" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="40" count="0" type="stmt"/>
+        <line num="43" count="0" type="stmt"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="46" count="0" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="54" count="0" type="stmt"/>
+        <line num="55" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="56" count="0" type="stmt"/>
+        <line num="57" count="0" type="stmt"/>
+        <line num="59" count="0" type="stmt"/>
+        <line num="62" count="0" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="68" count="0" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="70" count="0" type="stmt"/>
+        <line num="71" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="73" count="0" type="stmt"/>
+        <line num="79" count="0" type="stmt"/>
+        <line num="80" count="0" type="stmt"/>
+        <line num="87" count="0" type="stmt"/>
+        <line num="88" count="0" type="stmt"/>
+        <line num="95" count="0" type="stmt"/>
+        <line num="97" count="0" type="stmt"/>
+        <line num="98" count="0" type="stmt"/>
+        <line num="100" count="0" type="stmt"/>
+        <line num="104" count="0" type="stmt"/>
+        <line num="105" count="0" type="stmt"/>
+        <line num="106" count="0" type="stmt"/>
+        <line num="109" count="0" type="stmt"/>
+        <line num="118" count="0" type="stmt"/>
+        <line num="138" count="0" type="stmt"/>
+        <line num="163" count="0" type="stmt"/>
+        <line num="169" count="0" type="stmt"/>
+        <line num="178" count="0" type="stmt"/>
+        <line num="202" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="features.identity.pages">
+      <metrics statements="113" coveredstatements="78" conditionals="84" coveredconditionals="60" methods="38" coveredmethods="17"/>
+      <file name="MembersPage.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\identity\pages\MembersPage.tsx">
+        <metrics statements="113" coveredstatements="78" conditionals="84" coveredconditionals="60" methods="38" coveredmethods="17"/>
+        <line num="29" count="1" type="stmt"/>
+        <line num="40" count="17" type="stmt"/>
+        <line num="42" count="34" type="stmt"/>
+        <line num="43" count="34" type="stmt"/>
+        <line num="45" count="34" type="cond" truecount="1" falsecount="1"/>
+        <line num="48" count="34" type="cond" truecount="1" falsecount="3"/>
+        <line num="51" count="34" type="cond" truecount="1" falsecount="1"/>
+        <line num="54" count="34" type="cond" truecount="1" falsecount="1"/>
+        <line num="56" count="0" type="stmt"/>
+        <line num="59" count="34" type="cond" truecount="1" falsecount="1"/>
+        <line num="62" count="34" type="stmt"/>
+        <line num="72" count="1" type="stmt"/>
+        <line num="83" count="12" type="stmt"/>
+        <line num="119" count="1" type="stmt"/>
+        <line num="121" count="17" type="stmt"/>
+        <line num="122" count="17" type="stmt"/>
+        <line num="123" count="17" type="stmt"/>
+        <line num="124" count="17" type="stmt"/>
+        <line num="127" count="17" type="stmt"/>
+        <line num="128" count="17" type="stmt"/>
+        <line num="129" count="17" type="stmt"/>
+        <line num="130" count="17" type="stmt"/>
+        <line num="131" count="17" type="stmt"/>
+        <line num="132" count="17" type="stmt"/>
+        <line num="133" count="17" type="stmt"/>
+        <line num="134" count="17" type="stmt"/>
+        <line num="142" count="17" type="stmt"/>
+        <line num="151" count="17" type="stmt"/>
+        <line num="158" count="17" type="stmt"/>
+        <line num="159" count="5" type="stmt"/>
+        <line num="160" count="5" type="stmt"/>
+        <line num="163" count="17" type="stmt"/>
+        <line num="164" count="5" type="stmt"/>
+        <line num="165" count="5" type="stmt"/>
+        <line num="166" count="5" type="cond" truecount="1" falsecount="1"/>
+        <line num="169" count="5" type="stmt"/>
+        <line num="171" count="0" type="stmt"/>
+        <line num="173" count="5" type="stmt"/>
+        <line num="177" count="17" type="stmt"/>
+        <line num="178" count="17" type="stmt"/>
+        <line num="180" count="17" type="stmt"/>
+        <line num="181" count="5" type="stmt"/>
+        <line num="182" count="5" type="stmt"/>
+        <line num="186" count="17" type="stmt"/>
+        <line num="187" count="1" type="stmt"/>
+        <line num="190" count="17" type="stmt"/>
+        <line num="191" count="0" type="stmt"/>
+        <line num="194" count="17" type="stmt"/>
+        <line num="195" count="0" type="stmt"/>
+        <line num="196" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="197" count="0" type="stmt"/>
+        <line num="199" count="0" type="stmt"/>
+        <line num="201" count="0" type="stmt"/>
+        <line num="208" count="17" type="stmt"/>
+        <line num="209" count="1" type="stmt"/>
+        <line num="210" count="1" type="stmt"/>
+        <line num="217" count="17" type="stmt"/>
+        <line num="218" count="1" type="stmt"/>
+        <line num="219" count="1" type="stmt"/>
+        <line num="220" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="221" count="1" type="stmt"/>
+        <line num="223" count="0" type="stmt"/>
+        <line num="225" count="1" type="stmt"/>
+        <line num="227" count="0" type="stmt"/>
+        <line num="228" count="0" type="stmt"/>
+        <line num="230" count="1" type="stmt"/>
+        <line num="234" count="17" type="stmt"/>
+        <line num="235" count="0" type="stmt"/>
+        <line num="236" count="0" type="stmt"/>
+        <line num="239" count="17" type="stmt"/>
+        <line num="240" count="0" type="stmt"/>
+        <line num="241" count="0" type="stmt"/>
+        <line num="244" count="17" type="stmt"/>
+        <line num="245" count="0" type="stmt"/>
+        <line num="246" count="0" type="stmt"/>
+        <line num="249" count="17" type="stmt"/>
+        <line num="250" count="0" type="stmt"/>
+        <line num="251" count="0" type="stmt"/>
+        <line num="252" count="0" type="stmt"/>
+        <line num="255" count="17" type="stmt"/>
+        <line num="256" count="0" type="stmt"/>
+        <line num="257" count="0" type="stmt"/>
+        <line num="258" count="0" type="stmt"/>
+        <line num="261" count="17" type="cond" truecount="2" falsecount="0"/>
+        <line num="263" count="17" type="stmt"/>
+        <line num="264" count="36" type="cond" truecount="2" falsecount="0"/>
+        <line num="266" count="3" type="cond" truecount="2" falsecount="0"/>
+        <line num="267" count="2" type="stmt"/>
+        <line num="268" count="1" type="stmt"/>
+        <line num="270" count="36" type="cond" truecount="2" falsecount="0"/>
+        <line num="274" count="17" type="stmt"/>
+        <line num="275" count="17" type="stmt"/>
+        <line num="276" count="34" type="cond" truecount="2" falsecount="0"/>
+        <line num="278" count="34" type="stmt"/>
+        <line num="281" count="17" type="stmt"/>
+        <line num="286" count="17" type="stmt"/>
+        <line num="293" count="17" type="stmt"/>
+        <line num="309" count="0" type="stmt"/>
+        <line num="318" count="0" type="stmt"/>
+        <line num="328" count="0" type="stmt"/>
+        <line num="368" count="26" type="cond" truecount="2" falsecount="0"/>
+        <line num="370" count="26" type="cond" truecount="2" falsecount="0"/>
+        <line num="371" count="12" type="stmt"/>
+        <line num="374" count="26" type="stmt"/>
+        <line num="402" count="0" type="stmt"/>
+        <line num="410" count="0" type="stmt"/>
+        <line num="417" count="0" type="stmt"/>
+        <line num="432" count="0" type="stmt"/>
+        <line num="438" count="0" type="stmt"/>
+        <line num="445" count="0" type="stmt"/>
+        <line num="452" count="0" type="stmt"/>
+        <line num="453" count="0" type="stmt"/>
+        <line num="461" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="features.identity.services">
+      <metrics statements="27" coveredstatements="6" conditionals="0" coveredconditionals="0" methods="21" coveredmethods="0"/>
+      <file name="affiliation.service.ts" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\identity\services\affiliation.service.ts">
+        <metrics statements="9" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="7" coveredmethods="0"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="5" count="1" type="stmt"/>
+        <line num="6" count="0" type="stmt"/>
+        <line num="7" count="0" type="stmt"/>
+        <line num="9" count="0" type="stmt"/>
+        <line num="10" count="0" type="stmt"/>
+        <line num="13" count="0" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+      </file>
+      <file name="team.service.ts" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\identity\services\team.service.ts">
+        <metrics statements="7" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="5" coveredmethods="0"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="15" count="1" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+      </file>
+      <file name="user.service.ts" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\identity\services\user.service.ts">
+        <metrics statements="11" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="9" coveredmethods="0"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="21" count="1" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="24" count="0" type="stmt"/>
+        <line num="26" count="0" type="stmt"/>
+        <line num="27" count="0" type="stmt"/>
+        <line num="28" count="0" type="stmt"/>
+        <line num="29" count="0" type="stmt"/>
+        <line num="30" count="0" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="features.inventory.components">
+      <metrics statements="74" coveredstatements="11" conditionals="141" coveredconditionals="30" methods="28" coveredmethods="2"/>
+      <file name="ItemCard.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\inventory\components\ItemCard.tsx">
+        <metrics statements="9" coveredstatements="7" conditionals="37" coveredconditionals="30" methods="4" coveredmethods="2"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="26" count="22" type="stmt"/>
+        <line num="27" count="22" type="stmt"/>
+        <line num="30" count="22" type="stmt"/>
+        <line num="31" count="22" type="stmt"/>
+        <line num="33" count="22" type="stmt"/>
+        <line num="160" count="0" type="stmt"/>
+        <line num="170" count="0" type="stmt"/>
+        <line num="182" count="1" type="stmt"/>
+      </file>
+      <file name="ItemDetails.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\inventory\components\ItemDetails.tsx">
+        <metrics statements="6" coveredstatements="1" conditionals="22" coveredconditionals="0" methods="2" coveredmethods="0"/>
+        <line num="14" count="1" type="stmt"/>
+        <line num="15" count="0" type="stmt"/>
+        <line num="16" count="0" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="19" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="21" count="0" type="stmt"/>
+      </file>
+      <file name="ItemFilters.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\inventory\components\ItemFilters.tsx">
+        <metrics statements="24" coveredstatements="1" conditionals="22" coveredconditionals="0" methods="10" coveredmethods="0"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="31" count="0" type="stmt"/>
+        <line num="32" count="0" type="stmt"/>
+        <line num="34" count="0" type="stmt"/>
+        <line num="35" count="0" type="stmt"/>
+        <line num="36" count="0" type="stmt"/>
+        <line num="37" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="38" count="0" type="stmt"/>
+        <line num="39" count="0" type="stmt"/>
+        <line num="42" count="0" type="stmt"/>
+        <line num="43" count="0" type="stmt"/>
+        <line num="44" count="0" type="stmt"/>
+        <line num="45" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="46" count="0" type="stmt"/>
+        <line num="47" count="0" type="stmt"/>
+        <line num="50" count="0" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="58" count="0" type="stmt"/>
+        <line num="71" count="0" type="stmt"/>
+        <line num="74" count="0" type="stmt"/>
+        <line num="96" count="0" type="stmt"/>
+        <line num="107" count="0" type="stmt"/>
+        <line num="131" count="0" type="stmt"/>
+        <line num="134" count="0" type="stmt"/>
+      </file>
+      <file name="ItemForm.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\inventory\components\ItemForm.tsx">
+        <metrics statements="35" coveredstatements="2" conditionals="60" coveredconditionals="0" methods="12" coveredmethods="0"/>
+        <line num="14" count="1" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+        <line num="41" count="1" type="stmt"/>
+        <line num="47" count="0" type="stmt"/>
+        <line num="48" count="0" type="stmt"/>
+        <line num="50" count="0" type="stmt"/>
+        <line num="51" count="0" type="stmt"/>
+        <line num="53" count="0" type="stmt"/>
+        <line num="63" count="0" type="stmt"/>
+        <line num="64" count="0" type="stmt"/>
+        <line num="65" count="0" type="stmt"/>
+        <line num="66" count="0" type="stmt"/>
+        <line num="67" count="0" type="stmt"/>
+        <line num="68" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="75" count="0" type="stmt"/>
+        <line num="77" count="0" type="stmt"/>
+        <line num="80" count="0" type="stmt"/>
+        <line num="83" count="0" type="stmt"/>
+        <line num="84" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="85" count="0" type="stmt"/>
+        <line num="97" count="0" type="stmt"/>
+        <line num="102" count="0" type="stmt"/>
+        <line num="103" count="0" type="cond" truecount="0" falsecount="4"/>
+        <line num="104" count="0" type="stmt"/>
+        <line num="107" count="0" type="stmt"/>
+        <line num="108" count="0" type="stmt"/>
+        <line num="109" count="0" type="stmt"/>
+        <line num="113" count="0" type="stmt"/>
+        <line num="116" count="0" type="stmt"/>
+        <line num="117" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="119" count="0" type="stmt"/>
+        <line num="165" count="0" type="stmt"/>
+        <line num="245" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="246" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="features.inventory.pages">
+      <metrics statements="91" coveredstatements="62" conditionals="65" coveredconditionals="41" methods="24" coveredmethods="10"/>
+      <file name="InventoryPage.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\inventory\pages\InventoryPage.tsx">
+        <metrics statements="91" coveredstatements="62" conditionals="65" coveredconditionals="41" methods="24" coveredmethods="10"/>
+        <line num="35" count="1" type="stmt"/>
+        <line num="37" count="17" type="stmt"/>
+        <line num="38" count="17" type="stmt"/>
+        <line num="41" count="17" type="stmt"/>
+        <line num="42" count="17" type="stmt"/>
+        <line num="43" count="17" type="stmt"/>
+        <line num="44" count="17" type="stmt"/>
+        <line num="45" count="17" type="stmt"/>
+        <line num="48" count="17" type="stmt"/>
+        <line num="49" count="17" type="stmt"/>
+        <line num="50" count="17" type="stmt"/>
+        <line num="51" count="17" type="stmt"/>
+        <line num="52" count="17" type="stmt"/>
+        <line num="55" count="17" type="stmt"/>
+        <line num="62" count="17" type="stmt"/>
+        <line num="68" count="17" type="stmt"/>
+        <line num="75" count="17" type="stmt"/>
+        <line num="76" count="4" type="stmt"/>
+        <line num="77" count="4" type="stmt"/>
+        <line num="80" count="17" type="stmt"/>
+        <line num="81" count="4" type="stmt"/>
+        <line num="82" count="4" type="stmt"/>
+        <line num="83" count="4" type="cond" truecount="1" falsecount="1"/>
+        <line num="86" count="4" type="stmt"/>
+        <line num="88" count="0" type="stmt"/>
+        <line num="90" count="4" type="stmt"/>
+        <line num="94" count="17" type="stmt"/>
+        <line num="95" count="4" type="stmt"/>
+        <line num="96" count="4" type="stmt"/>
+        <line num="101" count="17" type="stmt"/>
+        <line num="102" count="17" type="stmt"/>
+        <line num="103" count="26" type="stmt"/>
+        <line num="107" count="17" type="stmt"/>
+        <line num="108" count="0" type="stmt"/>
+        <line num="109" count="0" type="stmt"/>
+        <line num="112" count="17" type="stmt"/>
+        <line num="113" count="0" type="stmt"/>
+        <line num="114" count="0" type="stmt"/>
+        <line num="117" count="17" type="stmt"/>
+        <line num="118" count="0" type="stmt"/>
+        <line num="119" count="0" type="stmt"/>
+        <line num="122" count="17" type="stmt"/>
+        <line num="123" count="1" type="stmt"/>
+        <line num="126" count="17" type="stmt"/>
+        <line num="127" count="0" type="stmt"/>
+        <line num="130" count="17" type="stmt"/>
+        <line num="131" count="22" type="cond" truecount="4" falsecount="0"/>
+        <line num="132" count="20" type="stmt"/>
+        <line num="135" count="17" type="stmt"/>
+        <line num="136" count="1" type="stmt"/>
+        <line num="137" count="1" type="stmt"/>
+        <line num="138" count="1" type="cond" truecount="1" falsecount="1"/>
+        <line num="139" count="1" type="stmt"/>
+        <line num="140" count="1" type="stmt"/>
+        <line num="146" count="0" type="stmt"/>
+        <line num="147" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="148" count="0" type="stmt"/>
+        <line num="150" count="0" type="stmt"/>
+        <line num="152" count="0" type="stmt"/>
+        <line num="158" count="1" type="stmt"/>
+        <line num="160" count="0" type="stmt"/>
+        <line num="161" count="0" type="stmt"/>
+        <line num="163" count="1" type="stmt"/>
+        <line num="167" count="17" type="stmt"/>
+        <line num="168" count="0" type="stmt"/>
+        <line num="169" count="0" type="stmt"/>
+        <line num="170" count="0" type="stmt"/>
+        <line num="174" count="17" type="stmt"/>
+        <line num="176" count="26" type="stmt"/>
+        <line num="177" count="26" type="stmt"/>
+        <line num="179" count="26" type="cond" truecount="1" falsecount="1"/>
+        <line num="182" count="26" type="stmt"/>
+        <line num="184" count="26" type="cond" truecount="1" falsecount="4"/>
+        <line num="188" count="26" type="cond" truecount="1" falsecount="3"/>
+        <line num="190" count="26" type="cond" truecount="2" falsecount="0"/>
+        <line num="191" count="24" type="cond" truecount="1" falsecount="1"/>
+        <line num="195" count="0" type="stmt"/>
+        <line num="196" count="2" type="cond" truecount="1" falsecount="1"/>
+        <line num="197" count="0" type="stmt"/>
+        <line num="200" count="26" type="cond" truecount="3" falsecount="0"/>
+        <line num="203" count="17" type="stmt"/>
+        <line num="221" count="0" type="stmt"/>
+        <line num="236" count="0" type="stmt"/>
+        <line num="246" count="0" type="stmt"/>
+        <line num="302" count="22" type="stmt"/>
+        <line num="324" count="0" type="stmt"/>
+        <line num="332" count="0" type="stmt"/>
+        <line num="338" count="0" type="stmt"/>
+        <line num="347" count="0" type="stmt"/>
+        <line num="353" count="0" type="stmt"/>
+        <line num="360" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="features.inventory.services">
+      <metrics statements="8" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="6" coveredmethods="0"/>
+      <file name="category.service.ts" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\inventory\services\category.service.ts">
+        <metrics statements="8" coveredstatements="2" conditionals="0" coveredconditionals="0" methods="6" coveredmethods="0"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="16" count="1" type="stmt"/>
+        <line num="17" count="0" type="stmt"/>
+        <line num="18" count="0" type="stmt"/>
+        <line num="19" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="22" count="0" type="stmt"/>
+        <line num="23" count="0" type="stmt"/>
+      </file>
+    </package>
+    <package name="features.treasury.components">
+      <metrics statements="25" coveredstatements="22" conditionals="20" coveredconditionals="17" methods="12" coveredmethods="10"/>
+      <file name="TransactionForm.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\treasury\components\TransactionForm.tsx">
+        <metrics statements="25" coveredstatements="22" conditionals="20" coveredconditionals="17" methods="12" coveredmethods="10"/>
+        <line num="22" count="1" type="stmt"/>
+        <line num="28" count="29" type="stmt"/>
+        <line num="29" count="29" type="stmt"/>
+        <line num="39" count="29" type="stmt"/>
+        <line num="40" count="5" type="stmt"/>
+        <line num="41" count="5" type="stmt"/>
+        <line num="42" count="5" type="stmt"/>
+        <line num="43" count="5" type="stmt"/>
+        <line num="45" count="0" type="stmt"/>
+        <line num="48" count="5" type="stmt"/>
+        <line num="50" count="5" type="cond" truecount="2" falsecount="0"/>
+        <line num="51" count="1" type="stmt"/>
+        <line num="65" count="29" type="stmt"/>
+        <line num="66" count="1" type="stmt"/>
+        <line num="69" count="1" type="stmt"/>
+        <line num="77" count="1" type="stmt"/>
+        <line num="80" count="29" type="stmt"/>
+        <line num="97" count="13" type="stmt"/>
+        <line num="119" count="1" type="stmt"/>
+        <line num="125" count="44" type="stmt"/>
+        <line num="150" count="4" type="stmt"/>
+        <line num="173" count="0" type="stmt"/>
+        <line num="194" count="1" type="stmt"/>
+        <line num="217" count="0" type="stmt"/>
+        <line num="232" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="features.treasury.services">
+      <metrics statements="12" coveredstatements="10" conditionals="0" coveredconditionals="0" methods="8" coveredmethods="6"/>
+      <file name="treasury.service.ts" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\features\treasury\services\treasury.service.ts">
+        <metrics statements="12" coveredstatements="10" conditionals="0" coveredconditionals="0" methods="8" coveredmethods="6"/>
+        <line num="3" count="2" type="stmt"/>
+        <line num="11" count="2" type="stmt"/>
+        <line num="41" count="2" type="stmt"/>
+        <line num="43" count="2" type="stmt"/>
+        <line num="46" count="1" type="stmt"/>
+        <line num="49" count="1" type="stmt"/>
+        <line num="53" count="0" type="stmt"/>
+        <line num="56" count="1" type="stmt"/>
+        <line num="60" count="1" type="stmt"/>
+        <line num="63" count="1" type="stmt"/>
+        <line num="69" count="0" type="stmt"/>
+        <line num="73" count="1" type="stmt"/>
+      </file>
+    </package>
+    <package name="routes">
+      <metrics statements="7" coveredstatements="7" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+      <file name="ProtectedRoute.tsx" path="C:\Klubly_TFG_2026_GuillermoReyes\frontend\src\routes\ProtectedRoute.tsx">
+        <metrics statements="7" coveredstatements="7" conditionals="2" coveredconditionals="2" methods="1" coveredmethods="1"/>
+        <line num="3" count="1" type="stmt"/>
+        <line num="4" count="2" type="stmt"/>
+        <line num="5" count="2" type="stmt"/>
+        <line num="8" count="2" type="cond" truecount="2" falsecount="0"/>
+        <line num="9" count="1" type="stmt"/>
+        <line num="10" count="1" type="stmt"/>
+        <line num="14" count="1" type="stmt"/>
+      </file>
+    </package>
+  </project>
+</coverage>

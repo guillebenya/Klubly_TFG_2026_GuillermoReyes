@@ -1,14 +1,5 @@
 import React, { useState } from "react";
-import {
-  Calendar,
-  MapPin,
-  Users,
-  Clock,
-  Info,
-  ShieldCheck,
-  Settings2,
-  Trash,
-} from "lucide-react";
+import { Calendar, MapPin, Users, Clock, Settings2, Trash } from "lucide-react";
 import Badge from "../../../components/shared/Badge";
 import Button from "../../../components/shared/Button";
 import Modal from "../../../components/shared/Modal";
@@ -42,9 +33,9 @@ const ActivityDetails: React.FC<ActivityDetailsProps> = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="space-y-4">
           <div>
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">
               Nombre de la actividad
-            </label>
+            </span>
             <p className="text-xl font-bold text-gray-800">{activity.name}</p>
             <Badge variant={activity.active ? "green" : "red"}>
               {activity.active ? "Activa" : "Inactiva"}
@@ -52,26 +43,26 @@ const ActivityDetails: React.FC<ActivityDetailsProps> = ({
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block mb-2">
               Equipo/s Relacionado/s
-              <div className="flex flex-wrap gap-2">
-                {activity.teamNames.length > 0 ? (
-                  activity.teamNames.map((team, idx) => (
-                    <Badge key={idx} variant="indigo">
-                      {team}
-                    </Badge>
-                  ))
-                ) : (
-                  <Badge variant="indigo">Actividad Global</Badge>
-                )}
-              </div>
-            </label>
+            </span>
+            <div className="flex flex-wrap gap-2">
+              {activity.teamNames.length > 0 ? (
+                activity.teamNames.map((team) => (
+                  <Badge key={team} variant="indigo">
+                    {team}
+                  </Badge>
+                ))
+              ) : (
+                <Badge variant="indigo">Actividad Global</Badge>
+              )}
+            </div>
           </div>
 
           <div>
-            <label className="text-xs font-bold text-gray-400 uppercase tracking-wider">
+            <span className="text-xs font-bold text-gray-400 uppercase tracking-wider block">
               Descripción
-            </label>
+            </span>
             <p className="text-gray-600 leading-relaxed">
               {activity.description || "Sin descripción proporcionada."}
             </p>
@@ -109,7 +100,9 @@ const ActivityDetails: React.FC<ActivityDetailsProps> = ({
             </div>
             <div>
               <p className="text-sm font-bold text-gray-700">Ubicación</p>
-              <p className="text-sm text-gray-600">{activity.location || "Ubicación por definir"}</p>
+              <p className="text-sm text-gray-600">
+                {activity.location || "Ubicación por definir"}
+              </p>
             </div>
           </div>
         </div>

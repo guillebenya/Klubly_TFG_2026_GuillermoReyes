@@ -45,7 +45,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({
         if (!isAdmin) {
           // Extraemos directamente el array teamIds del usuario (asegurando un array vacío por defecto)
           const userTeamIds = currentUser?.teamIds || [];
-          
+
           // Filtramos la lista de equipos para dejar solo aquellos cuyo ID esté en la lista del usuario
           teams = teams.filter((t) => userTeamIds.includes(Number(t.id)));
         }
@@ -65,7 +65,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "capacity" ? parseInt(value) || 0 : value,
+      [name]: name === "capacity" ? Number.parseInt(value) || 0 : value,
     }));
   };
 
@@ -89,7 +89,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({
     return Object.keys(newErrors).length === 0;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (validate()) onSubmit(formData);
   };
@@ -233,9 +233,9 @@ const ActivityForm: React.FC<ActivityFormProps> = ({
 
       {/* Equipos Vinculados (Chip Selector) */}
       <div className="flex flex-col gap-2 w-full">
-        <label className="text-sm font-bold text-gray-700 ml-1">
+        <span className="text-sm font-bold text-gray-700 ml-1">
           Equipos Vinculados
-        </label>
+        </span>
 
         <div className="min-h-[60px] p-3 bg-gray-50 border border-gray-200 rounded-xl flex flex-wrap gap-2 transition-all focus-within:ring-4 focus-within:ring-indigo-50 focus-within:border-indigo-500">
           {availableTeams.length > 0 ? (
@@ -273,10 +273,14 @@ const ActivityForm: React.FC<ActivityFormProps> = ({
 
       {/* Toggle Activo */}
       <div className="md:col-span-2 pt-2">
-        <div
+        <button
+          type="button"
+          role="switch"
+          aria-checked={formData.active}
           onClick={() => setFormData({ ...formData, active: !formData.active })}
-          className="flex items-center gap-3 cursor-pointer select-none w-fit"
+          className="flex items-center gap-3 cursor-pointer select-none w-fit border-none bg-transparent p-0 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 rounded-lg"
         >
+          {/* Visual del Toggle */}
           <div
             className={`w-10 h-5 flex items-center rounded-full p-1 transition-colors duration-300 ${
               formData.active ? "bg-indigo-600" : "bg-gray-300"
@@ -289,6 +293,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({
             />
           </div>
 
+          {/* Etiqueta de texto */}
           <span
             className={`text-sm font-bold uppercase tracking-tight transition-colors ${
               formData.active ? "text-gray-700" : "text-gray-500"
@@ -296,7 +301,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({
           >
             {formData.active ? "Actividad Activa" : "Actividad Inactiva"}
           </span>
-        </div>
+        </button>
       </div>
 
       {/* Botones */}

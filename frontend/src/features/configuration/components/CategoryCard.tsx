@@ -1,4 +1,3 @@
-import React from "react";
 import { Tag, Edit2, Trash2, Eye, Package } from "lucide-react";
 import Card from "../../../components/shared/Card";
 import Badge from "../../../components/shared/Badge";
@@ -6,7 +5,7 @@ import Button from "../../../components/shared/Button";
 import { type Category } from "../services/category.service";
 
 interface CategoryCardProps {
-  category: Category; // Cambiado de any a Category
+  category: Category; 
   onView: (category: Category) => void;
   onEdit?: (category: Category) => void;
   onDelete?: (id: number) => void;

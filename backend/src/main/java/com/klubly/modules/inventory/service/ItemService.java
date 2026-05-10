@@ -1,8 +1,8 @@
 package com.klubly.modules.inventory.service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +30,7 @@ public class ItemService {
         return itemRepository.findByDeletedAtIsNull()
                 .stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -39,7 +39,7 @@ public class ItemService {
         return itemRepository.findAllDeletedNative()
                 .stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -80,11 +80,11 @@ public class ItemService {
 
         categoryRepository.findByIdAndDeletedAtIsNull(itemDTO.getCategoryId())
                 .ifPresentOrElse(
-                        category -> item.setCategory(category),
+                        item::setCategory,
                         () -> { throw new ResourceNotFoundException("Categoría no encontrada"); }
                 );
 
-        item.setActive(itemDTO.getActive() != null ? itemDTO.getActive() : true);
+        item.setActive(itemDTO.getActive() == null || itemDTO.getActive());
         Item savedItem = itemRepository.save(item);
         return convertToDTO(savedItem);
     }
@@ -102,7 +102,7 @@ public class ItemService {
         throw new BadRequestException("El artículo debe tener una categoría asignada");
     }
 
-        boolean isAdmin = getContextRole().equals("ROLE_ADMIN");
+        boolean isAdmin = "ROLE_ADMIN".equals(getContextRole());
 
         if (isAdmin) {
             // Solo el ADMIN puede cambiar el nombre y validamos unicidad
@@ -171,12 +171,15 @@ public class ItemService {
 
     //Métodos auxiliares
     private String getContextRole() {
-        return SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                .iterator().next().getAuthority();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UnauthorizedException("Usuario no autenticado");
+        }
+        return authentication.getAuthorities().iterator().next().getAuthority();
     }
 
     private void checkAdminRole() {
-        if (!getContextRole().equals("ROLE_ADMIN")) {
+        if (!"ROLE_ADMIN".equals(getContextRole())) {
             throw new UnauthorizedException("Acceso denegado: Se requieren permisos de administrador");
         }
     }

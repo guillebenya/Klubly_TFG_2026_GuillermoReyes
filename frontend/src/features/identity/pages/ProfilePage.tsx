@@ -81,7 +81,7 @@ const ProfilePage = () => {
   };
 
   // LÓGICA DE ACTUALIZACIÓN DE PERFIL
-  const handleUpdateTrigger = (e: React.FormEvent) => {
+  const handleUpdateTrigger = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
     setPasswordData(null);
     setConfirmConfig({
@@ -214,10 +214,14 @@ const ProfilePage = () => {
       >
         <form onSubmit={handleUpdateTrigger} className="space-y-4">
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+            <label
+              htmlFor="url"
+              className="text-[10px] font-bold text-gray-400 uppercase tracking-widest"
+            >
               URL de la Imagen
             </label>
             <input
+              id="url"
               type="text"
               className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
               value={editData?.avatarURL || ""}
@@ -241,10 +245,14 @@ const ProfilePage = () => {
         <form onSubmit={handleUpdateTrigger} className="space-y-5">
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+              <label
+                htmlFor="firstName"
+                className="text-[10px] font-bold text-gray-400 uppercase tracking-widest"
+              >
                 Nombre
               </label>
               <input
+                id="firstName"
                 type="text"
                 className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
                 value={editData?.firstName || ""}
@@ -254,10 +262,14 @@ const ProfilePage = () => {
               />
             </div>
             <div className="space-y-2">
-              <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+              <label
+                htmlFor="lastName"
+                className="text-[10px] font-bold text-gray-400 uppercase tracking-widest"
+              >
                 Apellidos
               </label>
               <input
+                id="lastName"
                 type="text"
                 className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
                 value={editData?.lastName || ""}
@@ -268,10 +280,14 @@ const ProfilePage = () => {
             </div>
           </div>
           <div className="space-y-2">
-            <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">
+            <label
+              htmlFor="phone"
+              className="text-[10px] font-bold text-gray-400 uppercase tracking-widest"
+            >
               Teléfono
             </label>
             <input
+              id="phone"
               type="text"
               className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
               value={editData?.phone || ""}

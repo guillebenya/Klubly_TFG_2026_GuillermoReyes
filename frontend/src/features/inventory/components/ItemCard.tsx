@@ -1,4 +1,3 @@
-import React from "react";
 import {
   Package,
   MapPin,
@@ -32,10 +31,13 @@ const ItemCard = ({ item, onView, onEdit, onDelete }: ItemCardProps) => {
   const isOutOfStock = item.stockQuantity === 0;
 
   return (
-    <Card className={`flex items-center gap-4 py-3 px-6 transition-all shadow-sm group relative border-l-4 ${item.active ? "" : "opacity-65"} ${
-      isLowStock ? "border-l-red-500 hover:border-red-300 bg-red-50/10" : "border-l-indigo-300 hover:border-indigo-600"
-    }`}>
-      
+    <Card
+      className={`flex items-center gap-4 py-3 px-6 transition-all shadow-sm group relative border-l-4 ${item.active ? "" : "opacity-65"} ${
+        isLowStock
+          ? "border-l-red-500 hover:border-red-300 bg-red-50/10"
+          : "border-l-indigo-300 hover:border-indigo-600"
+      }`}
+    >
       {/* Icono Principal con Badge de Alerta superpuesto */}
       <div className="relative">
         <div
@@ -75,12 +77,19 @@ const ItemCard = ({ item, onView, onEdit, onDelete }: ItemCardProps) => {
           </span>
           <div className="flex flex-col items-center gap-0.5">
             <div className="flex items-center gap-1.5">
-              <span className={`text-base font-black ${isLowStock ? "text-red-600" : "text-gray-700"}`}>
+              <span
+                className={`text-base font-black ${isLowStock ? "text-red-600" : "text-gray-700"}`}
+              >
                 {item.stockQuantity}
               </span>
-              {isLowStock && <AlertTriangle size={14} className="text-red-500 animate-pulse" />}
+              {isLowStock && (
+                <AlertTriangle
+                  size={14}
+                  className="text-red-500 animate-pulse"
+                />
+              )}
             </div>
-            
+
             {/* Texto de aviso fijo cuando es bajo mínimos */}
             {isLowStock && (
               <span className="text-[9px] font-black text-red-500 uppercase tracking-tighter animate-pulse">
@@ -103,7 +112,9 @@ const ItemCard = ({ item, onView, onEdit, onDelete }: ItemCardProps) => {
           <span className="text-[10px] font-bold text-gray-400 uppercase tracking-tight">
             Mínimo
           </span>
-          <p className={`text-sm font-semibold ${isLowStock ? "text-gray-900" : "text-gray-500"}`}>
+          <p
+            className={`text-sm font-semibold ${isLowStock ? "text-gray-900" : "text-gray-500"}`}
+          >
             {item.minStock}
           </p>
         </div>
@@ -114,7 +125,10 @@ const ItemCard = ({ item, onView, onEdit, onDelete }: ItemCardProps) => {
             Ubicación
           </span>
           <div className="flex items-center gap-1 text-gray-600">
-            <MapPin size={12} className={isLowStock ? "text-red-400" : "text-indigo-500"} />
+            <MapPin
+              size={12}
+              className={isLowStock ? "text-red-400" : "text-indigo-500"}
+            />
             <p className="text-xs font-medium truncate">
               {item.location || "No asignada"}
             </p>
@@ -128,7 +142,9 @@ const ItemCard = ({ item, onView, onEdit, onDelete }: ItemCardProps) => {
           </span>
           <Badge
             variant={item.active ? "green" : "red"}
-            icon={item.active ? <CheckCircle2 size={10} /> : <XCircle size={10} />}
+            icon={
+              item.active ? <CheckCircle2 size={10} /> : <XCircle size={10} />
+            }
           >
             {item.active ? "ACTIVO" : "INACTIVO"}
           </Badge>
@@ -159,6 +175,7 @@ const ItemCard = ({ item, onView, onEdit, onDelete }: ItemCardProps) => {
 
         {isAdmin && onDelete && (
           <Button
+            aria-label="Eliminar"
             variant="ghost"
             size="sm"
             icon={<Trash2 size={16} />}

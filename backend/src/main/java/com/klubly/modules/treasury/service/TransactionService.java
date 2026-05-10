@@ -11,6 +11,8 @@ import com.klubly.modules.treasury.entity.Transaction;
 import com.klubly.modules.treasury.enums.TransactionType;
 import com.klubly.modules.treasury.repository.TransactionRepository;
 import lombok.RequiredArgsConstructor;
+
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,7 +20,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,14 +34,14 @@ public class TransactionService {
     public List<TransactionDTO> getAllTransactions() {
         checkAdminRole();
         return transactionRepository.findByDeletedAtIsNullOrderByTransactionDateDesc()
-                .stream().map(this::convertToDTO).collect(Collectors.toList());
+                .stream().map(this::convertToDTO).toList();
     }
 
     @Transactional(readOnly = true)
     public List<TransactionDTO> getDeletedHistory() {
         checkAdminRole();
         return transactionRepository.findAllDeletedNative()
-                .stream().map(this::convertToDTO).collect(Collectors.toList());
+                .stream().map(this::convertToDTO).toList();
     }
 
     @Transactional(readOnly = true)
@@ -69,7 +70,7 @@ public class TransactionService {
         transaction.setTransactionDate(dto.getTransactionDate() != null ? dto.getTransactionDate() : LocalDateTime.now());
         transaction.setType(dto.getType());
         transaction.setPaymentMethod(dto.getPaymentMethod());
-        transaction.setActive(dto.getActive() != null ? dto.getActive() : true);
+        transaction.setActive(dto.getActive() == null || dto.getActive());
 
         if (dto.getUserId() != null) {
             User user = userRepository.findById(dto.getUserId())
@@ -96,8 +97,7 @@ public class TransactionService {
         transaction.setTransactionDate(dto.getTransactionDate() != null ? dto.getTransactionDate() : LocalDateTime.now());
         transaction.setType(dto.getType());
         transaction.setPaymentMethod(dto.getPaymentMethod());
-        
-        transaction.setActive(dto.getActive());
+        transaction.setActive(dto.getActive() == null || dto.getActive());
 
         if (dto.getUserId() != null) {
             User user = userRepository.findById(dto.getUserId())
@@ -127,7 +127,7 @@ public class TransactionService {
     public List<TransactionDTO> getTransactionsByMember(Long userId) {
         checkAdminOrOwner(userId); // Seguridad: O eres Admin o eres tú mismo
         return transactionRepository.findByUserIdAndDeletedAtIsNullOrderByTransactionDateDesc(userId)
-                .stream().map(this::convertToDTO).collect(Collectors.toList());
+                .stream().map(this::convertToDTO).toList();
     }
 
     @Transactional(readOnly = true)
@@ -140,31 +140,36 @@ public class TransactionService {
 
     // MÉTODOS AUXILIARES
 
+    //Métodos auxiliares
+    private String getContextRole() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UnauthorizedException("Usuario no autenticado");
+        }
+        return authentication.getAuthorities().iterator().next().getAuthority();
+    }
+
     private void checkAdminRole() {
-        if (!getRole().equals("ROLE_ADMIN")) {
-            throw new UnauthorizedException("Acceso denegado: Solo administradores");
+        if (!"ROLE_ADMIN".equals(getContextRole())) {
+            throw new UnauthorizedException("Acceso denegado: Se requieren permisos de administrador");
         }
     }
 
     private void checkAdminOrOwner(Long userId) {
-        String role = getRole();
-        String currentUsername = SecurityContextHolder.getContext().getAuthentication().getName();
+        String role = getContextRole();
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = (auth != null) ? auth.getName() : null;
         
         // Buscamos el username del ID que se intenta consultar
         User userToConsult = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("Usuario no encontrado"));
 
-        boolean isAdmin = role.equals("ROLE_ADMIN");
-        boolean isOwner = currentUsername.equals(userToConsult.getUsername());
+        boolean isAdmin = "ROLE_ADMIN".equals(role);
+        boolean isOwner = currentUsername != null && currentUsername.equals(userToConsult.getUsername());
 
         if (!isAdmin && !isOwner) {
             throw new UnauthorizedException("Acceso denegado: No puedes ver los pagos de otros socios");
         }
-    }
-
-    private String getRole() {
-        return SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                .iterator().next().getAuthority();
     }
 
     private TransactionDTO convertToDTO(Transaction t) {

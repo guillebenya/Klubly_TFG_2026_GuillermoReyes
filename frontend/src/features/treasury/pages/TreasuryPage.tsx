@@ -1,5 +1,4 @@
-// src/features/treasury/pages/TreasuryPage.tsx
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Plus,
   Filter,
@@ -9,7 +8,6 @@ import {
   Landmark,
   TrendingUp,
   TrendingDown,
-  Wallet,
   Scale,
 } from "lucide-react";
 import PageHeader from "../../../components/shared/PageHeader";
@@ -174,10 +172,10 @@ const TreasuryPage = () => {
 
     const matchesMinAmount =
       !activeFilters.minAmount ||
-      t.amount >= parseFloat(activeFilters.minAmount);
+      t.amount >= Number.parseFloat(activeFilters.minAmount);
     const matchesMaxAmount =
       !activeFilters.maxAmount ||
-      t.amount <= parseFloat(activeFilters.maxAmount);
+      t.amount <= Number.parseFloat(activeFilters.maxAmount);
 
     return (
       matchesSearch &&

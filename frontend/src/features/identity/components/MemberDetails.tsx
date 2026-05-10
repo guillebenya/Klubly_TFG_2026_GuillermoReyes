@@ -1,5 +1,3 @@
-// src/features/identity/components/MemberDetails.tsx
-import React from "react";
 import {
   Calendar,
   Clock,

@@ -1,4 +1,3 @@
-// src/features/treasury/components/TransactionForm.tsx
 import React, { useState, useEffect } from "react";
 import {
   Euro,
@@ -8,8 +7,6 @@ import {
   Tag,
   User,
   X,
-  CheckCircle2,
-  XCircle,
 } from "lucide-react";
 import Button from "../../../components/shared/Button";
 import { TransactionType, PaymentMethod } from "../services/treasury.service";
@@ -65,15 +62,15 @@ const TransactionForm = ({
     }
   }, [initialData]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     // Construimos el objeto final
     const finalPayload = {
       ...formData,
       id: initialData?.id, // Incluimos el ID si existe
-      amount: parseFloat(formData.amount),
-      userId: formData.userId ? parseInt(formData.userId) : null,
+      amount: Number.parseFloat(formData.amount),
+      userId: formData.userId ? Number.parseInt(formData.userId) : null,
       transactionDate: new Date(formData.transactionDate).toISOString(),
     };
 
@@ -85,9 +82,9 @@ const TransactionForm = ({
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Concepto */}
         <div className="space-y-1 md:col-span-2">
-          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
+          <span className="text-[11px] font-bold text-gray-500 uppercase ml-1">
             Concepto del Movimiento<span className="text-red-500">*</span>
-          </label>
+          </span>
           <div className="relative">
             <FileText
               className="absolute left-3 top-3 text-gray-400"
@@ -107,12 +104,16 @@ const TransactionForm = ({
 
         {/* Socio Vinculado */}
         <div className="space-y-1 md:col-span-2">
-          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
+          <label
+            htmlFor="userId"
+            className="text-[11px] font-bold text-gray-500 uppercase ml-1"
+          >
             Socio / Usuario<span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <User className="absolute left-3 top-3 text-gray-400" size={18} />
             <select
+              id="userId"
               value={formData.userId}
               onChange={(e) =>
                 setFormData({ ...formData, userId: e.target.value })
@@ -131,12 +132,16 @@ const TransactionForm = ({
 
         {/* Importe */}
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
+          <label
+            htmlFor="amount"
+            className="text-[11px] font-bold text-gray-500 uppercase ml-1"
+          >
             Importe (€)<span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <Euro className="absolute left-3 top-3 text-gray-400" size={18} />
             <input
+              id="amount"
               type="number"
               step="0.01"
               required
@@ -152,9 +157,9 @@ const TransactionForm = ({
 
         {/* Fecha y Hora */}
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
+          <span className="text-[11px] font-bold text-gray-500 uppercase ml-1">
             Fecha y Hora<span className="text-red-500">*</span>
-          </label>
+          </span>
           <div className="relative">
             <Calendar
               className="absolute left-3 top-3 text-gray-400"
@@ -174,12 +179,16 @@ const TransactionForm = ({
 
         {/* Tipo */}
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
+          <label
+            htmlFor="type"
+            className="text-[11px] font-bold text-gray-500 uppercase ml-1"
+          >
             Tipo<span className="text-red-500">*</span>
           </label>
           <div className="relative">
             <Tag className="absolute left-3 top-3 text-gray-400" size={18} />
             <select
+              id="type"
               value={formData.type}
               onChange={(e) =>
                 setFormData({ ...formData, type: e.target.value })
@@ -194,9 +203,9 @@ const TransactionForm = ({
 
         {/* Método */}
         <div className="space-y-1">
-          <label className="text-[11px] font-bold text-gray-500 uppercase ml-1">
+          <span className="text-[11px] font-bold text-gray-500 uppercase ml-1">
             Método de Pago<span className="text-red-500">*</span>
-          </label>
+          </span>
           <div className="relative">
             <CreditCard
               className="absolute left-3 top-3 text-gray-400"
@@ -218,7 +227,7 @@ const TransactionForm = ({
 
         {/* TOGGLE:*/}
         <div className="md:col-span-2 pt-2">
-          <div
+          <button
             onClick={() =>
               setFormData({ ...formData, active: !formData.active })
             }
@@ -245,7 +254,7 @@ const TransactionForm = ({
             >
               {formData.active ? "Transacción Activa" : "Transacción Inactiva"}
             </span>
-          </div>
+          </button>
         </div>
       </div>
 
@@ -258,7 +267,11 @@ const TransactionForm = ({
         >
           Cancelar
         </Button>
-        <Button type="submit" variant={initialData ? "primary" : "add"} isLoading={loading}>
+        <Button
+          type="submit"
+          variant={initialData ? "primary" : "add"}
+          isLoading={loading}
+        >
           {initialData ? "Guardar Cambios" : "Registrar Movimiento"}
         </Button>
       </div>

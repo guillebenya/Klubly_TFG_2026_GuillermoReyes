@@ -1,4 +1,3 @@
-import React from "react";
 import { User, Phone, Pencil } from "lucide-react";
 import Card from "../../../components/shared/Card";
 
@@ -13,7 +12,7 @@ const ProfilePersonalInfoCard = ({
 }: ProfilePersonalInfoCardProps) => {
   return (
     <div className="space-y-4">
-      {/* Título 2: Información Personal */}
+      {/* Información Personal */}
       <div className="flex items-center gap-4 mb-4">
         <h2 className="text-xl font-black text-gray-800 uppercase tracking-tight ml-1">
           Información Personal
@@ -27,9 +26,9 @@ const ProfilePersonalInfoCard = ({
         </button>
       </div>
 
-      {/* Contenido: Card con Nombre y Teléfono */}
+      {/* Card con Nombre y Teléfono */}
       <Card className="grid grid-cols-1 md:grid-cols-2 gap-32 w-fit">
-        {/* Bloque Nombre y Apellidos */}
+        {/* Nombre y Apellidos */}
         <div className="space-y-1.5 min-w-[100px]">
           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
             <User size={14} className="text-indigo-500" />
@@ -40,7 +39,7 @@ const ProfilePersonalInfoCard = ({
           </p>
         </div>
 
-        {/* Bloque Teléfono */}
+        {/* Teléfono */}
         <div className="space-y-1.5">
           <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest flex items-center gap-2">
             <Phone size={14} className="text-indigo-500" />

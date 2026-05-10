@@ -10,14 +10,13 @@ import com.klubly.modules.identity.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.HttpClientErrorException.BadRequest;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +31,7 @@ public class RoleService {
         return roleRepository.findByDeletedAtIsNull()
                 .stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -40,7 +39,7 @@ public class RoleService {
         return roleRepository.findByDeletedAtIsNotNull()
                 .stream()
                 .map(this::convertToDTO)
-                .collect(Collectors.toList());
+                .toList();
     }
 
     @Transactional(readOnly = true)
@@ -57,7 +56,7 @@ public class RoleService {
         Role role = new Role();
         role.setName(roleDTO.getName());
         role.setDescription(roleDTO.getDescription());
-        role.setActive(roleDTO.getActive() != null ? roleDTO.getActive() : true);
+        role.setActive(roleDTO.getActive() == null || roleDTO.getActive());
 
         Role savedRole = roleRepository.save(role);
         return convertToDTO(savedRole);
@@ -119,12 +118,15 @@ public class RoleService {
 
     //Métodos auxiliares
     private String getContextRole() {
-        return SecurityContextHolder.getContext().getAuthentication().getAuthorities()
-                .iterator().next().getAuthority();
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UnauthorizedException("Usuario no autenticado");
+        }
+        return authentication.getAuthorities().iterator().next().getAuthority();
     }
 
     private void checkAdminRole() {
-        if (!getContextRole().equals("ROLE_ADMIN")) {
+        if (!"ROLE_ADMIN".equals(getContextRole())) {
             throw new UnauthorizedException("Acceso denegado: Se requieren permisos de administrador");
         }
     }

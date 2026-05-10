@@ -1,5 +1,3 @@
-// src/features/configuration/components/TeamDetails.tsx
-import React from "react";
 import { Users2, Calendar, Clock, Trash2, Info } from "lucide-react";
 import Badge from "../../../components/shared/Badge";
 import { type Team } from "../services/team.service";

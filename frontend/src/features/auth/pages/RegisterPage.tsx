@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { CheckCircle2, Hexagon } from "lucide-react";
+import { CheckCircle2 } from "lucide-react";
 import MemberForm from "../../identity/components/MemberForm";
 import { authService } from "../services/auth.service";
 import logo from "../../../assets/Klubly_Logo.png";

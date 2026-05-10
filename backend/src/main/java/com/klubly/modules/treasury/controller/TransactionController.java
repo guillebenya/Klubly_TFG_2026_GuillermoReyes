@@ -1,6 +1,5 @@
 package com.klubly.modules.treasury.controller;
 
-import com.klubly.modules.inventory.dto.CategoryDTO;
 import com.klubly.modules.treasury.dto.TransactionDTO;
 import com.klubly.modules.treasury.dto.TreasurySummaryDTO;
 import com.klubly.modules.treasury.service.TransactionService;

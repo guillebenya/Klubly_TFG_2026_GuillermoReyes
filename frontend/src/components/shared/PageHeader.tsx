@@ -11,7 +11,7 @@ interface PageHeaderProps {
 const PageHeader = ({ title, subtitle, onSearch, actions }: PageHeaderProps) => {
   return (
     <div className="flex flex-col gap-1 border-b border-gray-100 pb-6 mb-6">
-      {/* Usamos justify-start y un gap-8 para que todo vaya seguido */}
+      {/* Usamos justify-start y un gap-8 para que vaya seguido */}
       <div className="flex flex-col md:flex-row md:items-center justify-start gap-8">
         
         <div>
