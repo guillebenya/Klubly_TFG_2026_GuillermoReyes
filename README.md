@@ -1,4 +1,4 @@
-Guía de Configuración y Despliegue - Klubly
+## Guía de Configuración y Despliegue - Klubly
 
 Este repositorio contiene el ecosistema completo de **Klubly** (Frontend, Backend y Base de Datos) automatizado mediante contenedores para facilitar su despliegue y evaluación:
 
@@ -27,7 +27,7 @@ Localiza el archivo env.template en la raíz del proyecto.
 
 Renombra o copia el archivo como .env (el nombre tiene que ser exactamente ese).
 
-Edita el archivo .env y sustituye los valores entre corchetes por los tuyos:
+Edita el archivo .env y sustituye los valores entre corchetes por los tuyos (sin los corchetes):
 
 DB_USER / DB_PASSWORD / DB_NAME: Credenciales para la base de datos (necesarias para el Backend y Adminer).
 
