@@ -94,12 +94,12 @@ Docker Desktop
 Token de acceso (Para facilitar la evaluación, se proporciona el token de acceso directo (solo para fines de revisión académica)).
 
 - Análisis del Backend:
-Dentro de la carpeta /backend.
+Dentro de la carpeta /backend ejecutar el siguiente comando en el PowerShell (buscar cómo adaptar comando si es una terminal diferente).
 
 mvn clean verify sonar:sonar "-Dsonar.projectKey=guillebenya_Klubly_TFG_2026_GuillermoReyes" "-Dsonar.organization=tfg-desarrolloweb" "-Dsonar.host.url=https://sonarcloud.io" "-Dsonar.token=0fc785cd0f82cddf20ab9851236d6ea79cfc1531"
 
 - Análisis del Frontend:
-Dentro de la carpeta /frontend.
+Dentro de la carpeta /frontend ejecutar el siguiente comando en el PowerShell (buscar cómo adaptar comando si es una terminal diferente).
 
 docker run --rm -v "${PWD}:/usr/src" sonarsource/sonar-scanner-cli sonar-scanner "-Dsonar.projectKey=guillebenya_Klubly_TFG_2026_GuillermoReyes_Frontend" "-Dsonar.organization=tfg-desarrolloweb" "-Dsonar.sources=src" "-Dsonar.host.url=https://sonarcloud.io" "-Dsonar.token=0fc785cd0f82cddf20ab9851236d6ea79cfc1531"
 
