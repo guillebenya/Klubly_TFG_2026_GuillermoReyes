@@ -79,6 +79,29 @@ Los endpoints están protegidos por seguridad JWT. Para probarlos desde la inter
 
 6. Ahora ya puedes ejecutar cualquier método y Swagger enviará automáticamente el token en la cabecera.
 
+## Calidad de Código
+Este proyecto utiliza SonarCloud para el análisis estático de código, asegurando estándares de seguridad, mantenibilidad y fiabilidad.
+
+Puedes consultar el estado actual del proyecto, la deuda técnica y las vulnerabilidades detectadas en el siguiente enlace:
+https://sonarcloud.io/project/overview?id=guillebenya_Klubly_TFG_2026_GuillermoReyes
+
+Si deseas replicar el análisis de calidad en tu entorno local, sigue estos pasos:
+
+- Prerrequisitos:
+Java 21+ y Maven
+Docker Desktop
+Token de acceso (Para facilitar la evaluación, se proporciona el token de acceso directo (solo para fines de revisión académica)).
+
+- Análisis del Backend:
+Dentro de la carpeta /backend.
+
+mvn clean verify sonar:sonar "-Dsonar.projectKey=guillebenya_Klubly_TFG_2026_GuillermoReyes" "-Dsonar.organization=tfg-desarrolloweb" "-Dsonar.host.url=https://sonarcloud.io" "-Dsonar.token=0fc785cd0f82cddf20ab9851236d6ea79cfc1531"
+
+- Análisis del Frontend:
+Dentro de la carpeta /frontend.
+
+docker run --rm -v "${PWD}:/usr/src" sonarsource/sonar-scanner-cli sonar-scanner "-Dsonar.projectKey=guillebenya_Klubly_TFG_2026_GuillermoReyes_Frontend" "-Dsonar.organization=tfg-desarrolloweb" "-Dsonar.sources=src" "-Dsonar.host.url=https://sonarcloud.io" "-Dsonar.token=0fc785cd0f82cddf20ab9851236d6ea79cfc1531"
+
 ## Parada y limpieza
 
 'docker-compose down' para detener los servicios

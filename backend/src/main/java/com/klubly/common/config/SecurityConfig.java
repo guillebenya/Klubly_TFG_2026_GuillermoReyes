@@ -55,7 +55,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) {
         http
             .cors(Customizer.withDefaults()) // Activa la configuración de WebConfig
-            .csrf(csrf -> csrf.disable())    // Desactiva CSRF (necesario para APIs con JWT)
+            .csrf(csrf -> csrf.disable())    // // NOSONAR - Stateless JWT API: no session cookies, CSRF not applicable
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll() // Permitir acceso a Swagger sin autenticación
                 .requestMatchers("/api/auth/**").permitAll() // Login público
