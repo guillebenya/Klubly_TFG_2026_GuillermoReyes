@@ -27,6 +27,7 @@ Thumbs.db
 # Extensiones de logs adicionales (por si acaso)
 *.log
 /logs/*
+/default_logs/*
 
 # Archivos temporales de Spring Boot / JVM
 hs_err_pid*
