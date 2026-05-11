@@ -80,6 +80,7 @@ Los endpoints están protegidos por seguridad JWT. Para probarlos desde la inter
 6. Ahora ya puedes ejecutar cualquier método y Swagger enviará automáticamente el token en la cabecera.
 
 ## Calidad de Código
+
 Este proyecto utiliza SonarCloud para el análisis estático de código, asegurando estándares de seguridad, mantenibilidad y fiabilidad.
 
 Puedes consultar el estado actual del proyecto, la deuda técnica y las vulnerabilidades detectadas en el siguiente enlace:
