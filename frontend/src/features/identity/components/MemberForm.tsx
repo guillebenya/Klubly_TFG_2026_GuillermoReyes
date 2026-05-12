@@ -156,6 +156,7 @@ const MemberForm = ({
   isRegistration = false,
 }: MemberFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [showRepeatPassword, setShowRepeatPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState(false);
 
@@ -364,6 +365,13 @@ const MemberForm = ({
               required={passwordRequired}
               placeholder={isEditMode ? "••••••••" : "Mínimo 6 caracteres"}
             />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute right-3 top-3 text-gray-400 hover:text-indigo-600 transition-colors"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
           </div>
         </div>
 
@@ -386,7 +394,7 @@ const MemberForm = ({
           <div className="relative">
             <Lock className="absolute left-3 top-3 text-gray-400" size={18} />
             <input
-              type={showPassword ? "text" : "password"}
+              type={showRepeatPassword ? "text" : "password"}
               value={confirmPassword}
               onChange={(e) => {
                 setConfirmPassword(e.target.value);
@@ -400,10 +408,10 @@ const MemberForm = ({
             />
             <button
               type="button"
-              onClick={() => setShowPassword(!showPassword)}
+              onClick={() => setShowRepeatPassword(!showRepeatPassword)}
               className="absolute right-3 top-3 text-gray-400 hover:text-indigo-600 transition-colors"
             >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              {showRepeatPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
         </div>
