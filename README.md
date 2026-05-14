@@ -72,7 +72,7 @@ NOTA: El sistema utiliza una política de create-drop para la base de datos, lo 
 ## Accesos
 
 - Frontend: *http://localhost* => Interfaz de usuario final y panel de gestión.
-- Adminer: *http://localhost:8888* => Interfaz web para gestionar la base de datos PostgreSQL. (Marcar PostgreSQL como motor de base de datos y usar las credenciales definidas en el archivo *.env*)
+- Adminer: *http://localhost:8888* => Interfaz web para gestionar la base de datos PostgreSQL. **(Marcar PostgreSQL como motor de base de datos y usar las credenciales definidas en el archivo *.env*)**
 
 ## Usuarios de Prueba (Data Seeding)
 
