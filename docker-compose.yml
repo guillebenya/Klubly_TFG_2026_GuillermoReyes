@@ -4,9 +4,9 @@ services:
     container_name: klubly-db
     restart: always
     environment:
-      POSTGRES_DB: ${DB_NAME}
-      POSTGRES_USER: ${DB_USER}
-      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME:?Falta la variable DB_NAME en config.env}
+      POSTGRES_USER: ${DB_USER:?Falta la variable DB_USER en config.env}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?Falta la variable DB_PASSWORD en config.env}
     ports:
       - "5432:5432"
     volumes:
@@ -25,12 +25,12 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${DB_NAME}
-      - SPRING_DATASOURCE_USERNAME=${DB_USER}
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
-      - APP_JWT_SECRET=${JWT_SECRET}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://db:5432/${DB_NAME:?Error en DB_NAME}
+      - SPRING_DATASOURCE_USERNAME=${DB_USER:?Error en DB_USER}
+      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD:?Error en DB_PASSWORD}
+      - APP_JWT_SECRET=${JWT_SECRET:?Falta la variable JWT_SECRET en config.env (mínimo 32 caracteres)}
+      - APP_DEFAULT_PASSWORD=${APP_DEFAULT_PASSWORD:?Falta la variable APP_DEFAULT_PASSWORD en config.env}
       - SPRING_JPA_HIBERNATE_DDL_AUTO=create-drop # Recrea todo al iniciar y borra al cerrar
-      - APP_DEFAULT_PASSWORD=${APP_DEFAULT_PASSWORD}
     networks:
       - klubly-network
 

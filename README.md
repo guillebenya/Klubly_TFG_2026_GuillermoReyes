@@ -1,6 +1,12 @@
+## ¿Qué es Klubly?
+
+**Klubly** es una plataforma integral diseñada para centralizar y simplificar la gestión administrativa de entidades y clubes deportivos. Desarrollada como Trabajo de Fin de Grado (TFG) del Grado de Ingeniería Informático de la Universitat Oberta de Catalunya (UOC) en el área de Desarrollo Web, la aplicación nace con el objetivo de transformar la gestión tradicional —a menudo dispersa en hojas de cálculo o procesos manuales— en un ecosistema digital robusto, eficiente y fácil de usar.
+
+El sistema permite un control total sobre los pilares operativos de un club a través de una arquitectura modular. Entre sus funciones principales destacan la gestión avanzada de usuarios y roles, la organización de equipos y afiliaciones, y la planificación de actividades con sus respectivos sistemas de inscripción. Además, Klubly incorpora herramientas críticas para la salud del club, como un módulo de control de tesorería para monitorizar el flujo económico y una sección de gestión de inventario para supervisar el material deportivo disponible.
+
 ## Guía de Configuración y Despliegue - Klubly
 
-Este repositorio contiene el ecosistema completo de **Klubly** (Frontend, Backend y Base de Datos) automatizado mediante contenedores para facilitar su despliegue y evaluación:
+Este repositorio contiene el ecosistema completo de **Klubly** (Frontend, Backend y Base de Datos) automatizado mediante contenedores para facilitar su despliegue y evaluación.
 
 ## Requisitos
 
@@ -36,32 +42,34 @@ Por seguridad, las credenciales no están incluidas en el código fuente. Es obl
 
 2. Editar las credenciales:
 
-- Abre **config.env* con cualquier editor de texto y sustituye los valores entre corchetes por los tuyos (sin los corchetes):
+- Abre *config.env* con cualquier editor de texto y sustituye los valores entre corchetes por los tuyos (sin los corchetes):
 
-- **DB_USER* / *DB_PASSWORD* / *DB_NAME*: Credenciales para la base de datos (necesarias para el Backend y Adminer).
+- *DB_USER* / *DB_PASSWORD* / *DB_NAME*: Credenciales para la base de datos (necesarias para el Backend y Adminer). 
 
-- *JWT_SECRET*: Clave para la seguridad de las sesiones. **IMPORTANTE**: Debe tener al menos 32 caracteres (256 bits) para cumplir con el estándar de seguridad HS256. Si es más corta, el Backend lanzará un error crítico al arrancar.
+**Nota: Si solo quieres probar la aplicación, puedes dejar los valores de la base de datos que vienen por defecto en el archivo env.template. Se exponen aquí por seguridad y para evitar conflictos si se despliega junto a otras bases de datos..**
+
+- *JWT_SECRET*: Clave para el cifrado de las sesiones. **IMPORTANTE**: Debe tener al menos 32 caracteres (256 bits) para cumplir con el estándar de seguridad HS256. Si es más corta, el Backend lanzará un error crítico al arrancar.
 
 - *APP_DEFAULT_PASSWORD*: Contraseña genérica para los usuarios que se cargan automáticamente en la base de datos al inicio. **IMPORTANTE**: El sistema  exige un mínimo estricto de 6 caracteres para cualquier contraseña nueva o actualizada por motivos de seguridad.
 
 ## Cómo ejecutar 
 
-- En la terminal, nos situamos een la raíz del proyecto (donde está el archivo *docker-compose.yml*)
+- En la terminal, nos situamos en la raíz del proyecto (donde está el archivo *docker-compose.yml*)
 
-- 1ª vez (Compilación total): '*docker-compose --env-file config.env up --build -d*'
-- 2ª vez y sucesivas: '*docker-compose up*' (para ver los logs en tiempo real) o '*docker-compose up -d*' para no verla y que todo se ejecute en segundo plano. Si has usado la opción en segundo plano pero decides que quieres ver los logs puedes usar '*docker-compose logs -f*'
+- 1ª vez (Compilación total); usamos el comando: *docker-compose --env-file config.env up --build -d*
+- 2ª vez y sucesivas; usamos el comando: *docker-compose up* (para ver los logs en tiempo real) o *docker-compose up -d* para no verla y que todo se ejecute en segundo plano. Si has usado la opción en segundo plano pero decides que quieres ver los logs puedes usar *docker-compose logs -f*
 
 ## Accesos
 
-- Frontend: ****http://localhost* => Interfaz de usuario final y panel de gestión.
+- Frontend: *http://localhost* => Interfaz de usuario final y panel de gestión.
 - Backend: *http://localhost:8080* => Punto de entrada del API REST de Spring Boot.
-- Adminer: **http://localhost:8888* => Interfaz web para gestionar la base de datos PostgreSQL. (Marcar PostgreSQL como motor de base de datos y usar las credenciales definidas en el archivo .env)
+- Adminer: *http://localhost:8888* => Interfaz web para gestionar la base de datos PostgreSQL. (Marcar PostgreSQL como motor de base de datos y usar las credenciales definidas en el archivo *config.env*)
 
 ## Usuarios de Prueba (Data Seeding)
 
 Para facilitar la evaluación, el sistema carga automáticamente los siguientes perfiles.
 
-IMPORTANTE: La contraseña para todos los usuarios es la que hayas definido en la variable *APP_DEFAULT_PASSWORD* de tu archivo config.env
+IMPORTANTE: La contraseña para todos los usuarios es la que hayas definido en la variable *APP_DEFAULT_PASSWORD* de tu archivo *config.env*
 
 USUARIO - ROL - DESCRIPCIÓN
 1. admin - Rol ADMIN - Acceso total. Director general del sistema.
