@@ -36,13 +36,16 @@ Por seguridad, las credenciales no están incluidas en el código fuente. Es obl
 
 - Localiza el archivo *env.template* en la raíz del proyecto y haz una copia llamada exactamente:
 
-*config.env*
+*.env* 
 
-(Nota: Asegúrate de que no tenga extensión .txt al final. Si usas Mac/Linux y no lo ves tras crearlo, pulsa Cmd + Shift + . para mostrar archivos ocultos).
+(Nota: Asegúrate de que no tenga extensión .txt al final.)
+
+**Nota para usuarios de macOS:**
+El archivo .env es un archivo de sistema y puede aparecer oculto. **Para visualizarlo en el Finder, presiona la combinación de teclas: Cmd + Shift + . (punto)**
 
 2. Editar las credenciales:
 
-- Abre *config.env* con cualquier editor de texto y sustituye los valores entre corchetes por los tuyos (sin los corchetes):
+- Abre *.env* con cualquier editor de texto y sustituye los valores entre corchetes por los tuyos (sin los corchetes):
 
 - *DB_USER* / *DB_PASSWORD* / *DB_NAME*: Credenciales para la base de datos (necesarias para el Backend y Adminer). 
 
@@ -56,20 +59,20 @@ Por seguridad, las credenciales no están incluidas en el código fuente. Es obl
 
 - En la terminal, nos situamos en la raíz del proyecto (donde está el archivo *docker-compose.yml*)
 
-- 1ª vez (Compilación total); usamos el comando: *docker-compose --env-file config.env up --build -d*
+- 1ª vez (Compilación total); usamos el comando: *docker-compose up --build -d*
 - 2ª vez y sucesivas; usamos el comando: *docker-compose up* (para ver los logs en tiempo real) o *docker-compose up -d* para no verla y que todo se ejecute en segundo plano. Si has usado la opción en segundo plano pero decides que quieres ver los logs puedes usar *docker-compose logs -f*
 
 ## Accesos
 
 - Frontend: *http://localhost* => Interfaz de usuario final y panel de gestión.
 - Backend: *http://localhost:8080* => Punto de entrada del API REST de Spring Boot.
-- Adminer: *http://localhost:8888* => Interfaz web para gestionar la base de datos PostgreSQL. (Marcar PostgreSQL como motor de base de datos y usar las credenciales definidas en el archivo *config.env*)
+- Adminer: *http://localhost:8888* => Interfaz web para gestionar la base de datos PostgreSQL. (Marcar PostgreSQL como motor de base de datos y usar las credenciales definidas en el archivo *.env*)
 
 ## Usuarios de Prueba (Data Seeding)
 
 Para facilitar la evaluación, el sistema carga automáticamente los siguientes perfiles.
 
-IMPORTANTE: La contraseña para todos los usuarios es la que hayas definido en la variable *APP_DEFAULT_PASSWORD* de tu archivo *config.env*
+IMPORTANTE: La contraseña para todos los usuarios es la que hayas definido en la variable *APP_DEFAULT_PASSWORD* de tu archivo *.env*
 
 USUARIO - ROL - DESCRIPCIÓN
 1. admin - Rol ADMIN - Acceso total. Director general del sistema.
