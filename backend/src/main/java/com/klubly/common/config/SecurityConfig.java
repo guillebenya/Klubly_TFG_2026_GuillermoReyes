@@ -56,6 +56,12 @@ public class SecurityConfig {
         http
             .cors(Customizer.withDefaults()) // Activa la configuración de WebConfig
             .csrf(csrf -> csrf.disable())    // // NOSONAR - Stateless JWT API: no session cookies, CSRF not applicable
+            .exceptionHandling(exception -> exception
+                // Fuerza el 401 cuando la autenticación falla
+                .authenticationEntryPoint((request, response, authException) -> {
+                    response.sendError(org.springframework.http.HttpStatus.UNAUTHORIZED.value(), "Sesión expirada o token inválido");
+                })
+            )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll() // Permitir acceso a Swagger sin autenticación
                 .requestMatchers("/api/auth/**").permitAll() // Login público
