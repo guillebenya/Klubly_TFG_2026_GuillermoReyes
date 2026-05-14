@@ -62,10 +62,16 @@ El archivo .env es un archivo de sistema y puede aparecer oculto. **Para visuali
 - 1ª vez (Compilación total); usamos el comando: *docker-compose up --build -d*
 - 2ª vez y sucesivas; usamos el comando: *docker-compose up* (para ver los logs en tiempo real) o *docker-compose up -d* para no verla y que todo se ejecute en segundo plano. Si has usado la opción en segundo plano pero decides que quieres ver los logs puedes usar *docker-compose logs -f*
 
+## Parada y limpieza
+
+'docker-compose down' para detener los servicios
+'docker-compose down -v' para limpieza total borrando también los datos de la base de datos (recomendable si queremos evitar problemas y comenzar totalmente de 0)
+
+NOTA: El sistema utiliza una política de create-drop para la base de datos, lo que garantiza que, en cada despliegue (docker-compose up), los datos de prueba se carguen correctamente y el entorno esté limpio.
+
 ## Accesos
 
 - Frontend: *http://localhost* => Interfaz de usuario final y panel de gestión.
-- Backend: *http://localhost:8080* => Punto de entrada del API REST de Spring Boot.
 - Adminer: *http://localhost:8888* => Interfaz web para gestionar la base de datos PostgreSQL. (Marcar PostgreSQL como motor de base de datos y usar las credenciales definidas en el archivo *.env*)
 
 ## Usuarios de Prueba (Data Seeding)
@@ -143,10 +149,3 @@ mvn clean verify sonar:sonar "-Dsonar.projectKey=guillebenya_Klubly_TFG_2026_Gui
 Dentro de la carpeta /frontend ejecutar el siguiente comando en el PowerShell (buscar cómo adaptar comando si es una terminal diferente).
 
 docker run --rm -v "${PWD}:/usr/src" sonarsource/sonar-scanner-cli sonar-scanner "-Dsonar.projectKey=guillebenya_Klubly_TFG_2026_GuillermoReyes_Frontend" "-Dsonar.organization=tfg-desarrolloweb" "-Dsonar.sources=src" "-Dsonar.host.url=https://sonarcloud.io" "-Dsonar.token=0fc785cd0f82cddf20ab9851236d6ea79cfc1531"
-
-## Parada y limpieza
-
-'docker-compose down' para detener los servicios
-'docker-compose down -v' para limpieza total borrando también los datos de la base de datos
-
-NOTA: El sistema utiliza una política de create-drop para la base de datos, lo que garantiza que, en cada despliegue (docker-compose up), los datos de prueba se carguen correctamente y el entorno esté limpio.
