@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.klubly.core.exception.BadRequestException;
 import com.klubly.core.exception.UnauthorizedException;
+import com.klubly.modules.identity.dto.ChangePasswordRequest;
 import com.klubly.modules.identity.dto.UserDTO;
 import com.klubly.modules.identity.entity.Role;
 import com.klubly.modules.identity.entity.User;
@@ -106,6 +107,7 @@ class UserServiceTest {
         
         UserDTO dto = new UserDTO();
         dto.setUsername("existing.user");
+        dto.setPassword("password123");
 
         when(userRepository.existsByUsernameAndDeletedAtIsNull("existing.user")).thenReturn(true);
 
@@ -171,5 +173,34 @@ class UserServiceTest {
     // Método para casos donde solo importa el rol
     private void mockAuthenticatedRole(String role) {
         mockAuthenticatedUser("anonymous", role);
+    }
+
+    @Test
+    @DisplayName("Debería cambiar la contraseña correctamente")
+    void shouldChangePasswordSuccessfully() {
+        //Simular usuario autenticado
+        mockAuthenticatedUser("admin.test", "ROLE_ADMIN");
+        
+        //Mockear que el usuario existe en la DB y tiene una clave vieja
+        adminUser.setPassword("encodedOldPassword");
+        when(userRepository.findByUsernameAndDeletedAtIsNull("admin.test")).thenReturn(Optional.of(adminUser));
+        
+        //Simular que la clave vieja coincide y encodear la nueva
+        when(passwordEncoder.matches("oldPassword123", "encodedOldPassword")).thenReturn(true);
+        when(passwordEncoder.encode("newPassword123")).thenReturn("encodedNewPassword");
+
+        //Crear el request (Record)
+        ChangePasswordRequest request = new ChangePasswordRequest(
+            "oldPassword123", 
+            "newPassword123", 
+            "newPassword123"
+        );
+
+        //Ejecutar
+        assertDoesNotThrow(() -> userService.changePassword(request));
+        
+        //Verificar
+        assertEquals("encodedNewPassword", adminUser.getPassword());
+        verify(userRepository).save(adminUser);
     }
 }

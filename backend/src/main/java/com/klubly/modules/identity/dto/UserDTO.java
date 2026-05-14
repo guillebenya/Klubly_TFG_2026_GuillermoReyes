@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
@@ -13,6 +15,8 @@ public class UserDTO {
     private String username;
     private String email;
 
+    @NotBlank(groups = OnCreate.class, message = "La contraseña es obligatoria al crear un usuario")
+    @Size(min = 6, groups = {OnCreate.class, OnUpdate.class}, message = "La contraseña debe tener al menos 6 caracteres")
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
 
@@ -33,4 +37,7 @@ public class UserDTO {
     private LocalDateTime deletedAt;
 
     private List<AffiliationDTO> affiliations; // Para mostrar las afiliaciones del usuario
+
+    public interface OnCreate {}
+    public interface OnUpdate {}
 }

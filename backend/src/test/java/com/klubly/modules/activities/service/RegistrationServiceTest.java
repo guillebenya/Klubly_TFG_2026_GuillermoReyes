@@ -71,9 +71,7 @@ class RegistrationServiceTest {
         SecurityContextHolder.clearContext();
     }
 
-    /**
-     * Helper para simular un usuario autenticado en el contexto de Spring Security
-     */
+    //Helper para simular un usuario autenticado en el contexto de Spring Security
     private void mockAuthenticatedUser(String username) {
         Authentication auth = mock(Authentication.class);
         SecurityContext securityContext = mock(SecurityContext.class);

@@ -277,7 +277,7 @@ public class UserService {
         user.setPhone(userDTO.getPhone());
         user.setAvatarURL(userDTO.getAvatarURL());
 
-        if (userDTO.getPassword() != null && !userDTO.getPassword().isEmpty()) {
+        if (userDTO.getPassword() != null && !userDTO.getPassword().isBlank()) {
             user.setPassword(passwordEncoder.encode(userDTO.getPassword()));
         }
     }

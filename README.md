@@ -12,45 +12,56 @@ Este repositorio contiene el ecosistema completo de **Klubly** (Frontend, Backen
 - Opción 1: Descarga directa (ZIP) desde https://github.com/guillebenya/Klubly_TFG_2026_GuillermoReyes.git
 
 1.  Haz clic en el botón verde 'Code' de GitHub y selecciona 'Download ZIP'.
+
 2.  Extrae el contenido y abre una terminal dentro de la carpeta raíz del proyecto.
 
 - Opción 2: Clonado mediante Git
-  Ejecuta el siguiente comando en tu terminal:
-  git clone https://github.com/guillebenya/Klubly_TFG_2026_GuillermoReyes.git
-  Luego, accede a la carpeta: cd Klubly_TFG_2026_GuillermoReyes
+
+1. Ejecuta el siguiente comando en tu terminal:
+  *git clone https://github.com/guillebenya/Klubly_TFG_2026_GuillermoReyes.git*
+
+2. Luego, accede a la carpeta con el comando: *cd Klubly_TFG_2026_GuillermoReyes*
 
 ## Configuración de variables de entorno
 
 Por seguridad, las credenciales no están incluidas en el código fuente. Es obligatorio configurar el archivo de entorno antes de arrancar:
 
-Localiza el archivo env.template en la raíz del proyecto.
+1. Crear el archivo de configuración:
 
-Renombra o copia el archivo como .env (el nombre tiene que ser exactamente ese).
+- Localiza el archivo *env.template* en la raíz del proyecto y haz una copia llamada exactamente:
 
-Edita el archivo .env y sustituye los valores entre corchetes por los tuyos (sin los corchetes):
+*config.env*
 
-DB_USER / DB_PASSWORD / DB_NAME: Credenciales para la base de datos (necesarias para el Backend y Adminer).
+(Nota: Asegúrate de que no tenga extensión .txt al final. Si usas Mac/Linux y no lo ves tras crearlo, pulsa Cmd + Shift + . para mostrar archivos ocultos).
 
-JWT_SECRET: Una cadena de texto larga y aleatoria. Se usa para firmar los tokens de sesión de forma segura.
+2. Editar las credenciales:
 
-APP_DEFAULT_PASSWORD: Contraseña genérica para los usuarios que se cargan automáticamente en la base de datos al inicio.
+- Abre **config.env* con cualquier editor de texto y sustituye los valores entre corchetes por los tuyos (sin los corchetes):
 
-## Cómo ejecutar (en la raíz del proyecto (donde está el archivo docker-compose.yml))
+- **DB_USER* / *DB_PASSWORD* / *DB_NAME*: Credenciales para la base de datos (necesarias para el Backend y Adminer).
 
-- 1ª vez (Compilación total): 'docker-compose up --build'
-- 2ª vez y sucesivas: 'docker-compose up' (para ver los logs en tiempo real) o 'docker-compose up -d' para no verla y que todo se ejecute en segundo plano. Si has usado la opción en segundo plano pero decides que quieres ver los logs puedes usar 'docker-compose logs -f'
+- *JWT_SECRET*: Clave para la seguridad de las sesiones. **IMPORTANTE**: Debe tener al menos 32 caracteres (256 bits) para cumplir con el estándar de seguridad HS256. Si es más corta, el Backend lanzará un error crítico al arrancar.
+
+- *APP_DEFAULT_PASSWORD*: Contraseña genérica para los usuarios que se cargan automáticamente en la base de datos al inicio. **IMPORTANTE**: El sistema  exige un mínimo estricto de 6 caracteres para cualquier contraseña nueva o actualizada por motivos de seguridad.
+
+## Cómo ejecutar 
+
+- En la terminal, nos situamos een la raíz del proyecto (donde está el archivo *docker-compose.yml*)
+
+- 1ª vez (Compilación total): '*docker-compose --env-file config.env up --build -d*'
+- 2ª vez y sucesivas: '*docker-compose up*' (para ver los logs en tiempo real) o '*docker-compose up -d*' para no verla y que todo se ejecute en segundo plano. Si has usado la opción en segundo plano pero decides que quieres ver los logs puedes usar '*docker-compose logs -f*'
 
 ## Accesos
 
-- Frontend: http://localhost => Interfaz de usuario final y panel de gestión.
-- Backend: http://localhost:8080 => Punto de entrada del API REST de Spring Boot.
-- Adminer: http://localhost:8888 => Interfaz web para gestionar la base de datos PostgreSQL. (Marcar PostgreSQL como motor de base de datos y usar las credenciales definidas en el archivo .env)
+- Frontend: ****http://localhost* => Interfaz de usuario final y panel de gestión.
+- Backend: *http://localhost:8080* => Punto de entrada del API REST de Spring Boot.
+- Adminer: **http://localhost:8888* => Interfaz web para gestionar la base de datos PostgreSQL. (Marcar PostgreSQL como motor de base de datos y usar las credenciales definidas en el archivo .env)
 
 ## Usuarios de Prueba (Data Seeding)
 
 Para facilitar la evaluación, el sistema carga automáticamente los siguientes perfiles.
 
-IMPORTANTE: La contraseña para todos los usuarios es la que hayas definido en la variable APP_DEFAULT_PASSWORD de tu archivo .env
+IMPORTANTE: La contraseña para todos los usuarios es la que hayas definido en la variable *APP_DEFAULT_PASSWORD* de tu archivo config.env
 
 USUARIO - ROL - DESCRIPCIÓN
 1. admin - Rol ADMIN - Acceso total. Director general del sistema.
@@ -63,7 +74,7 @@ USUARIO - ROL - DESCRIPCIÓN
 
 ## Cómo probar la API (Swagger)
 
-Accede a http://localhost:8080/swagger-ui/index.html
+Accede a *http://localhost:8080/swagger-ui/index.html*
 
 Los endpoints están protegidos por seguridad JWT. Para probarlos desde la interfaz de Swagger:
 
@@ -78,6 +89,25 @@ Los endpoints están protegidos por seguridad JWT. Para probarlos desde la inter
 5. Pega el token y haz clic en Authorize.
 
 6. Ahora ya puedes ejecutar cualquier método y Swagger enviará automáticamente el token en la cabecera.
+
+## Cómo ejecutar tests de manera independiente
+
+- Tests del Backend (JUnit 5 & Mockito):
+
+1. Navega a la carpeta del backend con el comando: *cd backend*
+
+2. Ejecuta el comando: *mvn test*
+
+3. Los resultados se mostrarán en la terminal y se generará un reporte detallado en **target/surefire-reports*
+
+- Tests del Frontend (Vitest / Jest)
+
+1. Navega a la carpeta del frontend: cd frontend
+
+2. Si tienes Node.js instalado localmente, ejecuta el comando: *npm test*
+
+3. Alternativamente, si prefieres no instalar Node localmente, puedes ejecutarlos mediante Docker (mientras el contenedor esté en ejecución) con el comando:
+*docker exec -it klubly-frontend npm test*
 
 ## Calidad de Código
 

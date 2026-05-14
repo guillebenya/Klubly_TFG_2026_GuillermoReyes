@@ -42,6 +42,7 @@ release.properties
 # Entorno (Cualquier archivo .env, no solo los locales)
 .env
 .env.*
+*.env
 
 # Pruebas
 /target/site/jacoco/
