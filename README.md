@@ -8,6 +8,8 @@ El sistema permite un control total sobre los pilares operativos de un club a tr
 
 Este repositorio contiene el ecosistema completo de **Klubly** (Frontend, Backend y Base de Datos) automatizado mediante contenedores para facilitar su despliegue y evaluación.
 
+- **En este enlace puede consultar un vídeo explicativo de la configuración para dispositivos Windows: https://youtu.be/vfgu_6p86LE**
+
 ## Requisitos
 
 - Docker Desktop instalado y en ejecución
