@@ -32,7 +32,7 @@ const RegisterPage = () => {
   return (
     <div className="min-h-screen bg-indigo-500 flex flex-col justify-center py-12 sm:px-6 lg:px-8">
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-2xl">
-        <div className="bg-white py-8 px-4 shadow-xl shadow-gray-200/50 sm:rounded-3xl sm:px-10 border border-gray-100">
+        <div className="bg-white py-8 px-4 shadow-2xl shadow-gray-900/10 ring-1 ring-gray-900/5 sm:rounded-3xl sm:px-10">
           <div className="sm:mx-auto sm:w-full sm:max-w-md">
             <div className="flex justify-center">
               <img src={logo} alt="Klubly Logo" className="mx-auto mb-4 w-32" />

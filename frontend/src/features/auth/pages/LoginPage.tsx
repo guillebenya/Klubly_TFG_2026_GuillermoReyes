@@ -41,7 +41,7 @@ const LoginPage = () => {
 
   return (
     <div className="flex h-screen items-center justify-center bg-indigo-500 px-4">
-      <div className="w-full max-w-md rounded-2xl bg-slate-50 p-8 shadow-2xl ring-1 ring-white/10">
+      <div className="bg-white py-8 px-4 shadow-2xl shadow-gray-900/10 ring-1 ring-gray-900/5 sm:rounded-3xl sm:px-10">
         <div className="mb-8 text-center">
           <img src={logo} alt="Klubly Logo" className="mx-auto mb-4 w-32" />
           <h1 className="text-2xl font-bold text-black">Iniciar sesión</h1>
