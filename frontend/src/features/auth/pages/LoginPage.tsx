@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react"; 
+import React, { useState, useEffect } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { authService } from "../services/auth.service";
-import { Lock, User, AlertCircle } from "lucide-react";
+import { Lock, User, AlertCircle, EyeOff, Eye } from "lucide-react";
 import logo from "../../../assets/Klubly_Logo.png";
 
 const LoginPage = () => {
@@ -9,14 +9,17 @@ const LoginPage = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  
+  const [showPassword, setShowPassword] = useState(false);
+
   const navigate = useNavigate();
-  const [searchParams] = useSearchParams(); 
+  const [searchParams] = useSearchParams();
 
   // Hook para detectar si venimos rebotados por sesión expirada
   useEffect(() => {
     if (searchParams.get("expired") === "true") {
-      setError("Tu sesión ha expirado por seguridad. Por favor, identifícate de nuevo.");
+      setError(
+        "Tu sesión ha expirado por seguridad. Por favor, identifícate de nuevo.",
+      );
     }
   }, [searchParams]);
 
@@ -56,7 +59,10 @@ const LoginPage = () => {
           )}
 
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-slate-500">
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-slate-500"
+            >
               Usuario
             </label>
             <div className="relative mt-1">
@@ -77,7 +83,10 @@ const LoginPage = () => {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-slate-500">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-slate-500"
+            >
               Contraseña
             </label>
             <div className="relative mt-1">
@@ -86,7 +95,7 @@ const LoginPage = () => {
                 size={18}
               />
               <input
-                type="password"
+                type={showPassword ? "text" : "password"}
                 id="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
@@ -94,6 +103,13 @@ const LoginPage = () => {
                 placeholder="••••••••"
                 required
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-3 text-gray-400 hover:text-indigo-600 transition-colors"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
             </div>
           </div>
 
