@@ -9,7 +9,7 @@ import {
   ClipboardList,
   CheckCircle2,
   XCircle,
-  Clock, // Nuevo icono para pendientes
+  Clock,
 } from "lucide-react";
 import Card from "../../../components/shared/Card";
 import Badge from "../../../components/shared/Badge";
@@ -79,15 +79,24 @@ const MemberCard = ({
 
   // Lógica de colores dinámica según estado
   const getBorderColor = () => {
-    if (member.isPending) return "border-l-amber-400 bg-amber-50/30";
+    if (member.isPending) return "border-l-amber-300 bg-amber-50/30";
     return member.active
       ? "border-l-indigo-300"
-      : "border-l-red-300 opacity-65";
+      : "border-l-indigo-300 opacity-65";
+  };
+
+  // Lógica de colores dinámica según estado
+  const getBorderColorHover = () => {
+    if (member.isPending)
+      return "hover:border-l-amber-600 hover:bg-amber-50/30";
+    return member.active
+      ? "hover:border-l-indigo-600"
+      : "hover:border-l-indigo-600 hover:opacity-75";
   };
 
   return (
     <Card
-      className={`flex items-center gap-4 py-3 px-6 border-l-4 transition-all shadow-sm hover:shadow-md ${getBorderColor()}`}
+      className={`flex items-center gap-4 py-3 px-6 border-l-4 transition-all shadow-sm hover:shadow-md ${getBorderColor()} ${getBorderColorHover()}`}
     >
       {/* Avatar */}
       <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border border-indigo-50 shrink-0">
