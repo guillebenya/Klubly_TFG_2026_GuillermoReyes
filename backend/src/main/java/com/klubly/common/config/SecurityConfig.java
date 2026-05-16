@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.security.SecurityScheme;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
@@ -58,9 +59,9 @@ public class SecurityConfig {
             .csrf(csrf -> csrf.disable())    // // NOSONAR - Stateless JWT API: no session cookies, CSRF not applicable
             .exceptionHandling(exception -> exception
                 // Fuerza el 401 cuando la autenticación falla
-                .authenticationEntryPoint((request, response, authException) -> {
-                    response.sendError(org.springframework.http.HttpStatus.UNAUTHORIZED.value(), "Sesión expirada o token inválido");
-                })
+                .authenticationEntryPoint((request, response, authException) ->
+                    response.sendError(HttpStatus.UNAUTHORIZED.value(), "Sesión expirada o token inválido")
+                )
             )
             .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll() // Permitir acceso a Swagger sin autenticación
