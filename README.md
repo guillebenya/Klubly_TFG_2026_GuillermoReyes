@@ -40,7 +40,7 @@ Por seguridad, las credenciales no están incluidas en el código fuente. Es obl
 **IMPORTANTE: Nota SOLO para usuarios de macOS:**
 Para poder crear el archivo correctamente en MacOS, accede a la terminal y sitúate en la carpeta raíz del proyecto. Ahí, utiliza el comando *cp env.template .env* para poder renombrar correctamente el archivo .env. De otra manera, dará errores.
 
-- Localiza el archivo *env.template* en la raíz del proyecto y haz una copia llamada exactamente: *.env* *(Asegúrate de que no tenga extensión .txt al final.)*
+- Localiza el archivo *env.template* en la raíz del proyecto y haz una copia (o simplemente renombra el archivo env.template) llamada exactamente: *.env* *(Asegúrate de que no tenga extensión .txt al final.)*
 
 2. Editar las credenciales:
 
