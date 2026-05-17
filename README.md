@@ -9,6 +9,7 @@ El sistema permite un control total sobre los pilares operativos de un club a tr
 Este repositorio contiene el ecosistema completo de **Klubly** (Frontend, Backend y Base de Datos) automatizado mediante contenedores para facilitar su despliegue y evaluación.
 
 - **En este enlace puede consultar un vídeo explicativo de la configuración para dispositivos Windows: https://youtu.be/vfgu_6p86LE**
+- **En este enlace puede consultar un vídeo explicativo de la configuración para dispositivos MacOS: https://youtu.be/l5aGmwEL7oM**
 
 ## Requisitos
 
@@ -36,22 +37,21 @@ Por seguridad, las credenciales no están incluidas en el código fuente. Es obl
 
 1. Crear el archivo de configuración:
 
-- Localiza el archivo *env.template* en la raíz del proyecto y haz una copia llamada exactamente:
+**IMPORTANTE: Nota SOLO para usuarios de macOS:**
+Para poder crear el archivo correctamente en MacOS, accede a la terminal y sitúate en la carpeta raíz del proyecto. Ahí, utiliza el comando *cp env.template .env* para poder renombrar correctamente el archivo .env. De otra manera, dará errores.
 
-*.env* 
-
-(Nota: Asegúrate de que no tenga extensión .txt al final.)
-
-**Nota para usuarios de macOS:**
-El archivo .env es un archivo de sistema y puede aparecer oculto. **Para visualizarlo en el Finder, presiona la combinación de teclas: Cmd + Shift + . (punto)**
+- Localiza el archivo *env.template* en la raíz del proyecto y haz una copia llamada exactamente: *.env* *(Asegúrate de que no tenga extensión .txt al final.)*
 
 2. Editar las credenciales:
+
+**IMPORTANTE: Nota para usuarios de macOS:**
+El archivo .env es un archivo de sistema y puede aparecer oculto. **Para visualizarlo en el Finder, presiona la combinación de teclas: Cmd + Shift + . (punto)**
 
 - Abre *.env* con cualquier editor de texto y sustituye los valores entre corchetes por los tuyos (sin los corchetes):
 
 - *DB_USER* / *DB_PASSWORD* / *DB_NAME*: Credenciales para la base de datos (necesarias para el Backend y Adminer). 
 
-**Nota: Si solo quieres probar la aplicación, puedes dejar los valores de la base de datos que vienen por defecto en el archivo env.template. Se exponen aquí por seguridad y para evitar conflictos si se despliega junto a otras bases de datos..**
+**NOTA: Si solo quieres probar la aplicación, puedes dejar los valores de la base de datos que vienen por defecto en el archivo env.template. Se exponen aquí por seguridad y para evitar conflictos si se despliega junto a otras bases de datos..**
 
 - *JWT_SECRET*: Clave para el cifrado de las sesiones. **IMPORTANTE**: Debe tener al menos 32 caracteres (256 bits) para cumplir con el estándar de seguridad HS256. Si es más corta, el Backend lanzará un error crítico al arrancar.
 
