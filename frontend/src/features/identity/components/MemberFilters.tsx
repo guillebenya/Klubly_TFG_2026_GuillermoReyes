@@ -7,6 +7,7 @@ interface MemberFiltersProps {
     roles: string[];
     status: boolean[];
     teams: number[];
+    isPending: boolean[];
   };
   setFilters: (filters: any) => void;
   availableTeams: any[];
@@ -22,20 +23,22 @@ const MemberFilters = ({
   // Obtener datos del usuario actual
   const currentUser = authService.getCurrentUser();
   const isAdmin = currentUser?.roleName === "ADMIN";
-
   // Lógica de filtrado de Roles: Solo ADMIN ve a otros ADMINs
   const rolesToDisplay = isAdmin
     ? ["ADMIN", "STAFF", "MEMBER"]
     : ["STAFF", "MEMBER"];
 
-  // Lógica de filtrado de Equipos:
-  // El Staff solo ve los equipos a los que pertenece
-  // Si es ADMIN, ve todos.
-  const displayedTeams = isAdmin
+    // Lógica de filtrado de Equipos:
+    // El Staff solo ve los equipos a los que pertenece
+    // Si es ADMIN, ve todos.
+    const displayedTeams = isAdmin
     ? availableTeams
     : availableTeams.filter((team) => currentUser?.teamIds?.includes(team.id));
 
-  const toggleFilter = (category: "roles" | "status" | "teams", value: any) => {
+  const toggleFilter = (
+    category: "roles" | "status" | "teams" | "isPending",
+    value: any,
+  ) => {
     const current = [...filters[category]];
     const index = current.indexOf(value);
 
@@ -49,12 +52,13 @@ const MemberFilters = ({
   };
 
   const clearFilters = () => {
-    setFilters({ ...filters, roles: [], status: [], teams: [] });
+    // Todos los campos explícitos: no depender del spread para campos críticos
+    setFilters({ roles: [], status: [], teams: [], isPending: [] });
   };
 
   return (
     <div className="space-y-6">
-      {/* SECCIÓN ROLES: Filtrado por permisos */}
+      {/* SECCIÓN ROLES */}
       <div className="space-y-3">
         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
           <Shield size={14} /> Roles de usuario
@@ -107,7 +111,7 @@ const MemberFilters = ({
         </div>
       )}
 
-      {/* SECCIÓN EQUIPOS: Filtrado por pertenencia */}
+      {/* SECCIÓN EQUIPOS */}
       <div className="space-y-3">
         <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest flex items-center gap-2">
           <Users size={14} /> Mis Equipos
