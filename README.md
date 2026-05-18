@@ -4,6 +4,8 @@
 
 El sistema permite un control total sobre los pilares operativos de un club a través de una arquitectura modular. Entre sus funciones principales destacan la gestión avanzada de usuarios y roles, la organización de equipos y afiliaciones, y la planificación de actividades con sus respectivos sistemas de inscripción. Además, Klubly incorpora herramientas críticas para la salud del club, como un módulo de control de tesorería para monitorizar el flujo económico y una sección de gestión de inventario para supervisar el material deportivo disponible.
 
+- **En este enlace puede consultar el vídeo de demostración de las funcionalidades de la app Klubly: https://youtu.be/sUpzVLdbUUU**
+
 ## Guía de Configuración y Despliegue - Klubly
 
 Este repositorio contiene el ecosistema completo de **Klubly** (Frontend, Backend y Base de Datos) automatizado mediante contenedores para facilitar su despliegue y evaluación.
