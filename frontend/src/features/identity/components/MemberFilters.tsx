@@ -49,7 +49,7 @@ const MemberFilters = ({
   };
 
   const clearFilters = () => {
-    setFilters({ roles: [], status: [], teams: [] });
+    setFilters({ ...filters, roles: [], status: [], teams: [] });
   };
 
   return (
