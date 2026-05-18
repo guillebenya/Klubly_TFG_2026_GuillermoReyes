@@ -20,20 +20,18 @@ const MemberFilters = ({
   availableTeams,
   onApply,
 }: MemberFiltersProps) => {
-  // Obtener datos del usuario actual
   const currentUser = authService.getCurrentUser();
   const isAdmin = currentUser?.roleName === "ADMIN";
-  // Lógica de filtrado de Roles: Solo ADMIN ve a otros ADMINs
+
   const rolesToDisplay = isAdmin
     ? ["ADMIN", "STAFF", "MEMBER"]
     : ["STAFF", "MEMBER"];
 
-    // Lógica de filtrado de Equipos:
-    // El Staff solo ve los equipos a los que pertenece
-    // Si es ADMIN, ve todos.
-    const displayedTeams = isAdmin
-    ? availableTeams
-    : availableTeams.filter((team) => currentUser?.teamIds?.includes(team.id));
+  const safeTeams = availableTeams ?? [];
+
+  const displayedTeams = isAdmin
+    ? safeTeams
+    : safeTeams.filter((team) => currentUser?.teamIds?.includes(team.id));
 
   const toggleFilter = (
     category: "roles" | "status" | "teams" | "isPending",
@@ -52,7 +50,6 @@ const MemberFilters = ({
   };
 
   const clearFilters = () => {
-    // Todos los campos explícitos: no depender del spread para campos críticos
     setFilters({ roles: [], status: [], teams: [], isPending: [] });
   };
 

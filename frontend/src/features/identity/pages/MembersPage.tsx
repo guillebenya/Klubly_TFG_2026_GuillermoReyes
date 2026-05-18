@@ -178,9 +178,9 @@ const MembersPage = () => {
   const isAdmin = currentUser?.roleName === "ADMIN";
 
   const fetchTeams = async () => {
-    const resp = await teamService.getAll();
-    setAllTeams(resp.data);
-  };
+  const resp = await teamService.getAll();
+  setAllTeams(resp.data ?? []);
+};
 
   // HANDLERS
   const handleDeleteTrigger = (id: number) => {
