@@ -27,14 +27,14 @@ import {
 } from "../services/treasury.service";
 
 const TreasuryPage = () => {
-  // --- ESTADOS DE DATOS ---
+  // ESTADOS DE DATOS
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [summary, setSummary] = useState<TreasurySummary | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isHistoryMode, setIsHistoryMode] = useState(false);
 
-  // --- ESTADOS PARA MODALES ---
+  // ESTADOS PARA MODALES
   const [selectedTransaction, setSelectedTransaction] =
     useState<Transaction | null>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
@@ -42,7 +42,7 @@ const TreasuryPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
 
-  // --- FILTROS AVANZADOS ---
+  // FILTROS AVANZADOS
   const [activeFilters, setActiveFilters] = useState({
     dateStart: "",
     dateEnd: "",
@@ -52,7 +52,7 @@ const TreasuryPage = () => {
     maxAmount: "",
   });
 
-  // --- DIÁLOGOS DE SISTEMA ---
+  // DIÁLOGOS DE SISTEMA
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
     type: "save" | "delete";
@@ -65,7 +65,7 @@ const TreasuryPage = () => {
     desc: "",
   });
 
-  // --- CARGA DE DATOS ---
+  // CARGA DE DATOS
   useEffect(() => {
     fetchData();
   }, [isHistoryMode]);
@@ -88,7 +88,7 @@ const TreasuryPage = () => {
     }
   };
 
-  // --- HANDLERS ---
+  // HANDLERS
   const handleView = (t: Transaction) => {
     setSelectedTransaction(t);
     setIsViewOpen(true);
@@ -125,20 +125,20 @@ const TreasuryPage = () => {
         const transactionData = confirmConfig.data;
 
         if (transactionData.id) {
-          // Si tiene ID, es una EDICIÓN
+          // EDICIÓN
           await treasuryService.update(transactionData.id, transactionData);
           setSuccessConfig({
             isOpen: true,
-            title: "¡Actualizado!",
-            desc: "Los cambios se han guardado correctamente.",
+            title: "¡Transacción Actualizada!",
+            desc: "Los cambios en el movimiento contable se han guardado correctamente.",
           });
         } else {
-          // Si NO tiene ID, es una CREACIÓN
+          // CREACIÓN
           await treasuryService.create(transactionData);
           setSuccessConfig({
             isOpen: true,
-            title: "¡Registrado!",
-            desc: "El movimiento contable se ha guardado correctamente.",
+            title: "¡Transacción Registrada!",
+            desc: "La nueva transacción se ha asentado en los libros contables con éxito.",
           });
         }
       }
@@ -151,48 +151,75 @@ const TreasuryPage = () => {
     }
   };
 
-  // --- LÓGICA DE FILTRADO ---
-  const filteredTransactions = transactions.filter((t) => {
-    const searchStr = `${t.concept} ${t.userFullName || ""}`.toLowerCase();
-    const matchesSearch = searchStr.includes(searchTerm.toLowerCase());
+  //LÓGICA DE FILTRADO
+  const filteredTransactions = transactions
+    .filter((t) => {
+      const searchStr = `${t.concept} ${t.userFullName || ""}`.toLowerCase();
+      const matchesSearch = searchStr.includes(searchTerm.toLowerCase());
 
-    const matchesType =
-      activeFilters.types.length === 0 || activeFilters.types.includes(t.type);
-    const matchesMethod =
-      activeFilters.methods.length === 0 ||
-      activeFilters.methods.includes(t.paymentMethod);
+      const matchesType =
+        activeFilters.types.length === 0 ||
+        activeFilters.types.includes(t.type);
+      const matchesMethod =
+        activeFilters.methods.length === 0 ||
+        activeFilters.methods.includes(t.paymentMethod);
 
-    const transDate = new Date(t.transactionDate).getTime();
-    const matchesDateStart =
-      !activeFilters.dateStart ||
-      transDate >= new Date(activeFilters.dateStart).getTime();
-    const matchesDateEnd =
-      !activeFilters.dateEnd ||
-      transDate <= new Date(activeFilters.dateEnd).getTime();
+      const transDate = new Date(t.transactionDate).getTime();
+      const matchesDateStart =
+        !activeFilters.dateStart ||
+        transDate >= new Date(activeFilters.dateStart).getTime();
+      const matchesDateEnd =
+        !activeFilters.dateEnd ||
+        transDate <= new Date(activeFilters.dateEnd).getTime();
 
-    const matchesMinAmount =
-      !activeFilters.minAmount ||
-      t.amount >= Number.parseFloat(activeFilters.minAmount);
-    const matchesMaxAmount =
-      !activeFilters.maxAmount ||
-      t.amount <= Number.parseFloat(activeFilters.maxAmount);
+      const matchesMinAmount =
+        !activeFilters.minAmount ||
+        t.amount >= Number.parseFloat(activeFilters.minAmount);
+      const matchesMaxAmount =
+        !activeFilters.maxAmount ||
+        t.amount <= Number.parseFloat(activeFilters.maxAmount);
 
-    return (
-      matchesSearch &&
-      matchesType &&
-      matchesMethod &&
-      matchesDateStart &&
-      matchesDateEnd &&
-      matchesMinAmount &&
-      matchesMaxAmount
-    );
-  });
+      return (
+        matchesSearch &&
+        matchesType &&
+        matchesMethod &&
+        matchesDateStart &&
+        matchesDateEnd &&
+        matchesMinAmount &&
+        matchesMaxAmount
+      );
+    })
+    .sort((a, b) => {
+      // Activas antes que Inactivas
+      const scoreA = a.active ? 1 : 0;
+      const scoreB = b.active ? 1 : 0;
 
-  // Determinar color dinámico para el balance global
+      if (scoreA !== scoreB) {
+        return scoreB - scoreA;
+      }
+
+      // Más recientes a más antiguas
+      const timeA = new Date(a.transactionDate).getTime();
+      const timeB = new Date(b.transactionDate).getTime();
+
+      return timeB - timeA;
+    });
+
+  // CÁLCULOS CONTABLES LOCALES (Excluyendo movimientos inactivos)
+  const totalIncome = transactions
+    .filter((t) => t.active && t.type === "INCOME") 
+    .reduce((acc, t) => acc + t.amount, 0);
+
+  const totalExpense = transactions
+    .filter((t) => t.active && t.type === "EXPENSE") 
+    .reduce((acc, t) => acc + t.amount, 0);
+
+  const globalBalance = totalIncome - totalExpense;
+
+  // Determinar color dinámico para el balance global usando el cálculo local
   const getBalanceVariant = () => {
-    if (!summary) return "indigo";
-    if (summary.balance > 0) return "emerald";
-    if (summary.balance < 0) return "rose";
+    if (globalBalance > 0) return "emerald";
+    if (globalBalance < 0) return "rose";
     return "gray";
   };
 
@@ -265,7 +292,7 @@ const TreasuryPage = () => {
               value={new Intl.NumberFormat("es-ES", {
                 style: "currency",
                 currency: "EUR",
-              }).format(summary.totalIncome)}
+              }).format(totalIncome)}
               icon={<TrendingUp size={20} />}
               variant="emerald"
             />
@@ -274,7 +301,7 @@ const TreasuryPage = () => {
               value={new Intl.NumberFormat("es-ES", {
                 style: "currency",
                 currency: "EUR",
-              }).format(summary.totalExpense)}
+              }).format(totalExpense)}
               icon={<TrendingDown size={20} />}
               variant="rose"
             />
@@ -283,7 +310,7 @@ const TreasuryPage = () => {
               value={new Intl.NumberFormat("es-ES", {
                 style: "currency",
                 currency: "EUR",
-              }).format(summary.balance)}
+              }).format(globalBalance)}
               icon={<Scale size={20} />}
               variant={getBalanceVariant()}
             />
@@ -365,16 +392,26 @@ const TreasuryPage = () => {
         isOpen={confirmConfig.isOpen}
         onClose={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}
         onConfirm={executeAction}
-        title="¿Confirmar operación?"
+        title={
+          confirmConfig.type === "delete"
+            ? "¿Anular transacción?"
+            : selectedTransaction
+              ? "¿Guardar cambios?"
+              : "¿Registrar transacción?"
+        }
         description={
           confirmConfig.type === "delete"
             ? "¿Estás seguro de que deseas anular esta transacción? Podrás consultarla en el historial de bajas."
-            : "¿Deseas registrar este movimiento en los libros contables del club?"
+            : selectedTransaction
+              ? "¿Deseas modificar los datos de esta transacción financiera?"
+              : "¿Deseas asentar esta nueva transacción en los libros contables del club?"
         }
         confirmLabel={
           confirmConfig.type === "delete"
             ? "Anular Movimiento"
-            : "Confirmar Registro"
+            : selectedTransaction
+              ? "Guardar Cambios"
+              : "Registrar Transacción"
         }
         type={confirmConfig.type === "delete" ? "danger" : "warning"}
         isLoading={formLoading}

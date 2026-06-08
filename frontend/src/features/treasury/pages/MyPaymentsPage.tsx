@@ -69,47 +69,64 @@ const MyPaymentsPage = () => {
   };
 
   // --- LÓGICA DE FILTRADO ---
-  const filteredTransactions = transactions.filter((t) => {
-    const matchesSearch = t.concept
-      .toLowerCase()
-      .includes(searchTerm.toLowerCase());
-    const matchesType =
-      activeFilters.types.length === 0 || activeFilters.types.includes(t.type);
-    const matchesMethod =
-      activeFilters.methods.length === 0 ||
-      activeFilters.methods.includes(t.paymentMethod);
-    const transDate = new Date(t.transactionDate).getTime();
-    const matchesDateStart =
-      !activeFilters.dateStart ||
-      transDate >= new Date(activeFilters.dateStart).getTime();
-    const matchesDateEnd =
-      !activeFilters.dateEnd ||
-      transDate <= new Date(activeFilters.dateEnd).getTime();
-    const matchesMinAmount =
-      !activeFilters.minAmount ||
-      t.amount >= Number.parseFloat(activeFilters.minAmount);
-    const matchesMaxAmount =
-      !activeFilters.maxAmount ||
-      t.amount <= Number.parseFloat(activeFilters.maxAmount);
+  const filteredTransactions = transactions
+    .filter((t) => {
+      const matchesSearch = t.concept
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+      const matchesType =
+        activeFilters.types.length === 0 ||
+        activeFilters.types.includes(t.type);
+      const matchesMethod =
+        activeFilters.methods.length === 0 ||
+        activeFilters.methods.includes(t.paymentMethod);
+      const transDate = new Date(t.transactionDate).getTime();
+      const matchesDateStart =
+        !activeFilters.dateStart ||
+        transDate >= new Date(activeFilters.dateStart).getTime();
+      const matchesDateEnd =
+        !activeFilters.dateEnd ||
+        transDate <= new Date(activeFilters.dateEnd).getTime();
+      const matchesMinAmount =
+        !activeFilters.minAmount ||
+        t.amount >= Number.parseFloat(activeFilters.minAmount);
+      const matchesMaxAmount =
+        !activeFilters.maxAmount ||
+        t.amount <= Number.parseFloat(activeFilters.maxAmount);
 
-    return (
-      matchesSearch &&
-      matchesType &&
-      matchesMethod &&
-      matchesDateStart &&
-      matchesDateEnd &&
-      matchesMinAmount &&
-      matchesMaxAmount
-    );
-  });
+      return (
+        matchesSearch &&
+        matchesType &&
+        matchesMethod &&
+        matchesDateStart &&
+        matchesDateEnd &&
+        matchesMinAmount &&
+        matchesMaxAmount
+      );
+    })
+    .sort((a, b) => {
+      // Activas antes que Inactivas
+      const scoreA = a.active ? 1 : 0;
+      const scoreB = b.active ? 1 : 0;
 
-  // --- CÁLCULOS GLOBALES (Sin filtros, para mantener coherencia) ---
+      if (scoreA !== scoreB) {
+        return scoreB - scoreA;
+      }
+
+      // Más recientes a más antiguas
+      const timeA = new Date(a.transactionDate).getTime();
+      const timeB = new Date(b.transactionDate).getTime();
+
+      return timeB - timeA;
+    });
+
+  // CÁLCULOS GLOBALES
   const totalAportado = transactions
-    .filter((t) => t.type === TransactionType.INCOME) // Income para el club = Aportado por el socio
+    .filter((t) => t.active && t.type === TransactionType.INCOME) // Income para el club = Aportado por el socio
     .reduce((acc, t) => acc + t.amount, 0);
 
   const totalRecibido = transactions
-    .filter((t) => t.type === TransactionType.EXPENSE) // Expense para el club = Recibido por el socio
+    .filter((t) => t.active && t.type === TransactionType.EXPENSE) // Expense para el club = Recibido por el socio
     .reduce((acc, t) => acc + t.amount, 0);
 
   const balance = totalRecibido - totalAportado;
@@ -151,8 +168,8 @@ const MyPaymentsPage = () => {
           <div className="flex items-center gap-1.5 px-1 mb-2 opacity-80">
             <div className="h-1 w-1 rounded-full bg-indigo-400" />
             <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 italic">
-              Nota: Las tarjetas resumen muestran totales de tus transacciones y no se ven
-              afectados por los filtros de búsqueda.
+              Nota: Las tarjetas resumen muestran totales de tus transacciones y
+              no se ven afectados por los filtros de búsqueda.
             </p>
           </div>
 

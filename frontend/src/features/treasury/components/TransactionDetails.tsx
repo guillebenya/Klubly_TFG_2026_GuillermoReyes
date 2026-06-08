@@ -112,7 +112,7 @@ const buildAdminConfig = (isClubIncome: boolean) => ({
   badgeText: isClubIncome ? "INGRESO" : "GASTO",
   regLabel: "Tipo de Transacción",
   regValue: isClubIncome ? "INGRESO CLUB" : "GASTO CLUB",
-  badgeVariant: isClubIncome ? ("red" as const) : ("green" as const),
+  badgeVariant: isClubIncome ? ("green" as const) : ("red" as const),
 });
 
 const buildConfig = (isAdmin: boolean, isClubIncome: boolean) =>

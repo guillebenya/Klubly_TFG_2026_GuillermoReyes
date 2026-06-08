@@ -127,8 +127,8 @@ const TransactionCard = ({
   const borderColor = !transaction.active
     ? "border-l-gray-300 hover:border-l-gray-400"
     : isMemberView
-    ? borderColorClubIncome
-    : borderColorNotClubIncome;
+      ? borderColorClubIncome
+      : borderColorNotClubIncome;
 
   const iconStyleClubIncome = isClubIncome
     ? "bg-red-50 text-red-600 border-red-100"
@@ -142,8 +142,8 @@ const TransactionCard = ({
   const iconStyle = !transaction.active
     ? "bg-gray-50 text-gray-400 border-gray-200"
     : isMemberView
-    ? iconStyleClubIncome
-    : iconStyleNotClubIncome;
+      ? iconStyleClubIncome
+      : iconStyleNotClubIncome;
 
   return (
     <Card
@@ -162,7 +162,9 @@ const TransactionCard = ({
         {/* Usuario (Solo visible para Admin) */}
         {!isMemberView && (
           <Column title="Socio / Beneficiario" className="min-w-[150px]">
-            <div className={`flex items-center gap-1.5 ${transaction.active ? "text-indigo-600" : "text-gray-500"}`}>
+            <div
+              className={`flex items-center gap-1.5 ${transaction.active ? "text-indigo-600" : "text-gray-500"}`}
+            >
               <User size={14} strokeWidth={2.5} />
               <span className="text-xs font-black uppercase truncate">
                 {transaction.userFullName || "GENERAL / CLUB"}
@@ -173,19 +175,27 @@ const TransactionCard = ({
 
         {/* Concepto */}
         <Column title="Concepto" className="flex-1 max-w-[200px]">
-          <span className={`text-xs font-bold truncate uppercase ${transaction.active ? "text-gray-700" : "text-gray-400 line-through"}`}>
+          <span
+            className={`text-xs font-bold truncate uppercase ${transaction.active ? "text-gray-700" : "text-gray-400"}`}
+          >
             {transaction.concept}
           </span>
         </Column>
 
-        {/* Tipo / Estado Adaptado (Aquí inyectamos el Badge doble si está inactivo) */}
+        {/* Tipo / Estado Adaptado*/}
         <Column
-          title={isMemberView ? "Movimiento" : "Tipo / Estado"}
+          title={isMemberView ? "Movimiento" : "Estado / Tipo"}
           className="min-w-[140px]"
         >
           <div className="flex gap-1 items-center">
-            {!transaction.active && (
-              <Badge variant="red">INACTIVO</Badge>
+            {transaction.active ? (
+              // Si está activo: SOLO se muestra si NO es vista de socio (es decir, es Admin)
+              !isMemberView && <Badge variant="green">ACTIVO</Badge>
+            ) : (
+              // Si está inactivo/anulado: se muestra SIEMPRE, pero el texto cambia según el rol
+              <Badge variant="red">
+                {isMemberView ? "ANULADO" : "INACTIVO"}
+              </Badge>
             )}
             <Badge variant={config.variant} icon={config.icon}>
               {config.label}
@@ -195,7 +205,9 @@ const TransactionCard = ({
 
         {/* Importe */}
         <Column title="Importe" className="min-w-[100px]">
-          <span className={`text-sm font-black ${transaction.active ? config.colorClass : "text-gray-400"}`}>
+          <span
+            className={`text-sm font-black ${transaction.active ? config.colorClass : "text-gray-400"}`}
+          >
             {!isMemberView && (isClubIncome ? "+" : "-")}{" "}
             {formatCurrency(transaction.amount)}
           </span>
@@ -245,7 +257,7 @@ const TransactionCard = ({
                 className="!text-amber-500 hover:!bg-amber-50"
               />
             )}
-            {onDelete && transaction.active && (
+            {onDelete && (
               <Button
                 type="button"
                 variant="ghost"

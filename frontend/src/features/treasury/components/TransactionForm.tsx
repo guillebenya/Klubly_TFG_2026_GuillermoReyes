@@ -131,11 +131,18 @@ const TransactionForm = ({
               className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm appearance-none"
             >
               <option value="">Gasto/Ingreso General (Club)</option>
-              {users.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.firstName} {u.lastName} ({u.username})
-                </option>
-              ))}
+              {users.map((u) => {
+                // El usuario inactivo solo es elegible si ya era el dueño de esta transacción previamente
+                const isSelectable =
+                  u.active || (initialData && initialData.userId === u.id);
+
+                return (
+                  <option key={u.id} value={u.id} disabled={!isSelectable}>
+                    {u.firstName} {u.lastName} ({u.username}){" "}
+                    {!u.active && "• [INACTIVO]"}
+                  </option>
+                );
+              })}
             </select>
           </div>
         </div>
@@ -244,6 +251,7 @@ const TransactionForm = ({
         {/* TOGGLE:*/}
         <div className="md:col-span-2 pt-2">
           <button
+            type="button"
             onClick={() =>
               setFormData({ ...formData, active: !formData.active })
             }
@@ -288,7 +296,7 @@ const TransactionForm = ({
           variant={initialData ? "primary" : "add"}
           isLoading={loading}
         >
-          {initialData ? "Guardar Cambios" : "Registrar Movimiento"}
+          {initialData ? "Guardar Cambios" : "Registrar Transacción"}
         </Button>
       </div>
     </form>
