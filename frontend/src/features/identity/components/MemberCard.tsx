@@ -99,7 +99,15 @@ const MemberCard = ({
       className={`flex items-center gap-4 py-3 px-6 border-l-4 transition-all shadow-sm hover:shadow-md ${getBorderColor()} ${getBorderColorHover()}`}
     >
       {/* Avatar */}
-      <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden border border-indigo-50 shrink-0">
+      <div
+        className={`h-12 w-12 rounded-full flex items-center justify-center overflow-hidden border shrink-0 ${
+          member.isPending
+            ? "bg-amber-50 text-amber-600 border-amber-100"
+            : member.active
+              ? "bg-indigo-50 text-indigo-600 border-indigo-100"
+              : "bg-gray-100 text-gray-400 border-gray-200"
+        }`}
+      >
         {member.avatarURL ? (
           <img
             src={member.avatarURL}
@@ -107,7 +115,7 @@ const MemberCard = ({
             className="h-full w-full object-cover"
           />
         ) : (
-          <UserIcon className="text-gray-500" size={24} />
+          <UserIcon size={24} />
         )}
       </div>
 
@@ -168,7 +176,9 @@ const MemberCard = ({
           <p
             className={`text-xs font-semibold truncate ${member.isPending ? "text-amber-600 italic" : "text-gray-600"}`}
           >
-            {member.isPending ? "Por asignar" : member.clubPosition || "Ninguno"}
+            {member.isPending
+              ? "Por asignar"
+              : member.clubPosition || "Ninguno"}
           </p>
         </div>
 
@@ -229,7 +239,11 @@ const MemberCard = ({
             onClick={() => onDelete(member.id)}
             disabled={isSelf}
             className="!text-red-500 hover:!bg-red-50 disabled:opacity-30"
-            title={isSelf ? "No puedes eliminar tu propia cuenta" : "Eliminar miembro"}
+            title={
+              isSelf
+                ? "No puedes eliminar tu propia cuenta"
+                : "Eliminar miembro"
+            }
           />
         )}
       </div>

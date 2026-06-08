@@ -20,7 +20,7 @@ const ProfilePage = () => {
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
-  // --- ESTADOS PARA DIÁLOGOS Y CARGA ---
+  // ESTADOS PARA DIÁLOGOS Y CARGA
   const [formLoading, setFormLoading] = useState(false);
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
@@ -40,7 +40,7 @@ const ProfilePage = () => {
     desc: "",
   });
 
-  // --- ESTADOS PARA MODALES DE EDICIÓN ---
+  // ESTADOS PARA MODALES DE EDICIÓN
   const [isEditProfileOpen, setIsEditProfileOpen] = useState(false);
   const [isEditAvatarOpen, setIsEditAvatarOpen] = useState(false);
   const [passwordData, setPasswordData] = useState<any>(null);
@@ -83,6 +83,17 @@ const ProfilePage = () => {
   // LÓGICA DE ACTUALIZACIÓN DE PERFIL
   const handleUpdateTrigger = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
+
+    if (isEditProfileOpen) {
+      const phoneValue = editData?.phone?.trim() || "";
+      if (phoneValue !== "" && !/^\d{9}$/.test(phoneValue)) {
+        alert(
+          "El teléfono debe estar vacío o contener exactamente 9 dígitos numéricos.",
+        );
+        return;
+      }
+    }
+
     setPasswordData(null);
     setConfirmConfig({
       isOpen: true,
@@ -249,11 +260,12 @@ const ProfilePage = () => {
                 htmlFor="firstName"
                 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest"
               >
-                Nombre
+                Nombre<span style={{ color: "red" }}>*</span>
               </label>
               <input
                 id="firstName"
                 type="text"
+                required
                 className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
                 value={editData?.firstName || ""}
                 onChange={(e) =>
@@ -266,11 +278,12 @@ const ProfilePage = () => {
                 htmlFor="lastName"
                 className="text-[10px] font-bold text-gray-400 uppercase tracking-widest"
               >
-                Apellidos
+                Apellidos<span style={{ color: "red" }}>*</span>
               </label>
               <input
                 id="lastName"
                 type="text"
+                required
                 className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
                 value={editData?.lastName || ""}
                 onChange={(e) =>
@@ -289,6 +302,7 @@ const ProfilePage = () => {
             <input
               id="phone"
               type="text"
+              maxLength={9}
               className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
               value={editData?.phone || ""}
               onChange={(e) =>

@@ -2,7 +2,7 @@ import React from "react";
 
 interface BadgeProps {
   children: React.ReactNode;
-  variant?: "indigo" | "gray" | "green" | "red" | "amber" | "blue" | "orange";
+  variant?: "indigo" | "gray" | "green" | "red" | "amber" | "blue" | "orange" | "sky";
   textSize?: "xl" | "lg" | "base" | "mediano" | "sm";
   icon?: React.ReactNode;
   className?: string;
@@ -23,6 +23,7 @@ const Badge = ({
     amber: "bg-amber-50 text-amber-700 border-amber-100",
     blue: "bg-blue-50 text-blue-700 border-blue-100",
     orange: "bg-orange-50 text-orange-700 border-orange-100",
+    sky: "bg-sky-50 text-sky-700 border-sky-100",
   };
 
   const sizeConfig = {

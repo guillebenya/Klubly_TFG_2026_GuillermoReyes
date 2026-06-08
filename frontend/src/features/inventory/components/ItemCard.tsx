@@ -44,7 +44,7 @@ const ItemCard = ({ item, onView, onEdit, onDelete }: ItemCardProps) => {
           className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${
             isLowStock
               ? "bg-red-100 border-red-200 text-red-600 shadow-sm"
-              : "bg-indigo-50 border-indigo-100 text-indigo-600"
+              : item.active ? "bg-indigo-50 border-indigo-100 text-indigo-600" : "bg-gray-100 border-gray-100 text-gray-600"
           }`}
         >
           <Package size={24} />

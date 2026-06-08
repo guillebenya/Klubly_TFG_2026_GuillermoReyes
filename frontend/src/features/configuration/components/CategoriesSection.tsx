@@ -73,7 +73,7 @@ const SectionHeader = ({
   <div className="flex justify-between items-center bg-white p-4 rounded-2xl border border-gray-100 shadow-sm">
     <div className="flex items-center gap-3">
       <div
-        className={`p-2 rounded-lg ${isHistoryMode ? "bg-amber-50 text-amber-600" : "bg-indigo-50 text-indigo-600"}`}
+        className={`p-2 rounded-lg ${isHistoryMode ? "bg-rose-50 text-rose-600" : "bg-indigo-50 text-indigo-600"}`}
       >
         {isHistoryMode ? <History size={20} /> : <Tag size={20} />}
       </div>

@@ -5,7 +5,7 @@ import Button from "../../../components/shared/Button";
 import { type Category } from "../services/category.service";
 
 interface CategoryCardProps {
-  category: Category; 
+  category: Category;
   onView: (category: Category) => void;
   onEdit?: (category: Category) => void;
   onDelete?: (id: number) => void;
@@ -20,8 +20,9 @@ const CategoryCard = ({
   const hasItems = (category.itemCount || 0) > 0;
 
   return (
-    <Card className={`flex flex-col gap-4 !py-4 !px-6 border-l-4 border-l-indigo-300 hover:border-indigo-600 transition-all !shadow-sm group relative overflow-hidden ${category.active ? "" : "opacity-65"}`}>
-      
+    <Card
+      className={`flex flex-col gap-4 !py-4 !px-6 border-l-4 transition-all !shadow-sm group relative overflow-hidden ${category.active ? "border-l-indigo-300 hover:border-indigo-600" : "border-l-gray-300 hover:border-gray-600 opacity-65"}`}
+    >
       <div className="absolute left-0 top-0 bottom-0 w-1.5" />
       {/* CABECERA: Icono + Info + Botones */}
       <div className="flex items-start justify-between gap-4">
@@ -33,7 +34,8 @@ const CategoryCard = ({
           </div>
           <div className="min-w-0">
             <h3 className="text-sm font-bold text-gray-900 uppercase tracking-tight truncate">
-              {category.name}
+              {category.name}{" "}
+              {!category.active && <Badge variant="red">INACTIVO</Badge>}
             </h3>
             <p className="text-[10px] text-gray-400 font-medium">
               ID Categoría: #{category.id}

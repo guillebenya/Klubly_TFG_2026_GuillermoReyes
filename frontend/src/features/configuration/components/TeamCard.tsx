@@ -1,7 +1,7 @@
 import { Users2, Edit2, Trash2, Eye } from "lucide-react";
 import Button from "../../../components/shared/Button";
 import Badge from "../../../components/shared/Badge"; // Importado
-import Card from "../../../components/shared/Card";   // Importado
+import Card from "../../../components/shared/Card"; // Importado
 import { type Team } from "../services/team.service";
 
 interface TeamCardProps {
@@ -15,11 +15,11 @@ const TeamCard = ({ team, onView, onEdit, onDelete }: TeamCardProps) => {
   const hasMembers = (team.memberCount || 0) > 0;
 
   return (
-    <Card className={`!p-5 shadow-sm hover:shadow-md group relative overflow-hidden transition-all border-l-4 border-l-indigo-300 hover:border-indigo-600 ${team.active ? '' : 'opacity-65'}`}>
+    <Card
+      className={`!p-5 shadow-sm hover:shadow-md group relative overflow-hidden transition-all border-l-4 ${team.active ? "border-l-indigo-300 hover:border-indigo-600" : "border-l-gray-300 hover:border-gray-600 opacity-65"}`}
+    >
       {/* Barra lateral de estado */}
-      <div
-        className="absolute left-0 top-0 bottom-0 w-1"
-      />
+      <div className="absolute left-0 top-0 bottom-0 w-1" />
 
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-3">
@@ -30,7 +30,8 @@ const TeamCard = ({ team, onView, onEdit, onDelete }: TeamCardProps) => {
           </div>
           <div>
             <h3 className="text-sm font-bold text-gray-800 uppercase tracking-tight line-clamp-1">
-              {team.name}
+              {team.name}{" "}
+              {!team.active && <Badge variant="red">INACTIVO</Badge>}
             </h3>
             <p className="text-[10px] text-gray-400 font-medium">
               ID Equipo: #{team.id}
@@ -93,16 +94,17 @@ const TeamCard = ({ team, onView, onEdit, onDelete }: TeamCardProps) => {
           <div className="flex items-center gap-1.5">
             {/* Adaptado uso de Badge */}
             {hasMembers ? (
-              <Badge 
-                variant="indigo" 
+              <Badge
+                variant="indigo"
                 icon={<Users2 size={10} />}
                 className="rounded-full px-2.5 py-1 !font-black !uppercase"
               >
-                {team.memberCount} {team.memberCount === 1 ? 'Integrante' : 'Integrantes'}
+                {team.memberCount}{" "}
+                {team.memberCount === 1 ? "Integrante" : "Integrantes"}
               </Badge>
             ) : (
-              <Badge 
-                variant="gray" 
+              <Badge
+                variant="gray"
                 icon={<Users2 size={10} />}
                 className="rounded-full px-2.5 py-1 !font-bold !uppercase !tracking-tight !text-gray-400"
               >

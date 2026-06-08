@@ -32,31 +32,52 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
   };
 
   return (
-    <Card className={`!p-5 shadow-sm hover:shadow-md group relative overflow-hidden transition-all border-l-4 ${isSystemRole ? "border-l-indigo-300 hover:border-indigo-600" : "border-l-gray-300 hover:border-gray-500"} ${role.active ? '' : 'opacity-65'}`}>
-      <div
-        className={`absolute left-0 top-0 bottom-0 w-1 `}
-      />
+    <Card
+      className={`!p-5 shadow-sm hover:shadow-md group relative overflow-hidden transition-all border-l-4 ${
+        !role.active
+          ? "border-l-gray-300 hover:border-l-gray-400 bg-gray-50/40"
+          : isSystemRole
+            ? "border-l-indigo-300 hover:border-l-indigo-600"
+            : "border-l-sky-300 hover:border-l-sky-500"
+      } ${role.active ? "" : "opacity-65"}`}
+    >
+      <div className={`absolute left-0 top-0 bottom-0 w-1 `} />
 
       <div className="flex justify-between items-start mb-4">
         <div className="flex items-center gap-3">
           <div
-            className={`p-2 rounded-lg ${isSystemRole ? "bg-indigo-50 text-indigo-600" : "bg-gray-50 text-gray-400"}`}
+            className={`p-2 rounded-lg ${
+              !role.active
+                ? "bg-gray-50 text-gray-400"
+                : isSystemRole
+                  ? "bg-indigo-50 text-indigo-600"
+                  : "bg-sky-50 text-sky-600"
+            }`}
           >
             <Shield size={20} />
           </div>
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-bold text-gray-800 uppercase tracking-tight line-clamp-1">
-                {role.name}
+                {role.name}{" "}
+                {!role.active && <Badge variant="red">INACTIVO</Badge>}
               </h3>
             </div>
 
             {isSystemRole ? (
-              <span className="flex items-center gap-0.5 mt-1 text-indigo-600 text-[8px] font-black uppercase tracking-tighter">
+              <span
+                className={`flex items-center gap-0.5 mt-1 text-[8px] font-black uppercase tracking-tighter ${
+                  !role.active ? "text-gray-400" : "text-indigo-600"
+                }`}
+              >
                 <Lock size={8} /> Rol de Sistema
               </span>
             ) : (
-              <span className="flex items-center gap-0.5 mt-1 text-gray-400 text-[8px] font-black uppercase tracking-tighter">
+              <span
+                className={`flex items-center gap-0.5 mt-1 text-[8px] font-black uppercase tracking-tighter ${
+                  !role.active ? "text-gray-400" : "text-sky-600"
+                }`}
+              >
                 <LockOpen size={8} /> Rol Informativo
               </span>
             )}
@@ -70,6 +91,7 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
         {/* BOTONES DE ACCIÓN */}
         <div className="flex items-center gap-1">
           <Button
+            type="button"
             variant="ghost"
             size="sm"
             onClick={() => onView(role)}
@@ -81,6 +103,7 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
 
           {onEdit && (
             <Button
+              type="button"
               variant="ghost"
               size="sm"
               onClick={() => onEdit(role)}
@@ -98,6 +121,7 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
 
           {onDelete && (
             <Button
+              type="button"
               variant="ghost"
               size="sm"
               onClick={() => onDelete(role.id)}
@@ -123,17 +147,17 @@ const RoleCard = ({ role, onView, onEdit, onDelete }: RoleCardProps) => {
         </span>
         <div className="flex items-center gap-1.5">
           {hasUsers ? (
-            <Badge 
-              variant="indigo" 
-              icon={<Users2 size={10} />} 
+            <Badge
+              variant={!role.active ? "gray" : isSystemRole ? "indigo" : "sky"}
+              icon={<Users2 size={10} />}
               className="rounded-full px-2.5 py-1 !font-black !uppercase"
             >
-              {role.userCount} {role.userCount === 1 ? 'Usuario' : 'Usuarios'}
+              {role.userCount} {role.userCount === 1 ? "Usuario" : "Usuarios"}
             </Badge>
           ) : (
-            <Badge 
-              variant="gray" 
-              icon={<Users2 size={10} />} 
+            <Badge
+              variant="gray"
+              icon={<Users2 size={10} />}
               className="rounded-full px-2.5 py-1 !font-bold !uppercase !tracking-tight !text-gray-400"
             >
               Vacío
