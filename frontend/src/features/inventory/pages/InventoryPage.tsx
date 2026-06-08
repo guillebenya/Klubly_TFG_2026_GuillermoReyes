@@ -135,6 +135,7 @@ const InventoryPage = () => {
   const executeAction = async () => {
     try {
       setFormLoading(true);
+
       if (confirmConfig.type === "delete") {
         await itemService.delete(confirmConfig.data);
         setSuccessConfig({
@@ -144,17 +145,25 @@ const InventoryPage = () => {
         });
       } else {
         const data = confirmConfig.data;
+
         if (selectedItem) {
           await itemService.update(selectedItem.id, data);
+          setSuccessConfig({
+            isOpen: true,
+            title: "¡Actualizado!",
+            desc: "La información del artículo se ha actualizado correctamente.",
+          });
         } else {
           await itemService.create(data);
+          setSuccessConfig({
+            isOpen: true,
+            title: "¡Artículo Registrado!",
+            desc: "El nuevo artículo ha sido añadido correctamente al inventario del club.",
+          });
         }
-        setSuccessConfig({
-          isOpen: true,
-          title: "¡Guardado!",
-          desc: "La información del inventario se ha actualizado correctamente.",
-        });
       }
+
+      // Cerramos el diálogo de confirmación tras el éxito
       setConfirmConfig({ ...confirmConfig, isOpen: false });
     } catch (error) {
       console.error("Error al ejecutar la acción:", error);
@@ -170,35 +179,45 @@ const InventoryPage = () => {
     fetchItems();
   };
 
-  // --- LÓGICA DE FILTRADO ---
-  const filteredItems = items.filter((m) => {
-    const searchString =
-      `${m.name} ${m.categoryName} ${m.location}`.toLowerCase();
-    const matchesSearch = searchString.includes(searchTerm.toLowerCase());
-    const matchesCategory =
-      activeFilters.categories.length === 0 ||
-      activeFilters.categories.includes(m.categoryId);
+  //LÓGICA DE FILTRADO
+  const filteredItems = items
+    .filter((m) => {
+      const searchString =
+        `${m.name} ${m.categoryName} ${m.location}`.toLowerCase();
+      const matchesSearch = searchString.includes(searchTerm.toLowerCase());
+      const matchesCategory =
+        activeFilters.categories.length === 0 ||
+        activeFilters.categories.includes(m.categoryId);
 
-    const isLow = m.stockQuantity <= m.minStock;
-    const matchesStock =
-      activeFilters.stockStatus === "all" ||
-      (activeFilters.stockStatus === "low" && isLow) ||
-      (activeFilters.stockStatus === "enough" && !isLow);
+      const isLow = m.stockQuantity <= m.minStock;
+      const matchesStock =
+        activeFilters.stockStatus === "all" ||
+        (activeFilters.stockStatus === "low" && isLow) ||
+        (activeFilters.stockStatus === "enough" && !isLow);
 
-    if (isHistoryMode) return matchesSearch && matchesCategory;
+      if (isHistoryMode) return matchesSearch && matchesCategory;
 
-    if (isAdmin) {
-      if (
-        activeFilters.status.length > 0 &&
-        !activeFilters.status.includes(m.active)
-      )
+      if (isAdmin) {
+        if (
+          activeFilters.status.length > 0 &&
+          !activeFilters.status.includes(m.active)
+        )
+          return false;
+      } else if (!m.active) {
         return false;
-    } else if (!m.active) {
-      return false;
-    }
+      }
 
-    return matchesSearch && matchesCategory && matchesStock;
-  });
+      return matchesSearch && matchesCategory && matchesStock;
+    })
+    .sort((a, b) => {
+      const getItemScore = (i: Item) => {
+        if (!i.active) return 0;
+        if (i.stockQuantity === 0) return 3;
+        if (i.stockQuantity <= i.minStock) return 2;
+        return 1;
+      };
+      return getItemScore(b) - getItemScore(a);
+    });
 
   return (
     <div className="space-y-6">
@@ -359,13 +378,27 @@ const InventoryPage = () => {
         isOpen={confirmConfig.isOpen}
         onClose={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}
         onConfirm={executeAction}
-        title="¿Confirmar operación?"
+        title={
+          confirmConfig.type === "delete"
+            ? "¿Confirmar baja?"
+            : selectedItem
+              ? "¿Guardar cambios?"
+              : "¿Confirmar registro?"
+        }
         description={
           confirmConfig.type === "delete"
             ? "¿Estás seguro de dar de baja este artículo?"
-            : "¿Guardar los cambios realizados?"
+            : selectedItem
+              ? "¿Deseas guardar los cambios realizados en este artículo?"
+              : "¿Deseas registrar este nuevo artículo en el inventario del club?"
         }
-        confirmLabel={confirmConfig.type === "delete" ? "Eliminar" : "Guardar"}
+        confirmLabel={
+          confirmConfig.type === "delete"
+            ? "Eliminar"
+            : selectedItem
+              ? "Guardar"
+              : "Registrar Artículo"
+        }
         type={confirmConfig.type === "delete" ? "danger" : "warning"}
         isLoading={formLoading}
       />
