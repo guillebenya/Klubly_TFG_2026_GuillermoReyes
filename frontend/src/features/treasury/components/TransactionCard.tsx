@@ -61,6 +61,7 @@ const TransactionCard = ({
           colorClass: "text-red-600",
         };
       }
+
       // Caso 2: El club pagó al socio (Expense para el club, ingreso para el socio)
       return {
         label: "RECIBIDO / REEMBOLSO",
@@ -116,14 +117,16 @@ const TransactionCard = ({
   };
 
   const borderColorClubIncome = isClubIncome
-    ? "border-l-red-500"
-    : "border-l-emerald-500";
+    ? "border-l-red-300 hover:border-l-red-500"
+    : "border-l-emerald-300 hover:border-l-emerald-500";
 
   const borderColorNotClubIncome = isClubIncome
-    ? "border-l-emerald-500"
-    : "border-l-red-500";
+    ? "border-l-emerald-300 hover:border-l-emerald-500"
+    : "border-l-red-300 hover:border-l-red-500";
 
-  const borderColor = isMemberView
+  const borderColor = !transaction.active
+    ? "border-l-gray-300 hover:border-l-gray-400"
+    : isMemberView
     ? borderColorClubIncome
     : borderColorNotClubIncome;
 
@@ -135,11 +138,18 @@ const TransactionCard = ({
     ? "bg-emerald-50 text-emerald-600 border-emerald-100"
     : "bg-red-50 text-red-600 border-red-100";
 
-  const iconStyle = isMemberView ? iconStyleClubIncome : iconStyleNotClubIncome;
+  // Si está inactiva, el contenedor del icono principal también se vuelve gris neutro
+  const iconStyle = !transaction.active
+    ? "bg-gray-50 text-gray-400 border-gray-200"
+    : isMemberView
+    ? iconStyleClubIncome
+    : iconStyleNotClubIncome;
 
   return (
     <Card
-      className={`flex items-center gap-4 py-3 px-6 hover:border-indigo-600 transition-all shadow-sm group border-l-4 ${transaction.active ? "" : "opacity-65"} ${borderColor}`}
+      className={`flex items-center gap-4 py-3 px-6 transition-all shadow-sm group border-l-4 ${
+        transaction.active ? "" : "opacity-60 bg-gray-50/50"
+      } ${borderColor}`}
     >
       <div className="flex items-center justify-between flex-1 min-w-0 gap-4">
         {/* ICONO DE ACTIVIDAD */}
@@ -152,7 +162,7 @@ const TransactionCard = ({
         {/* Usuario (Solo visible para Admin) */}
         {!isMemberView && (
           <Column title="Socio / Beneficiario" className="min-w-[150px]">
-            <div className="flex items-center gap-1.5 text-indigo-600">
+            <div className={`flex items-center gap-1.5 ${transaction.active ? "text-indigo-600" : "text-gray-500"}`}>
               <User size={14} strokeWidth={2.5} />
               <span className="text-xs font-black uppercase truncate">
                 {transaction.userFullName || "GENERAL / CLUB"}
@@ -163,24 +173,29 @@ const TransactionCard = ({
 
         {/* Concepto */}
         <Column title="Concepto" className="flex-1 max-w-[200px]">
-          <span className="text-xs font-bold text-gray-700 truncate uppercase">
+          <span className={`text-xs font-bold truncate uppercase ${transaction.active ? "text-gray-700" : "text-gray-400 line-through"}`}>
             {transaction.concept}
           </span>
         </Column>
 
-        {/* Tipo / Estado Adaptado */}
+        {/* Tipo / Estado Adaptado (Aquí inyectamos el Badge doble si está inactivo) */}
         <Column
-          title={isMemberView ? "Movimiento" : "Tipo"}
-          className="min-w-[130px]"
+          title={isMemberView ? "Movimiento" : "Tipo / Estado"}
+          className="min-w-[140px]"
         >
-          <Badge variant={config.variant} icon={config.icon}>
-            {config.label}
-          </Badge>
+          <div className="flex gap-1 items-center">
+            {!transaction.active && (
+              <Badge variant="red">INACTIVO</Badge>
+            )}
+            <Badge variant={config.variant} icon={config.icon}>
+              {config.label}
+            </Badge>
+          </div>
         </Column>
 
         {/* Importe */}
         <Column title="Importe" className="min-w-[100px]">
-          <span className={`text-sm font-black ${config.colorClass}`}>
+          <span className={`text-sm font-black ${transaction.active ? config.colorClass : "text-gray-400"}`}>
             {!isMemberView && (isClubIncome ? "+" : "-")}{" "}
             {formatCurrency(transaction.amount)}
           </span>
@@ -210,6 +225,7 @@ const TransactionCard = ({
       {/* Botones de Acción */}
       <div className="flex items-center gap-1 shrink-0 ml-4">
         <Button
+          type="button"
           variant="ghost"
           size="sm"
           icon={<Eye size={16} />}
@@ -221,6 +237,7 @@ const TransactionCard = ({
           <>
             {onEdit && (
               <Button
+                type="button"
                 variant="ghost"
                 size="sm"
                 icon={<Edit2 size={16} />}
@@ -228,8 +245,9 @@ const TransactionCard = ({
                 className="!text-amber-500 hover:!bg-amber-50"
               />
             )}
-            {onDelete && (
+            {onDelete && transaction.active && (
               <Button
+                type="button"
                 variant="ghost"
                 size="sm"
                 icon={<Trash2 size={16} />}
