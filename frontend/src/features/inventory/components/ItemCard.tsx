@@ -32,9 +32,9 @@ const ItemCard = ({ item, onView, onEdit, onDelete }: ItemCardProps) => {
 
   return (
     <Card
-      className={`flex items-center gap-4 py-3 px-6 transition-all shadow-sm group relative border-l-4 ${item.active ? "" : "opacity-65"} ${
+      className={`flex items-center gap-4 py-3 px-6 transition-all shadow-sm group relative border-l-4 ${item.active ? "" : "border-l-gray-300 hover:border-gray-600 opacity-65"} ${
         isLowStock
-          ? "border-l-red-500 hover:border-red-300 bg-red-50/10"
+          ? "border-l-red-500 hover:border-red-700 bg-red-50/10"
           : "border-l-indigo-300 hover:border-indigo-600"
       }`}
     >

@@ -159,6 +159,9 @@ const MemberForm = ({
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
   const [confirmPassword, setConfirmPassword] = useState("");
   const [passwordError, setPasswordError] = useState(false);
+  const [phoneError, setPhoneError] = useState(false);
+  const [emailError, setEmailError] = useState(false);
+  const [passwordMinError, setPasswordMinError] = useState(false);
 
   const [roles, setRoles] = useState<Role[]>([]);
   const [loadingRoles, setLoadingRoles] = useState(true);
@@ -183,7 +186,7 @@ const MemberForm = ({
     initialData && currentUser && initialData.id === currentUser.id;
 
   const isInitialData = initialData ? "Guardar Cambios" : "Crear Miembro";
-  const submitLabel = isRegistration ? "Crear cuenta" : isInitialData;
+  const submitLabel = isRegistration ? "Crear Cuenta" : isInitialData;
   const submitVariant = isRegistration || initialData ? "primary" : "add";
 
   const isEditMode = !!initialData && !isRegistration;
@@ -214,6 +217,9 @@ const MemberForm = ({
       setFormData({
         ...initialData,
         password: "",
+        phone: initialData.phone || "",
+        clubPosition: initialData.clubPosition || "",
+        avatarURL: initialData.avatarURL || "",
         active: initialData.isPending ? true : initialData.active,
       });
     }
@@ -231,7 +237,15 @@ const MemberForm = ({
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
-    setFormData((prev) => ({ ...prev, [e.target.name]: parseInputValue(e) }));
+    let value = parseInputValue(e);
+
+    // Filtra en tiempo real: limpia todo lo que no sea un número
+    if (e.target.name === "phone" && typeof value === "string") {
+      value = value.replace(/\D/g, ""); // Borra cualquier cosa que no sea dígito
+      setPhoneError(false);
+    }
+
+    setFormData((prev) => ({ ...prev, [e.target.name]: value }));
     if (e.target.name === "password") setPasswordError(false);
   };
 
@@ -247,10 +261,32 @@ const MemberForm = ({
   const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Validación: Solo comprobamos si coinciden si el usuario ha escrito algo
-    // o si es un registro/creación nueva (donde es obligatorio)
+    //Validación formato email
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email.trim())) {
+      setEmailError(true);
+      return;
+    }
+
+    //Validación mínimo 6 caracteres para contraseña (solo si se ha escrito algo o es un nuevo usuario)
+    const shouldCheckLength =
+      isNewOrRegistration || formData.password.length > 0;
+    if (shouldCheckLength && formData.password.length < 6) {
+      setPasswordMinError(true);
+      return;
+    }
+
+    //Validación: Solo comprobamos si coinciden si el usuario ha escrito algo
+    //o si es un registro/creación nueva (donde es obligatorio)
     if (!isPasswordValid()) {
       setPasswordError(true);
+      return;
+    }
+
+    //Validación teléfono: Si el campo no está vacío, debe tener exactamente 9 dígitos
+    const phoneValue = (formData.phone || "").trim();
+    if (phoneValue.length > 0 && !/^\d{9}$/.test(phoneValue)) {
+      setPhoneError(true);
       return;
     }
 
@@ -301,11 +337,20 @@ const MemberForm = ({
               type="email"
               value={formData.email}
               onChange={handleChange}
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm"
+              className={`w-full pl-10 pr-4 py-2.5 bg-gray-50 border ${
+                emailError
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-200 focus:ring-indigo-500"
+              } rounded-xl focus:ring-2 outline-none transition-all text-sm`}
               placeholder="ejemplo@klubly.com"
               required
             />
           </div>
+          {emailError && (
+            <p className="text-red-500 text-[10px] font-bold uppercase ml-1">
+              El correo debe incluir un dominio válido (ej: usuario@dominio.com)
+            </p>
+          )}
         </div>
 
         <div className="space-y-1">
@@ -361,7 +406,11 @@ const MemberForm = ({
               type={showPassword ? "text" : "password"}
               value={formData.password}
               onChange={handleChange}
-              className={`w-full pl-10 pr-12 py-2.5 bg-gray-50 border ${passwordError ? "border-red-500" : "border-gray-200"} rounded-xl focus:ring-2 outline-none text-sm`}
+              className={`w-full pl-10 pr-12 py-2.5 bg-gray-50 border ${
+                passwordError || passwordMinError
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-200 focus:ring-indigo-500"
+              } rounded-xl focus:ring-2 outline-none text-sm`}
               required={passwordRequired}
               placeholder={isEditMode ? "••••••••" : "Mínimo 6 caracteres"}
             />
@@ -373,6 +422,11 @@ const MemberForm = ({
               {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
             </button>
           </div>
+          {passwordMinError && (
+            <p className="text-red-500 text-[10px] font-bold uppercase ml-1">
+              La contraseña debe tener al menos 6 caracteres
+            </p>
+          )}
         </div>
 
         {/* Repetir Password */}
@@ -435,9 +489,20 @@ const MemberForm = ({
               name="phone"
               value={formData.phone}
               onChange={handleChange}
-              className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all text-sm"
+              maxLength={9}
+              placeholder="Ej: 612345678"
+              className={`w-full pl-10 pr-4 py-2.5 bg-gray-50 border ${
+                phoneError
+                  ? "border-red-500 focus:ring-red-500"
+                  : "border-gray-200 focus:ring-indigo-500"
+              } rounded-xl focus:ring-2 outline-none transition-all text-sm`}
             />
           </div>
+          {phoneError && (
+            <p className="text-red-500 text-[10px] font-bold uppercase ml-1">
+              El teléfono debe tener exactamente 9 dígitos
+            </p>
+          )}
         </div>
 
         <div className="space-y-1 md:col-span-1">

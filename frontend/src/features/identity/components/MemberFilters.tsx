@@ -85,16 +85,29 @@ const MemberFilters = ({
           </label>
           <div className="flex gap-2">
             <button
+              type="button"
               onClick={() => toggleFilter("status", true)}
               className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${
                 filters.status.includes(true)
-                  ? "border-emerald-500 bg-emerald-50 text-emerald-700"
+                  ? "border-indigo-500 bg-indigo-50 text-indigo-700"
                   : "border-gray-100 bg-gray-50 text-gray-400"
               }`}
             >
               ACTIVOS
             </button>
             <button
+              type="button"
+              onClick={() => toggleFilter("isPending", true)}
+              className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${
+                filters.isPending.includes(true)
+                  ? "border-amber-500 bg-amber-50 text-amber-700"
+                  : "border-gray-100 bg-gray-50 text-gray-400"
+              }`}
+            >
+              PENDIENTES
+            </button>
+            <button
+              type="button"
               onClick={() => toggleFilter("status", false)}
               className={`flex-1 py-2 rounded-xl text-xs font-bold border transition-all ${
                 filters.status.includes(false)

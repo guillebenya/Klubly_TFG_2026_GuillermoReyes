@@ -82,7 +82,7 @@ const MemberCard = ({
     if (member.isPending) return "border-l-amber-300 bg-amber-50/30";
     return member.active
       ? "border-l-indigo-300"
-      : "border-l-indigo-300 opacity-65";
+      : "border-l-gray-300 opacity-65";
   };
 
   // Lógica de colores dinámica según estado
@@ -91,7 +91,7 @@ const MemberCard = ({
       return "hover:border-l-amber-600 hover:bg-amber-50/30";
     return member.active
       ? "hover:border-l-indigo-600"
-      : "hover:border-l-indigo-600 hover:opacity-75";
+      : "hover:border-l-gray-600 hover:opacity-75";
   };
 
   return (
@@ -168,7 +168,7 @@ const MemberCard = ({
           <p
             className={`text-xs font-semibold truncate ${member.isPending ? "text-amber-600 italic" : "text-gray-600"}`}
           >
-            {member.isPending ? "Por asignar" : member.clubPosition || "Socio"}
+            {member.isPending ? "Por asignar" : member.clubPosition || "Ninguno"}
           </p>
         </div>
 
@@ -229,7 +229,7 @@ const MemberCard = ({
             onClick={() => onDelete(member.id)}
             disabled={isSelf}
             className="!text-red-500 hover:!bg-red-50 disabled:opacity-30"
-            title="Eliminar miembro"
+            title={isSelf ? "No puedes eliminar tu propia cuenta" : "Eliminar miembro"}
           />
         )}
       </div>

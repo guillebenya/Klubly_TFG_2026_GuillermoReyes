@@ -47,24 +47,32 @@ const filterMembers = (
 
     if (isHistoryMode) return matchesSearch && matchesRole;
 
-    const matchesStatus =
-      activeFilters.status.length === 0 ||
-      activeFilters.status.includes(m.active);
+    let memberActualState = "INACTIVO";
+    if (m.isPending) {
+      memberActualState = "PENDIENTE";
+    } else if (m.active) {
+      memberActualState = "ACTIVO";
+    }
+
+    const UISelectedStates = [];
+    if (activeFilters.status.includes(true)) UISelectedStates.push("ACTIVO");
+    if (activeFilters.status.includes(false)) UISelectedStates.push("INACTIVO");
+    if (activeFilters.isPending.includes(true)) UISelectedStates.push("PENDIENTE");
+
+    const matchesStatusGroup =
+      UISelectedStates.length === 0 || UISelectedStates.includes(memberActualState);
+
     const matchesTeam =
       activeFilters.teams.length === 0 ||
       m.affiliations?.some((aff: any) =>
         activeFilters.teams.includes(aff.teamId),
       );
-    const matchesPending =
-      activeFilters.isPending.length === 0 ||
-      activeFilters.isPending.includes(m.isPending);
 
     return (
       matchesSearch &&
       matchesRole &&
-      matchesStatus &&
-      matchesTeam &&
-      matchesPending
+      matchesStatusGroup && // Filtro unificado de 3 estados
+      matchesTeam
     );
   });
 
@@ -178,9 +186,9 @@ const MembersPage = () => {
   const isAdmin = currentUser?.roleName === "ADMIN";
 
   const fetchTeams = async () => {
-  const resp = await teamService.getAll();
-  setAllTeams(resp.data ?? []);
-};
+    const resp = await teamService.getAll();
+    setAllTeams(resp.data ?? []);
+  };
 
   // HANDLERS
   const handleDeleteTrigger = (id: number) => {
@@ -195,14 +203,19 @@ const MembersPage = () => {
     const formData = confirmConfig.data;
     if (selectedMember) {
       await userService.update(selectedMember.id, formData);
+      setSuccessConfig({
+        isOpen: true,
+        title: "¡Actualizado!",
+        desc: "La información del miembro se ha actualizado con éxito.",
+      });
     } else {
       await userService.create(formData);
+      setSuccessConfig({
+        isOpen: true,
+        title: "¡Alta Consolidada!",
+        desc: "El nuevo miembro ha sido dado de alta correctamente en el sistema.",
+      });
     }
-    setSuccessConfig({
-      isOpen: true,
-      title: "¡Guardado!",
-      desc: "La información del miembro se ha actualizado con éxito.",
-    });
   };
 
   const executeDelete = async () => {
@@ -288,7 +301,15 @@ const MembersPage = () => {
     searchTerm,
     activeFilters,
     isHistoryMode,
-  );
+  ).sort((a, b) => {
+    const getMemberScore = (m: any) => {
+      if (m.isPending) return 2;
+      if (m.active) return 1;
+      return 0;
+    };
+
+    return getMemberScore(b) - getMemberScore(a);
+  });
 
   return (
     <div className="space-y-6">
@@ -460,14 +481,26 @@ const MembersPage = () => {
         isOpen={confirmConfig.isOpen}
         onClose={() => setConfirmConfig((prev) => ({ ...prev, isOpen: false }))}
         onConfirm={executeAction}
-        title="¿Confirmar operación?"
+        title={
+          confirmConfig.type === "delete"
+            ? "¿Confirmar baja?"
+            : selectedMember
+              ? "¿Guardar cambios?"
+              : "¿Confirmar alta?"
+        }
         description={
           confirmConfig.type === "delete"
             ? "¿Estás seguro de que deseas dar de baja a este miembro? Esta acción no se puede deshacer fácilmente."
-            : "¿Deseas guardar los cambios realizados en la ficha del miembro?"
+            : selectedMember
+              ? "¿Deseas guardar los cambios realizados en la ficha del miembro?"
+              : "¿Deseas procesar el alta y registrar a este nuevo miembro en la base de datos?"
         }
         confirmLabel={
-          confirmConfig.type === "delete" ? "Eliminar" : "Guardar Cambios"
+          confirmConfig.type === "delete"
+            ? "Eliminar"
+            : selectedMember
+              ? "Guardar Cambios"
+              : "Confirmar Alta"
         }
         type={confirmConfig.type === "delete" ? "danger" : "warning"}
         isLoading={formLoading}

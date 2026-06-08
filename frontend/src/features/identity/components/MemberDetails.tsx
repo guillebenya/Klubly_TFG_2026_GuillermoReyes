@@ -66,8 +66,8 @@ const MemberDetails = ({ member, onManageTeams }: MemberDetailsProps) => {
           </div>
         </div>
         <div className="flex flex-col items-end gap-2">
-          <Badge variant={member.active ? "green" : "red"}>
-            {member.active ? "ACTIVO" : "INACTIVO"}
+          <Badge variant={member.isPending ? "amber" : member.active ? "green" : "red"}>
+            {member.isPending ? "PENDIENTE" : member.active ? "ACTIVO" : "INACTIVO"}
           </Badge>
           <Badge variant="indigo" icon={<Shield size={10} />}>
             {member.roleName}
