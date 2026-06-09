@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Save, X, Loader2 } from "lucide-react";
+import { Save, X, Loader2, XCircle } from "lucide-react";
 import Button from "../../../components/shared/Button";
 import { registrationService } from "../services/registration.service";
 import { teamService, type Team } from "../../identity/services/team.service";
@@ -27,6 +27,7 @@ const AddRegistrationForm: React.FC<AddRegistrationFormProps> = ({
   const [selectedUser, setSelectedUser] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [loadingUsers, setLoadingUsers] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     loadTeams();
@@ -99,13 +100,15 @@ const AddRegistrationForm: React.FC<AddRegistrationFormProps> = ({
 
     try {
       setLoading(true);
+      setError("");
       await registrationService.addManual(
         activity.id,
         Number.parseInt(selectedUser),
       );
       onSuccess();
     } catch (error: any) {
-      alert(error.response?.data?.message || "Error al inscribir al usuario.");
+      const errorMsg = error.response?.data?.message || "Error al inscribir al usuario.";
+      setError(errorMsg);
     } finally {
       setLoading(false);
     }
@@ -170,6 +173,14 @@ const AddRegistrationForm: React.FC<AddRegistrationFormProps> = ({
           )}
         </div>
       </div>
+
+      {/* Contenedor de Error integrado en el modal */}
+      {error && (
+        <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-100 rounded-xl text-red-600 text-xs font-bold animate-in fade-in duration-200">
+          <XCircle size={14} className="flex-shrink-0" />
+          <span>{error}</span>
+        </div>
+      )}
 
       <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
         <Button

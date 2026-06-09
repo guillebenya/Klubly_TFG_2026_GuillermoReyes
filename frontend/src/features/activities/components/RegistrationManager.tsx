@@ -15,11 +15,13 @@ import { type Activity } from "../services/activity.service";
 interface RegistrationManagerProps {
   activity: Activity;
   onClose: () => void;
+  onRefresh?: () => void;
 }
 
 const RegistrationManager: React.FC<RegistrationManagerProps> = ({
   activity,
   onClose,
+  onRefresh,
 }) => {
   const [registrations, setRegistrations] = useState<Registration[]>([]);
   const [loading, setLoading] = useState(true);
@@ -31,6 +33,8 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const isFull = registrations.length >= activity.capacity;
+  const isPast = new Date(activity.endDate) < new Date();
+  const isBtnDisabled = isFull || isPast;
 
   useEffect(() => {
     fetchRegistrations();
@@ -61,6 +65,7 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({
       setIsConfirmOpen(false);
       setIsSuccessOpen(true);
       fetchRegistrations();
+      if (onRefresh) onRefresh();
     } catch (error) {
       console.error("Error al eliminar", error);
     } finally {
@@ -81,7 +86,9 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({
     if (registrations.length === 0) {
       return (
         <div className="text-center py-10 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-100">
-          <p className="text-gray-400">No hay nadie inscrito todavía.</p>
+          <p className="text-gray-400">
+            {isPast ? "No hubo ningún inscrito." : "No hay nadie inscrito todavía."}
+          </p>
         </div>
       );
     }
@@ -143,16 +150,18 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({
 
         <div
           title={
-            isFull
-              ? "No se pueden añadir más inscritos: el cupo de la actividad está lleno"
-              : ""
+            isPast
+              ? "No se pueden añadir más inscritos: la actividad ya ha finalizado"
+              : isFull
+                ? "No se pueden añadir más inscritos: el cupo de la actividad está lleno"
+                : ""
           }
         >
           <Button
             variant="add"
             icon={<UserPlus size={18} />}
             onClick={() => setIsAddModalOpen(true)}
-            disabled={isFull}
+            disabled={isBtnDisabled}
           >
             Añadir Inscripción
           </Button>
@@ -174,6 +183,7 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({
           onSuccess={() => {
             setIsAddModalOpen(false);
             fetchRegistrations();
+            if (onRefresh) onRefresh();
           }}
           onCancel={() => setIsAddModalOpen(false)}
         />

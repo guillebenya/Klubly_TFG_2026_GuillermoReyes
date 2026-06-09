@@ -85,6 +85,10 @@ const ActivityForm: React.FC<ActivityFormProps> = ({
     if (formData.capacity <= 0)
       newErrors.capacity = "La capacidad debe ser mayor a 0";
 
+    if (initialData && formData.capacity < initialData.registeredCount) {
+      newErrors.capacity = `La capacidad no puede ser inferior a los inscritos actuales (${initialData.registeredCount})`;
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };

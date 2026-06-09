@@ -412,8 +412,12 @@ const ActivityPage = () => {
       >
         {selectedActivity && (
           <ActivityDetails
-            activity={selectedActivity}
+            activity={
+              activities.find((a) => a.id === selectedActivity.id) ||
+              selectedActivity
+            }
             isHistoryMode={isHistoryMode}
+            onRefresh={fetchActivities}
           />
         )}
       </Modal>

@@ -76,6 +76,8 @@ public class DataInitializer implements CommandLineRunner {
         createRoleIfNotFound(ROLE_STAFF);
         createRoleIfNotFound(ROLE_MEMBER);
         createRoleIfNotFound(ROLE_INFORMATIVO);
+        createInactiveRole();
+        createDeletedRole();
     }
 
     // Usuarios
@@ -88,6 +90,7 @@ public class DataInitializer implements CommandLineRunner {
         createDeletedUser();
         createLoneStaffUser();
         createInformativeRoleUser();
+        createInactiveUser();
     }
 
     private void createAdminUser() {
@@ -208,11 +211,52 @@ public class DataInitializer implements CommandLineRunner {
         log.info("Usuario member con rol informativo creado con éxito por el DataSeed");
     }
 
+    private void createInactiveUser() {
+        if (userRepository.existsByUsernameAndDeletedAtIsNull("usuario.inactivo")) return;
+
+        Role memberRole = findRoleOrThrow(ROLE_MEMBER);
+        User inactiveUser = new User();
+        inactiveUser.setUsername("usuario.inactivo");
+        inactiveUser.setEmail("inactivo@klubly.com");
+        inactiveUser.setPassword(passwordEncoder.encode(appProperties.getDefaultPassword()));
+        inactiveUser.setFirstName("Carlos");
+        inactiveUser.setLastName("Pausado");
+        inactiveUser.setRole(memberRole);
+        inactiveUser.setActive(false);
+        userRepository.save(inactiveUser);
+        log.info("Usuario inactivo creado con éxito por el DataSeed.");
+    }
+
+    private void createInactiveRole() {
+        if (roleRepository.findByNameAndDeletedAtIsNull("ROL INACTIVO").isPresent()) return;
+
+        Role role = new Role();
+        role.setName("ROL INACTIVO");
+        role.setDescription("Rol de prueba configurado como inactivo.");
+        role.setActive(false);
+        roleRepository.save(role);
+        log.info("Rol inactivo creado con éxito por el DataSeed.");
+    }
+
+    private void createDeletedRole() {
+        if (roleRepository.findByNameAndDeletedAtIsNull("ROL ELIMINADO").isPresent()) return;
+
+        Role role = new Role();
+        role.setName("ROL ELIMINADO");
+        role.setDescription("Rol antiguo dado de baja del sistema.");
+        role.setActive(false);
+        role.setDeletedAt(LocalDateTime.now().minusDays(2));
+        roleRepository.save(role);
+        log.info("Rol eliminado creado con éxito por el DataSeed.");
+    }
+
     // Equipos y afiliaciones
 
     private Team seedTeams() {
         Team testTeam = findOrCreateTestTeam();
         Team teamB    = findOrCreateJuvenilTeam();
+        createInactiveTeam();
+        createDeletedTeam();
 
         createStaffAffiliations(testTeam, teamB);
         createMemberAffiliation(testTeam);
@@ -242,6 +286,29 @@ public class DataInitializer implements CommandLineRunner {
             return saved;
         }
         return teamRepository.findByNameAndDeletedAtIsNull(TEAM_TEST).get();
+    }
+
+    private void createInactiveTeam() {
+        if (teamRepository.existsByNameAndDeletedAtIsNull("Equipo Inactivo")) return;
+
+        Team team = new Team();
+        team.setName("Equipo Inactivo");
+        team.setDescription("Equipo suspendido temporalmente por la administración.");
+        team.setActive(false);
+        teamRepository.save(team);
+        log.info("Equipo inactivo creado con éxito por el DataSeed.");
+    }
+
+    private void createDeletedTeam() {
+        if (teamRepository.existsByNameAndDeletedAtIsNull("Equipo Eliminado")) return;
+
+        Team team = new Team();
+        team.setName("Equipo Eliminado");
+        team.setDescription("Equipo antiguo disuelto.");
+        team.setActive(false);
+        team.setDeletedAt(LocalDateTime.now().minusDays(3));
+        teamRepository.save(team);
+        log.info("Equipo eliminado creado con éxito por el DataSeed.");
     }
 
     private void createStaffAffiliations(Team testTeam, Team teamB) {
@@ -285,6 +352,10 @@ public class DataInitializer implements CommandLineRunner {
         createTestItem(testCategory);
         createCriticalItem(testCategory);
         createInactiveItem(testCategory);
+        createOutOfStockItem(testCategory);
+        createDeletedItem(testCategory);
+        createInactiveCategory();
+        createDeletedCategory();
     }
 
     private void createTestCategory() {
@@ -341,6 +412,59 @@ public class DataInitializer implements CommandLineRunner {
         log.info("Item inactivo 'Porterías de Entrenamiento' creado con éxito por el DataSeed.");
     }
 
+    private void createOutOfStockItem(Category category) {
+        if (itemRepository.existsByNameAndDeletedAtIsNull("Petos de Entrenamiento (Agotado)")) return;
+
+        Item item = new Item();
+        item.setName("Petos de Entrenamiento (Agotado)");
+        item.setDescription("Petos reflectantes color verde para partidillos.");
+        item.setStockQuantity(0);
+        item.setMinStock(15);
+        item.setLocation("Armario Principal - Almacén A");
+        item.setCategory(category);
+        item.setActive(true);
+        itemRepository.save(item);
+        log.info("Item agotado: 'Petos de Entrenamiento' creado con éxito por el DataSeed.");
+    }
+
+    private void createDeletedItem(Category category) {
+        if (itemRepository.existsByNameAndDeletedAtIsNull("Conos rotos (Eliminado)")) return;
+
+        Item item = new Item();
+        item.setName("Conos rotos (Eliminado)");
+        item.setDescription("Lote de conos antiguos dañados durante la temporada.");
+        item.setStockQuantity(0);
+        item.setMinStock(0);
+        item.setCategory(category);
+        item.setActive(false);
+        item.setDeletedAt(LocalDateTime.now().minusDays(2));
+        itemRepository.save(item);
+        log.info("Item eliminado: 'Conos rotos' creado con éxito por el DataSeed.");
+    }
+
+    private void createInactiveCategory() {
+        if (categoryRepository.existsByNameAndDeletedAtIsNull("Categoría Inactiva")) return;
+
+        Category category = new Category();
+        category.setName("Categoría Inactiva");
+        category.setDescription("Categoría oculta temporalmente de los formularios activos.");
+        category.setActive(false);
+        categoryRepository.save(category);
+        log.info("Categoría inactiva creada con éxito por el DataSeed.");
+    }
+
+    private void createDeletedCategory() {
+        if (categoryRepository.existsByNameAndDeletedAtIsNull("Categoría Eliminada")) return;
+
+        Category category = new Category();
+        category.setName("Categoría Eliminada");
+        category.setDescription("Categoría descatalogada históricamente.");
+        category.setActive(false);
+        category.setDeletedAt(LocalDateTime.now().minusDays(4));
+        categoryRepository.save(category);
+        log.info("Categoría eliminada creada con éxito por el DataSeed.");
+    }
+
     // Transacciones
 
     private void seedTransactions() {
@@ -350,6 +474,27 @@ public class DataInitializer implements CommandLineRunner {
         saveTransaction("Transacción de prueba 1", "20.00",  TransactionType.INCOME,  PaymentMethod.CARD,     LocalDateTime.now(),              memberUser);
         saveTransaction("Transacción de prueba 2", "45.32",  TransactionType.EXPENSE, PaymentMethod.CASH,     LocalDateTime.now(),              memberUser);
         saveTransaction("Reparación de portería campo 2", "120.50", TransactionType.EXPENSE, PaymentMethod.TRANSFER, LocalDateTime.now().minusDays(5), null);
+
+        Transaction txInactiva = new Transaction();
+        txInactiva.setAmount(new BigDecimal("15.00"));
+        txInactiva.setConcept("Cuota mensual (Inactiva)");
+        txInactiva.setTransactionDate(LocalDateTime.now().minusDays(2));
+        txInactiva.setType(TransactionType.INCOME);
+        txInactiva.setPaymentMethod(PaymentMethod.CARD);
+        txInactiva.setActive(false);
+        txInactiva.setUser(memberUser);
+        transactionRepository.save(txInactiva);
+
+        // 👈 Nueva Transacción Eliminada/Dada de baja
+        Transaction txBorrada = new Transaction();
+        txBorrada.setAmount(new BigDecimal("60.00"));
+        txBorrada.setConcept("Seguro anual anulado (Eliminada)");
+        txBorrada.setTransactionDate(LocalDateTime.now().minusDays(10));
+        txBorrada.setType(TransactionType.EXPENSE);
+        txBorrada.setPaymentMethod(PaymentMethod.TRANSFER);
+        txBorrada.setActive(false);
+        txBorrada.setDeletedAt(LocalDateTime.now().minusDays(1));
+        transactionRepository.save(txBorrada);
 
         log.info("Transacciones creadas con éxito por el DataSeed");
     }
@@ -377,6 +522,7 @@ public class DataInitializer implements CommandLineRunner {
         savePastActivity();
         saveFullActivity();
         saveDeletedActivity();
+        saveInactiveActivity();
 
         log.info("Seeding de actividades e inscripciones completado.");
     }
@@ -450,6 +596,19 @@ public class DataInitializer implements CommandLineRunner {
         act.setDeletedAt(LocalDateTime.now().minusMonths(1));
         activityRepository.save(act);
         log.info("Actividad borrada (Campus de Verano) creada para pruebas de historial.");
+    }
+
+    private void saveInactiveActivity() {
+        Activity act = new Activity();
+        act.setName("Sesión Fotográfica Oficial (Inactiva)");
+        act.setDescription("Fotos oficiales de la plantilla suspendidas temporalmente por el club.");
+        act.setStartDate(LocalDateTime.now().plusDays(15).withHour(10).withMinute(0));
+        act.setEndDate(LocalDateTime.now().plusDays(15).withHour(13).withMinute(0));
+        act.setCapacity(30);
+        act.setLocation("Estudio Fotográfico / Césped Principal");
+        act.setActive(false);
+        activityRepository.save(act);
+        log.info("Actividad inactiva creada con éxito por el DataSeed.");
     }
 
     private void saveRegistration(Activity activity, User user) {

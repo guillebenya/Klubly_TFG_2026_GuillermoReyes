@@ -10,11 +10,13 @@ import { authService } from "../../auth/services/auth.service";
 interface ActivityDetailsProps {
   activity: Activity;
   isHistoryMode?: boolean;
+  onRefresh?: () => void;
 }
 
 const ActivityDetails: React.FC<ActivityDetailsProps> = ({
   activity,
   isHistoryMode,
+  onRefresh,
 }) => {
   const currentUser = authService.getCurrentUser();
   const isAdmin = currentUser?.roleName === "ADMIN";
@@ -194,6 +196,7 @@ const ActivityDetails: React.FC<ActivityDetailsProps> = ({
         <RegistrationManager
           activity={activity}
           onClose={() => setIsManageOpen(false)}
+          onRefresh={onRefresh}
         />
       </Modal>
     </div>
