@@ -120,12 +120,38 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 
   const isPast = new Date(activity.startDate) < new Date();
 
+  // Determinar estilos de colores según el tipo de actividad
+  const getCardStyles = () => {
+    if (!activity.active) {
+      return {
+        card: "border-l-gray-300 hover:border-l-gray-500 bg-gray-50/50 opacity-60",
+        icon: "bg-gray-100 text-gray-400 border-gray-200",
+        accentText: "text-gray-400",
+      };
+    }
+    if (isPast) {
+      return {
+        card: "border-l-emerald-300 hover:border-l-emerald-600 bg-emerald-50/10",
+        icon: "bg-emerald-50 text-emerald-600 border-emerald-100",
+        accentText: "text-emerald-500",
+      };
+    }
+    return {
+      card: "border-l-indigo-300 hover:border-l-indigo-600",
+      icon: "bg-indigo-50 text-indigo-600 border-indigo-100",
+      accentText: "text-indigo-500",
+    };
+  };
+
+  const styles = getCardStyles();
+
   return (
     <Card
       data-testid="activity-card"
-      className={`flex flex-col lg:flex-row items-center w-full gap-4 !p-4 border-l-4 border-l-indigo-300 hover:border-indigo-600 transition-all ${activity.active ? "" : "opacity-65"} ${isPast ? "grayscale-[0.5] opacity-70 bg-gray-50" : ""}`}
+      className={`flex flex-col lg:flex-row items-center w-full gap-4 !p-4 border-l-4 transition-all shadow-sm hover:shadow-md ${styles.card}`}
     >
-      <div className="flex-shrink-0 p-3 bg-indigo-50 text-indigo-600 rounded-xl border border-indigo-100">
+      {/* Icono Principal Dinámico */}
+      <div className={`flex-shrink-0 p-3 rounded-xl border ${styles.icon}`}>
         <Calendar size={24} />
       </div>
 
@@ -146,7 +172,10 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           Fecha y Hora
         </span>
         <div className="flex items-center gap-2 text-gray-600">
-          <Calendar size={14} className="text-indigo-500 flex-shrink-0" />
+          <Calendar
+            size={14}
+            className={`${styles.accentText} flex-shrink-0`}
+          />
           <span className="text-xs font-medium">
             {formatDate(activity.startDate)}
           </span>
@@ -158,7 +187,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           Ubicación
         </span>
         <div className="flex items-center gap-2 text-gray-600">
-          <MapPin size={14} className="text-indigo-500 flex-shrink-0" />
+          <MapPin size={14} className={`${styles.accentText} flex-shrink-0`} />
           <span className="text-xs font-medium truncate">
             {activity.location || "Por definir"}
           </span>

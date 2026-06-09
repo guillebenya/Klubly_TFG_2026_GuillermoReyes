@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { FilterX, Check } from "lucide-react";
+import { FilterX, Check, X } from "lucide-react";
 import Button from "../../../components/shared/Button";
 import { teamService, type Team } from "../../identity/services/team.service";
 import { authService } from "../../auth/services/auth.service";
@@ -9,6 +9,7 @@ interface ActivityFiltersProps {
     teams: number[];
     status: boolean[];
     dateRange: { start: string; end: string };
+    showPast: boolean;
   };
   setFilters: React.Dispatch<React.SetStateAction<any>>;
   onApply: () => void;
@@ -33,12 +34,12 @@ const ActivityFilters: React.FC<ActivityFiltersProps> = ({
 
         if (!isAdmin) {
           const userTeamIds = currentUser?.teamIds || [];
-          
+
           // Filtramos: Solo equipos cuyo ID esté incluido en el array teamIds del usuario
           // Usamos Number() por seguridad para asegurar que comparamos números
           teams = teams.filter((t) => userTeamIds.includes(Number(t.id)));
         }
-        
+
         setAvailableTeams(teams);
       } catch (error) {
         console.error("Error cargando equipos para filtros", error);
@@ -52,6 +53,7 @@ const ActivityFilters: React.FC<ActivityFiltersProps> = ({
       teams: [],
       status: [],
       dateRange: { start: "", end: "" },
+      showPast: false,
     });
   };
 
@@ -163,6 +165,27 @@ const ActivityFilters: React.FC<ActivityFiltersProps> = ({
         </div>
       </div>
 
+      {/* Cronología */}
+      <div className="space-y-3">
+        <h4 className="text-sm font-bold text-gray-900 border-l-4 border-indigo-500 pl-2">
+          Temporalidad
+        </h4>
+        <button
+          type="button"
+          onClick={() =>
+            setFilters({ ...filters, showPast: !filters.showPast })
+          }
+          className={`w-full flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold border transition-all ${
+            filters.showPast
+              ? "bg-indigo-50 text-indigo-700 border-indigo-200 shadow-sm"
+              : "bg-gray-50 text-gray-400 border-transparent opacity-60 shadow-inner"
+          }`}
+        >
+          {filters.showPast && <Check size={16} />}
+          Mostrar solo Finalizadas (Pasadas)
+        </button>
+      </div>
+
       {/* Estado (Solo Admin/Staff) */}
       {!isMember && (
         <div className="space-y-3">
@@ -173,21 +196,28 @@ const ActivityFilters: React.FC<ActivityFiltersProps> = ({
             {[
               { label: "Activas", value: true },
               { label: "Inactivas", value: false },
-            ].map((opt) => (
-              <button
-                key={opt.label}
-                type="button"
-                onClick={() => toggleStatus(opt.value)}
-                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold border transition-all ${
-                  filters.status.includes(opt.value)
-                    ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                    : "bg-gray-50 text-gray-400 border-transparent opacity-60 shadow-inner"
-                }`}
-              >
-                {filters.status.includes(opt.value) && <Check size={16} />}
-                {opt.label}
-              </button>
-            ))}
+            ].map((opt) => {
+              const isSelected = filters.status.includes(opt.value);
+              return (
+                <button
+                  key={opt.label}
+                  type="button"
+                  onClick={() => toggleStatus(opt.value)}
+                  className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-bold border transition-all ${
+                    isSelected
+                      ? opt.value
+                        ? "bg-emerald-50 text-emerald-700 border-emerald-200" // Verde para activas
+                        : "bg-red-50 text-red-700 border-red-200" // Rojo para inactivas
+                      : "bg-gray-50 text-gray-400 border-transparent opacity-60 shadow-inner"
+                  }`}
+                >
+                  {/* Muestra Check si es activa, o una X si es inactiva */}
+                  {isSelected &&
+                    (opt.value ? <Check size={16} /> : <X size={16} />)}
+                  {opt.label}
+                </button>
+              );
+            })}
           </div>
         </div>
       )}

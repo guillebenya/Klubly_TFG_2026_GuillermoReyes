@@ -34,7 +34,7 @@ const getFilteredActivities = (activities: Activity[], params: any) => {
   } = params;
 
   return activities.filter((a) => {
-    // Verificación de visibilidad 
+    // Verificación de visibilidad
     const isGlobal = a.teamIds.length === 0;
     const isMyTeam = a.teamIds.some((id) =>
       (currentUser?.teamIds || []).includes(id),
@@ -60,7 +60,11 @@ const getFilteredActivities = (activities: Activity[], params: any) => {
       (!activeFilters.dateRange.end ||
         actDate <= new Date(activeFilters.dateRange.end));
 
-    if (!matchesSearch || !matchesTeam || !matchesDate) return false;
+    const isPast = actDate < new Date();
+    const matchesPast = !activeFilters.showPast || isPast;
+
+    if (!matchesSearch || !matchesTeam || !matchesDate || !matchesPast)
+      return false;
 
     //Verificación de Estado / Historial
     if (isHistoryMode) return true;
@@ -74,7 +78,7 @@ const getFilteredActivities = (activities: Activity[], params: any) => {
   });
 };
 
-//Lógica de ordenación extraída
+// Lógica de ordenación por bloques de estado y cronología
 const getSortedActivities = (activities: Activity[]) => {
   const nowTime = Date.now();
   return [...activities].sort((a, b) => {
@@ -83,8 +87,29 @@ const getSortedActivities = (activities: Activity[]) => {
     const isPastA = timeA < nowTime;
     const isPastB = timeB < nowTime;
 
-    if (isPastA !== isPastB) return isPastA ? 1 : -1;
-    return isPastA ? timeB - timeA : timeA - timeB;
+    // Asignación de pesos según los 4 tipos de situaciones
+    const getGroupScore = (act: Activity, isPast: boolean) => {
+      if (act.active && !isPast) return 4; // 1. Activas Próximas
+      if (act.active && isPast) return 3; // 2. Activas Finalizadas
+      if (!act.active && !isPast) return 2; // 3. Inactivas Próximas
+      return 1; // 4. Inactivas Finalizadas
+    };
+
+    const scoreA = getGroupScore(a, isPastA);
+    const scoreB = getGroupScore(b, isPastB);
+
+    if (scoreA !== scoreB) {
+      return scoreB - scoreA;
+    }
+
+    // Si están en el mismo grupo, aplicamos su orden cronológico ideal
+    if (!isPastA) {
+      // Próximas: De más cercana a más lejana (Ascendente)
+      return timeA - timeB;
+    } else {
+      // Pasadas: De más reciente a más antigua (Descendente)
+      return timeB - timeA;
+    }
   });
 };
 
@@ -113,6 +138,7 @@ const ActivityPage = () => {
     teams: [] as number[],
     status: [] as boolean[],
     dateRange: { start: "", end: "" },
+    showPast: false,
   });
 
   // CONFIRMACIÓN Y ÉXITO
@@ -165,18 +191,21 @@ const ActivityPage = () => {
     currentUser,
   ]);
 
-  // Estadísticas para SummaryCards
+  // Estadísticas para SummaryCards (Filtrando solo las activas)
   const stats = useMemo(() => {
     const now = new Date();
+    const activeActivities = activities.filter((a) => a.active);
     return {
-      thisMonth: activities.filter((a) => {
+      thisMonth: activeActivities.filter((a) => {
         const d = new Date(a.startDate);
         return (
           d.getMonth() === now.getMonth() &&
           d.getFullYear() === now.getFullYear()
         );
       }).length,
-      full: activities.filter((a) => a.registeredCount >= a.capacity).length,
+      full: activeActivities.filter((a) => a.registeredCount >= a.capacity)
+        .length,
+      activeCount: activeActivities.length,
     };
   }, [activities]);
 
@@ -289,7 +318,7 @@ const ActivityPage = () => {
           />
           <SummaryCard
             title="Ocupación de plazas"
-            value={`${stats.full} de ${activities.length} llenas`}
+            value={`${stats.full} de ${stats.activeCount} llenas`}
             icon={
               stats.full > 0 ? (
                 <AlertCircle size={20} />
@@ -297,7 +326,7 @@ const ActivityPage = () => {
                 <CheckCircle size={20} />
               )
             }
-            variant={stats.full > activities.length / 2 ? "rose" : "emerald"}
+            variant={stats.full > stats.activeCount / 2 ? "rose" : "emerald"}
           />
         </div>
       )}
