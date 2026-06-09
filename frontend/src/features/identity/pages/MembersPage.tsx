@@ -93,7 +93,7 @@ const SummaryCards = ({
       <div className="h-1 w-1 rounded-full bg-indigo-400" />
       <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 italic">
         {isAdmin
-          ? "Nota: Totales globales del club (no afectados por filtros)."
+          ? "Nota: Las tarjetas resumen muestran totales globales y no se ven afectados por los filtros de búsqueda."
           : "Nota: Usuarios bajo tu gestión en tus equipos asignados. Los filtros no afectan a estos totales."}
       </p>
     </div>

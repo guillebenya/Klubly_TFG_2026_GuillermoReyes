@@ -254,6 +254,11 @@ const ActivityPage = () => {
         title={
           isHistoryMode ? "Historial de Actividades" : "Gestión de Actividades"
         }
+        subtitle={
+          isHistoryMode
+            ? "Consulta de actividades dadas de baja."
+            : "Visualiza y gestiona todas las actividades del club."
+        }
         onSearch={setSearchTerm}
         actions={
           <>
@@ -308,6 +313,14 @@ const ActivityPage = () => {
         }
       />
 
+      {/* Nota informativa */}
+      <div className="flex items-center gap-1.5 px-1 mb-2 opacity-80">
+        <div className="h-1 w-1 rounded-full bg-indigo-400" />
+        <p className="text-[10px] uppercase tracking-wider font-bold text-gray-400 italic">
+          Nota: Las tarjetas resumen muestran totales globales y no se ven
+          afectados por los filtros de búsqueda.
+        </p>
+      </div>
       {!isHistoryMode && !loading && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <SummaryCard

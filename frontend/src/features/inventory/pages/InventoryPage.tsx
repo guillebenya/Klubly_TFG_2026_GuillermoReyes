@@ -51,14 +51,14 @@ const InventoryPage = () => {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
 
-  // --- ESTADO DE FILTROS ---
+  // ESTADO DE FILTROS
   const [activeFilters, setActiveFilters] = useState({
     categories: [] as number[],
     status: [] as boolean[],
     stockStatus: "all" as "all" | "low" | "enough",
   });
 
-  // --- CONFIRMACIÓN Y ÉXITO ---
+  // CONFIRMACIÓN Y ÉXITO
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
     type: "save" | "delete";
@@ -96,14 +96,14 @@ const InventoryPage = () => {
     setCategories(resp.data);
   };
 
-  // --- CÁLCULOS PARA TARJETAS INFORMATIVAS ---
+  // CÁLCULOS PARA TARJETAS INFORMATIVAS
   // Estos datos se basan en la lista total de ítems cargada
   const totalItemsCount = items.length;
   const lowStockCount = items.filter(
     (i) => i.stockQuantity <= i.minStock,
   ).length;
 
-  // --- HANDLERS ---
+  // HANDLERS
   const handleView = (item: Item) => {
     setSelectedItem(item);
     setIsViewOpen(true);

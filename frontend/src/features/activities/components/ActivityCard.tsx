@@ -276,7 +276,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 
         {isPast && (
           <Badge
-            variant="gray"
+            variant="green"
             textSize="mediano"
             className="py-1 px-7 uppercase font-bold"
           >
