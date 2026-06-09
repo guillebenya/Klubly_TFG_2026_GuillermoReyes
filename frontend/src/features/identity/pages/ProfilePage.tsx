@@ -46,6 +46,7 @@ const ProfilePage = () => {
   const [passwordData, setPasswordData] = useState<any>(null);
   const [editData, setEditData] = useState<any>(null);
   const [serverPasswordError, setServerPasswordError] = useState("");
+  const [phoneError, setPhoneError] = useState("");
 
   useEffect(() => {
     fetchProfile();
@@ -87,11 +88,12 @@ const ProfilePage = () => {
     if (isEditProfileOpen) {
       const phoneValue = editData?.phone?.trim() || "";
       if (phoneValue !== "" && !/^\d{9}$/.test(phoneValue)) {
-        alert(
-          "El teléfono debe estar vacío o contener exactamente 9 dígitos numéricos.",
+        setPhoneError(
+          "El teléfono debe contener exactamente 9 dígitos numéricos.",
         );
         return;
       }
+      setPhoneError("");
     }
 
     setPasswordData(null);
@@ -303,12 +305,22 @@ const ProfilePage = () => {
               id="phone"
               type="text"
               maxLength={9}
-              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-100 rounded-xl text-sm focus:ring-2 focus:ring-indigo-500/20 focus:border-indigo-500 outline-none"
+              className={`w-full px-4 py-2.5 bg-gray-50 border rounded-xl text-sm focus:ring-2 outline-none transition-all ${
+                phoneError
+                  ? "border-red-400 focus:ring-red-500/20 focus:border-red-500"
+                  : "border-gray-100 focus:ring-indigo-500/20 focus:border-indigo-500"
+              }`}
               value={editData?.phone || ""}
-              onChange={(e) =>
-                setEditData({ ...editData, phone: e.target.value })
-              }
+              onChange={(e) => {
+                setEditData({ ...editData, phone: e.target.value });
+                if (phoneError) setPhoneError("");
+              }}
             />
+            {phoneError && (
+              <p className="text-xs font-bold text-red-500 ml-1 mt-1 animate-in fade-in duration-200">
+                {phoneError}
+              </p>
+            )}
           </div>
           <Button variant="primary" className="w-full" type="submit">
             Guardar Cambios
@@ -316,7 +328,7 @@ const ProfilePage = () => {
         </form>
       </Modal>
 
-      {/* --- DIÁLOGOS DE SISTEMA --- */}
+      {/* DIÁLOGOS DE SISTEMA */}
       <ConfirmDialog
         isOpen={confirmConfig.isOpen}
         onClose={() => setConfirmConfig({ ...confirmConfig, isOpen: false })}

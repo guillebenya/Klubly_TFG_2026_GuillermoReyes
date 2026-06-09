@@ -60,6 +60,11 @@ const ChangePasswordCard = ({
       return;
     }
 
+    if (formData.newPassword === formData.currentPassword) {
+      setError("La nueva contraseña no puede ser igual a la actual.");
+      return;
+    }
+
     onConfirm(formData);
   };
 
