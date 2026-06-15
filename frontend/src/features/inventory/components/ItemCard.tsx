@@ -33,24 +33,24 @@ const ItemCard = ({ item, onView, onEdit, onDelete }: ItemCardProps) => {
   return (
     <Card
       className={`flex items-center gap-4 py-3 px-6 transition-all shadow-sm group relative border-l-4 ${item.active ? "" : "opacity-65"} ${
-        isLowStock
-          ? "border-l-red-500 hover:border-red-700 bg-red-50/10"
-          : item.active ? "border-l-indigo-300 hover:border-indigo-600" : "border-l-gray-300 hover:border-gray-600"
+        isOutOfStock
+          ? "border-l-red-300 hover:border-red-500 bg-red-50/10"
+          : isLowStock ? "border-l-amber-300 hover:border-amber-600 bg-amber-50/10" : item.active ? "border-l-indigo-300 hover:border-indigo-600" : "border-l-gray-300 hover:border-gray-600"
       }`}
     >
       {/* Icono Principal con Badge de Alerta superpuesto */}
       <div className="relative">
         <div
           className={`h-12 w-12 rounded-xl flex items-center justify-center shrink-0 border transition-colors ${
-            isLowStock
+            isOutOfStock
               ? "bg-red-100 border-red-200 text-red-600 shadow-sm"
-              : item.active ? "bg-indigo-50 border-indigo-100 text-indigo-600" : "bg-gray-100 border-gray-100 text-gray-600"
+              : isLowStock ? "bg-amber-100 border-amber-200 text-amber-600" : item.active ? "bg-indigo-50 border-indigo-100 text-indigo-600" : "bg-gray-100 border-gray-100 text-gray-600"
           }`}
         >
           <Package size={24} />
         </div>
         {isLowStock && (
-          <div className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full p-0.5 shadow-sm animate-bounce">
+          <div className={`absolute -top-1 -right-1 text-white rounded-full p-0.5 shadow-sm animate-bounce ${isOutOfStock ? "bg-red-600" : "bg-amber-600"}`}>
             <AlertTriangle size={10} />
           </div>
         )}
@@ -85,14 +85,14 @@ const ItemCard = ({ item, onView, onEdit, onDelete }: ItemCardProps) => {
               {isLowStock && (
                 <AlertTriangle
                   size={14}
-                  className="text-red-500 animate-pulse"
+                  className={`animate-pulse ${isOutOfStock ? "text-red-600" : "text-amber-600"}`}
                 />
               )}
             </div>
 
             {/* Texto de aviso fijo cuando es bajo mínimos */}
             {isLowStock && (
-              <span className="text-[9px] font-black text-red-500 uppercase tracking-tighter animate-pulse">
+              <span className={`text-[9px] font-black uppercase tracking-tighter animate-pulse ${isOutOfStock ? "text-red-600" : "text-amber-600"}`}>
                 {isOutOfStock ? "Agotado" : "Vigilar Stock"}
               </span>
             )}
@@ -101,7 +101,7 @@ const ItemCard = ({ item, onView, onEdit, onDelete }: ItemCardProps) => {
           {/* Tooltip en Hover para explicar el mínimo */}
           {isLowStock && (
             <div className="absolute bottom-full mb-2 hidden group-hover/stock:block w-32 p-2 bg-gray-900 text-white text-[10px] rounded-lg shadow-xl z-10 text-center">
-              Stock por debajo del mínimo ({item.minStock} uds.)
+              {isOutOfStock ? "Stock agotado" : "Stock por debajo del mínimo"}
               <div className="absolute top-full left-1/2 -translate-x-1/2 border-8 border-transparent border-t-gray-900" />
             </div>
           )}

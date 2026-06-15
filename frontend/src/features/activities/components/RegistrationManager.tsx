@@ -33,9 +33,13 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({
   const [deleteLoading, setDeleteLoading] = useState(false);
 
   const isFull = registrations.length >= activity.capacity;
-  const isPast = new Date(activity.endDate) < new Date();
-  const isBtnDisabled = isFull || isPast;
+  const now = new Date();
+  const hasStarted = new Date(activity.startDate) <= now;
+  const isPast = new Date(activity.endDate) < now;
+  const isEnCurso = hasStarted && !isPast;
 
+  // Bloquea si está lleno, en curso o finalizado
+  const isBtnDisabled = isFull || hasStarted;
   useEffect(() => {
     fetchRegistrations();
   }, [activity.id]);
@@ -87,7 +91,11 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({
       return (
         <div className="text-center py-10 bg-gray-50 rounded-2xl border-2 border-dashed border-gray-100">
           <p className="text-gray-400">
-            {isPast ? "No hubo ningún inscrito." : "No hay nadie inscrito todavía."}
+            {isPast
+              ? "No hubo ningún inscrito."
+              : hasStarted
+                ? "No se inscribió nadie."
+                : "No hay ningún inscrito todavía."}
           </p>
         </div>
       );
@@ -131,6 +139,16 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({
     ));
   };
 
+  const getTooltipMessage = () => {
+    if (isPast)
+      return "No se pueden añadir más inscritos: la actividad ya ha finalizado";
+    if (isEnCurso)
+      return "No se pueden añadir más inscritos: la actividad está actualmente en curso";
+    if (isFull)
+      return "No se pueden añadir más inscritos: el cupo de la actividad está lleno";
+    return "";
+  };
+
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between bg-gray-50 p-4 rounded-2xl border border-gray-100">
@@ -148,15 +166,7 @@ const RegistrationManager: React.FC<RegistrationManagerProps> = ({
           </div>
         </div>
 
-        <div
-          title={
-            isPast
-              ? "No se pueden añadir más inscritos: la actividad ya ha finalizado"
-              : isFull
-                ? "No se pueden añadir más inscritos: el cupo de la actividad está lleno"
-                : ""
-          }
-        >
+        <div title={getTooltipMessage()}>
           <Button
             variant="add"
             icon={<UserPlus size={18} />}

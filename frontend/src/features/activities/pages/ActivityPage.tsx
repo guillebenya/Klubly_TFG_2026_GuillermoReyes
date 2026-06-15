@@ -78,37 +78,37 @@ const getFilteredActivities = (activities: Activity[], params: any) => {
   });
 };
 
-// Lógica de ordenación por bloques de estado y cronología
+// Lógica de ordenación por bloques de estado, temporalidad y cronología
 const getSortedActivities = (activities: Activity[]) => {
-  const nowTime = Date.now();
-  return [...activities].sort((a, b) => {
-    const timeA = new Date(a.startDate).getTime();
-    const timeB = new Date(b.startDate).getTime();
-    const isPastA = timeA < nowTime;
-    const isPastB = timeB < nowTime;
+  const now = new Date();
 
-    // Asignación de pesos según los 4 tipos de situaciones
-    const getGroupScore = (act: Activity, isPast: boolean) => {
-      if (act.active && !isPast) return 4; // 1. Activas Próximas
-      if (act.active && isPast) return 3; // 2. Activas Finalizadas
-      if (!act.active && !isPast) return 2; // 3. Inactivas Próximas
-      return 1; // 4. Inactivas Finalizadas
+  return [...activities].sort((a, b) => {
+    const startA = new Date(a.startDate).getTime();
+    const startB = new Date(b.startDate).getTime();
+    const endA = new Date(a.endDate).getTime();
+    const endB = new Date(b.endDate).getTime();
+    const nowTime = now.getTime();
+
+    // Clasificación en 5 niveles de prioridad (Tiers)
+    const getGroupScore = (act: Activity, start: number, end: number) => {
+      if (!act.active) return end < nowTime ? 1 : 2;    // Inactivas pasadas (1) o futuras/presentes (2)
+      if (nowTime > end) return 3;                      // 3. Activas Finalizadas
+      if (nowTime >= start && nowTime <= end) return 5; // 5. Activas EN CURSO 
+      return 4;                                         // 4. Activas Próximas
     };
 
-    const scoreA = getGroupScore(a, isPastA);
-    const scoreB = getGroupScore(b, isPastB);
+    const scoreA = getGroupScore(a, startA, endA);
+    const scoreB = getGroupScore(b, startB, endB);
 
     if (scoreA !== scoreB) {
-      return scoreB - scoreA;
+      return scoreB - scoreA; // Ordenar por el grupo de mayor peso
     }
 
-    // Si están en el mismo grupo, aplicamos su orden cronológico ideal
-    if (!isPastA) {
-      // Próximas: De más cercana a más lejana (Ascendente)
-      return timeA - timeB;
+    // Si están en el mismo grupo, aplicamos orden cronológico ideal
+    if (scoreA >= 4) {
+      return startA - startB; // En Curso y Próximas: De más cercana a más lejana (Cronológico ascendente)
     } else {
-      // Pasadas: De más reciente a más antigua (Descendente)
-      return timeB - timeA;
+      return startB - startA; // Finalizadas e Inactivas pasadas: De más reciente a más antigua (Historial descendente)
     }
   });
 };
@@ -353,19 +353,18 @@ const ActivityPage = () => {
         <div className="flex flex-col gap-3">
           {filteredAndSorted.length > 0 ? (
             filteredAndSorted.map((activity) => {
-              const isPast = new Date(activity.startDate) < new Date();
               return (
                 <ActivityCard
                   key={activity.id}
                   activity={activity}
                   onView={handleView}
                   onEdit={
-                    (isAdmin || isStaff) && !isHistoryMode && !isPast
+                    (isAdmin || isStaff) && !isHistoryMode
                       ? handleEdit
                       : undefined
                   }
                   onDelete={
-                    (isAdmin || isStaff) && !isHistoryMode && !isPast
+                    (isAdmin || isStaff) && !isHistoryMode
                       ? (id) =>
                           setConfirmConfig({
                             isOpen: true,
@@ -374,7 +373,7 @@ const ActivityPage = () => {
                           })
                       : undefined
                   }
-                  isMember={isMember && !isPast}
+                  isMember={isMember && new Date(activity.startDate) > new Date()}
                   onRefresh={fetchActivities}
                 />
               );

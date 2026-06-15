@@ -413,7 +413,7 @@ public class DataInitializer implements CommandLineRunner {
     }
 
     private void createOutOfStockItem(Category category) {
-        if (itemRepository.existsByNameAndDeletedAtIsNull("Petos de Entrenamiento (Agotado)")) return;
+        if (itemRepository.existsByNameAndDeletedAtIsNull("Petos de Entrenamiento")) return;
 
         Item item = new Item();
         item.setName("Petos de Entrenamiento (Agotado)");
@@ -520,6 +520,7 @@ public class DataInitializer implements CommandLineRunner {
         saveGlobalActivity();
         saveTeamActivityWithRegistration(testTeam);
         savePastActivity();
+        saveOngoingActivity();
         saveFullActivity();
         saveDeletedActivity();
         saveInactiveActivity();
@@ -565,6 +566,18 @@ public class DataInitializer implements CommandLineRunner {
         act.setEndDate(LocalDateTime.now().minusDays(30).plusHours(4));
         act.setCapacity(50);
         act.setLocation("Pabellón Municipal");
+        act.setActive(true);
+        activityRepository.save(act);
+    }
+
+    private void saveOngoingActivity() {
+        Activity act = new Activity();
+        act.setName("Torneo Benéfico Cruz Roja");
+        act.setDescription("Evento en curso.");
+        act.setStartDate(LocalDateTime.now().minusHours(1));
+        act.setEndDate(LocalDateTime.now().plusHours(7));
+        act.setCapacity(30);
+        act.setLocation("Pabellón Centro Ciudad");
         act.setActive(true);
         activityRepository.save(act);
     }

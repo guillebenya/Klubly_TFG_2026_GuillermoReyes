@@ -8,6 +8,17 @@ interface TransactionFiltersProps {
   onApply: () => void;
 }
 
+const typeLabels: Record<string, string> = {
+  INCOME: "INGRESO",
+  EXPENSE: "GASTO",
+};
+
+const methodLabels: Record<string, string> = {
+  CASH: "EFECTIVO",
+  CARD: "TARJETA",
+  TRANSFER: "TRANSFERENCIA",
+};
+
 const TransactionFilters = ({ filters, setFilters, onApply }: TransactionFiltersProps) => {
 
   const toggleList = (category: string, value: string) => {
@@ -68,7 +79,7 @@ const TransactionFilters = ({ filters, setFilters, onApply }: TransactionFilters
                   : "bg-gray-50 text-gray-400 border-gray-100 hover:bg-gray-100"
               }`}
             >
-              {type}
+              {typeLabels[type.toUpperCase()] || type}
             </button>
           ))}
         </div>
@@ -90,7 +101,7 @@ const TransactionFilters = ({ filters, setFilters, onApply }: TransactionFilters
                   : "bg-gray-100 text-gray-500 hover:bg-gray-200"
               }`}
             >
-              {method}
+              {methodLabels[method.toUpperCase()] || method}
             </button>
           ))}
         </div>

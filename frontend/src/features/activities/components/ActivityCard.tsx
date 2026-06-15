@@ -118,7 +118,10 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
     );
   };
 
-  const isPast = new Date(activity.startDate) < new Date();
+  const now = new Date();
+  const hasStarted = new Date(activity.startDate) <= now;
+  const isPast = new Date(activity.endDate) < now;
+  const isEnCurso = hasStarted && !isPast;
 
   // Determinar estilos de colores según el tipo de actividad
   const getCardStyles = () => {
@@ -127,6 +130,13 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         card: "border-l-gray-300 hover:border-l-gray-500 bg-gray-50/50 opacity-60",
         icon: "bg-gray-100 text-gray-400 border-gray-200",
         accentText: "text-gray-400",
+      };
+    }
+    if (isEnCurso) {
+      return {
+        card: "border-l-amber-300 hover:border-l-amber-600 bg-amber-50/10 animate-pulse-subtle",
+        icon: "bg-amber-50 text-amber-600 border-amber-100",
+        accentText: "text-amber-500",
       };
     }
     if (isPast) {
@@ -274,6 +284,16 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
           )}
         </div>
 
+        {isEnCurso && (
+          <Badge
+            variant="amber"
+            textSize="mediano"
+            className="py-1 px-7 uppercase font-bold animate-pulse"
+          >
+            EN CURSO
+          </Badge>
+        )}
+
         {isPast && (
           <Badge
             variant="green"
@@ -286,7 +306,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 
         {isMember && (
           <div className="ml-2 min-w-[130px] flex justify-end">
-            {renderMemberActions()}
+            {!hasStarted &&renderMemberActions()}
           </div>
         )}
       </div>
