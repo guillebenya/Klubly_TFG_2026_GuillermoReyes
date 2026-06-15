@@ -16,6 +16,7 @@ import Badge from "../../../components/shared/Badge";
 import Card from "../../../components/shared/Card";
 import { type Activity } from "../services/activity.service";
 import { registrationService } from "../services/registration.service";
+import { authService } from "../../auth/services/auth.service";
 
 interface ActivityCardProps {
   activity: Activity;
@@ -36,6 +37,9 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 }) => {
   const [loadingAction, setLoadingAction] = useState(false);
 
+  const currentUser = authService.getCurrentUser();
+  const isAdmin = currentUser?.roleName === "ADMIN";
+  const isGlobal = activity.teamNames.length === 0;
   const isFull = activity.registeredCount >= activity.capacity;
   const isAlreadyRegistered = activity.userRegistered;
 
@@ -262,7 +266,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             icon={<Eye size={16} />}
             onClick={() => onView(activity)}
           />
-          {onEdit && (
+          {onEdit && (isAdmin || !isGlobal) && (
             <Button
               variant="ghost"
               size="sm"
@@ -272,7 +276,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
               onClick={() => onEdit(activity)}
             />
           )}
-          {onDelete && (
+          {onDelete && (isAdmin || !isGlobal) && (
             <Button
               variant="ghost"
               size="sm"
@@ -306,7 +310,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 
         {isMember && (
           <div className="ml-2 min-w-[130px] flex justify-end">
-            {!hasStarted &&renderMemberActions()}
+            {!hasStarted && renderMemberActions()}
           </div>
         )}
       </div>
