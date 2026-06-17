@@ -9,6 +9,7 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -46,7 +47,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             
             filterChain.doFilter(request, response);
 
-        } catch (org.springframework.security.core.userdetails.UsernameNotFoundException e) {
+        } catch (UsernameNotFoundException e) {
             // Si el usuario del token ya no existe (por un reset de DB), enviamos 401
             logger.error("Usuario no encontrado en la base de datos: " + e.getMessage());
             handleAuthenticationError(response, "El usuario asociado al token ya no existe.");
