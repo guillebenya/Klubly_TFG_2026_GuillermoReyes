@@ -11,17 +11,17 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(ResourceNotFoundException.class)
+    @ExceptionHandler(ResourceNotFoundException.class) //404
     public ResponseEntity<ErrorResponse> handleNotFound(ResourceNotFoundException ex, WebRequest request) {
         return buildResponse(HttpStatus.NOT_FOUND, ex, request);
     }
 
-    @ExceptionHandler(BadRequestException.class)
+    @ExceptionHandler(BadRequestException.class) //400
     public ResponseEntity<ErrorResponse> handleBadRequest(BadRequestException ex, WebRequest request) {
         return buildResponse(HttpStatus.BAD_REQUEST, ex, request);
     }
 
-    @ExceptionHandler(UnauthorizedException.class)
+    @ExceptionHandler(UnauthorizedException.class) //403
     public ResponseEntity<ErrorResponse> handleUnauthorized(UnauthorizedException ex, WebRequest request) {
         return buildResponse(HttpStatus.FORBIDDEN, ex, request);
     }
