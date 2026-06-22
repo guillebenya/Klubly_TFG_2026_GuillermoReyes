@@ -18,7 +18,7 @@ const LoginPage = () => {
   useEffect(() => {
     if (searchParams.get("expired") === "true") {
       setError(
-        "Tu sesión ha expirado por seguridad. Por favor, identifícate de nuevo.",
+        "Tu sesión se ha cerrado por seguridad. Por favor, identifícate de nuevo.",
       );
     }
   }, [searchParams]);

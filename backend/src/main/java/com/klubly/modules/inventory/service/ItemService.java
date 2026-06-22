@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -16,17 +17,25 @@ import com.klubly.modules.inventory.entity.Item;
 import com.klubly.modules.inventory.repository.CategoryRepository;
 import com.klubly.modules.inventory.repository.ItemRepository;
 
+import com.klubly.modules.identity.entity.User;
+import com.klubly.modules.identity.repository.UserRepository;
+
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class ItemService {
     private final CategoryRepository categoryRepository;
     private final ItemRepository itemRepository;
+    private final UserRepository userRepository;
+
     private static final String ITEM_NOT_FOUND_MSG = "Artículo no encontrado";
 
     @Transactional(readOnly = true)
     public List<ItemDTO> getAllActiveItems() {
+        checkStaffOrAdminRole();
         return itemRepository.findByDeletedAtIsNull()
                 .stream()
                 .map(this::convertToDTO)
@@ -44,6 +53,7 @@ public class ItemService {
 
     @Transactional(readOnly = true)
     public ItemDTO getItemById(Long id) {
+        checkStaffOrAdminRole();
         return itemRepository.findByIdAndDeletedAtIsNull(id)
                 .map(this::convertToDTO)
                 .orElseThrow(() -> new ResourceNotFoundException(ITEM_NOT_FOUND_MSG));
@@ -51,6 +61,7 @@ public class ItemService {
 
     @Transactional(readOnly = true)
     public ItemDTO getItemByName(String name) {
+        checkStaffOrAdminRole();
         return itemRepository.findByNameAndDeletedAtIsNull(name)
                 .map(this::convertToDTO)
                 .orElseThrow(() -> new ResourceNotFoundException(ITEM_NOT_FOUND_MSG));
@@ -91,6 +102,8 @@ public class ItemService {
 
     @Transactional
     public ItemDTO updateItem(Long id, ItemDTO itemDTO) {
+        User currentUser = checkStaffOrAdminRole();
+
         Item item = itemRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ResourceNotFoundException(ITEM_NOT_FOUND_MSG));
 
@@ -102,7 +115,7 @@ public class ItemService {
         throw new BadRequestException("El artículo debe tener una categoría asignada");
     }
 
-        boolean isAdmin = "ROLE_ADMIN".equals(getContextRole());
+        boolean isAdmin = "ADMIN".equals(currentUser.getRole().getName());
 
         if (isAdmin) {
             // Solo el ADMIN puede cambiar el nombre y validamos unicidad
@@ -178,9 +191,32 @@ public class ItemService {
         return authentication.getAuthorities().iterator().next().getAuthority();
     }
 
-    private void checkAdminRole() {
-        if (!"ROLE_ADMIN".equals(getContextRole())) {
-            throw new UnauthorizedException("Acceso denegado: Se requieren permisos de administrador");
+    private User getCurrentDbUser() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        if (authentication == null || !authentication.isAuthenticated()) {
+            throw new UnauthorizedException("Usuario no autenticado");
         }
+        // Buscamos al usuario en caliente en la DB para conocer su estado real de permisos
+        return userRepository.findByUsernameAndDeletedAtIsNull(authentication.getName())
+                .orElseThrow(() -> new AccessDeniedException("Usuario inválido o dado de baja del club"));
+    }
+
+    private void checkAdminRole() {
+        User user = getCurrentDbUser();
+        if (!"ADMIN".equals(user.getRole().getName())) {
+            log.warn("ALERTA SEGURIDAD: Usuario '{}' intentó acción de ADMIN teniendo rol DB: '{}'", user.getUsername(), user.getRole().getName());
+            throw new AccessDeniedException("Acceso denegado: Se requieren permisos de administrador");
+        }
+    }
+
+    private User checkStaffOrAdminRole() {
+        User user = getCurrentDbUser();
+        String roleName = user.getRole().getName();
+        if (!"ADMIN".equals(roleName) && !"STAFF".equals(roleName)) {
+            log.warn("ALERTA SEGURIDAD: Usuario '{}' intentó acción de INVENTARIO teniendo rol DB: '{}'", user.getUsername(), roleName);
+            // Lanzar AccessDeniedException de Spring provoca un 403 Forbidden nativo hacia el Front
+            throw new AccessDeniedException("Acceso denegado: No tienes privilegios para gestionar el inventario");
+        }
+        return user;
     }
 }

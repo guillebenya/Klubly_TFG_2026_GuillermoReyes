@@ -1,7 +1,7 @@
 import axios from "axios";
 
 const api = axios.create({
-  baseURL: "/api", 
+  baseURL: "/api",
   headers: {
     "Content-Type": "application/json",
   },
@@ -19,7 +19,7 @@ api.interceptors.request.use(
   },
   (error) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // INTERCEPTOR DE RESPUESTA
@@ -44,16 +44,29 @@ api.interceptors.response.use(
       localStorage.removeItem("user");
 
       // Solo redirigimos si no estamos ya en la página de login
-      if (!globalThis.location.pathname.includes("/login")) {;
-        
+      if (!globalThis.location.pathname.includes("/login")) {
         // Redirección forzosa al login con parámetro para aviso visual
         globalThis.location.href = "/login?expired=true";
       }
     }
 
-    // Error 403: Prohibido (Falta de permisos de rol)
+    // Error 403: Prohibido (Degradación de rol o falta de permisos en vivo)
     if (status === 403) {
-      console.error("DEBUG - Axios: Error 403 - No tienes permisos suficientes");
+      console.warn(
+        "DEBUG - Axios: Error 403 detectado - Permisos modificados o insuficientes. Forzando re-autenticación.",
+      );
+
+      // Borramos el token desactualizado para obligar al sistema a regenerarlo en el próximo login
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+
+      // Redirección forzosa al login con el parámetro para mostrar el aviso visual de sesión expirada/inválida
+      if (!globalThis.location.pathname.includes("/login")) {
+        globalThis.location.href = "/login?expired=true";
+      }
+
+      // Cortamos la propagación del error para evitar que salten los "alerts" de las páginas antes de redirigir
+      return new Promise(() => {});
     }
 
     // Error 500: Fallo del servidor
@@ -62,7 +75,7 @@ api.interceptors.response.use(
     }
 
     return Promise.reject(error);
-  }
+  },
 );
 
 export default api;

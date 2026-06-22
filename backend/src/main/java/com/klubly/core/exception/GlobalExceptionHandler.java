@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
+import org.springframework.security.access.AccessDeniedException;
 
 import java.time.LocalDateTime;
 
@@ -24,6 +25,19 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(UnauthorizedException.class) //403
     public ResponseEntity<ErrorResponse> handleUnauthorized(UnauthorizedException ex, WebRequest request) {
         return buildResponse(HttpStatus.FORBIDDEN, ex, request);
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<Object> handleAccessDeniedException(AccessDeniedException ex) {
+        // Creamos un mapa o un objeto de error simple con el mensaje
+        java.util.Map<String, Object> body = new java.util.HashMap<>();
+        body.put("timestamp", java.time.LocalDateTime.now());
+        body.put("status", HttpStatus.FORBIDDEN.value());
+        body.put("error", "Forbidden");
+        body.put("message", ex.getMessage());
+
+        // Devolvemos el código HTTP 403 de forma estricta
+        return new ResponseEntity<>(body, HttpStatus.FORBIDDEN);
     }
 
     // Captura cualquier otro error inesperado (500)
