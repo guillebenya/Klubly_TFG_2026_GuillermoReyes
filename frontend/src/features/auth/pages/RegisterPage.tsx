@@ -24,6 +24,7 @@ const RegisterPage = () => {
         err.response?.data?.message ||
           "Ocurrió un error al procesar el registro. Inténtalo de nuevo.",
       );
+      throw err;
     } finally {
       setLoading(false);
     }

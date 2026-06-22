@@ -124,6 +124,7 @@ const TeamsSection = () => {
   const [selectedTeam, setSelectedTeam] = useState<Team | null>(null);
   const [isHistoryMode, setIsHistoryMode] = useState(false);
 
+  const [nameError, setNameError] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -164,11 +165,13 @@ const TeamsSection = () => {
   };
   const handleAddNew = () => {
     setSelectedTeam(null);
+    setNameError(false);
     setFormData({ name: "", description: "", active: true });
     setIsFormOpen(true);
   };
   const handleEdit = (team: Team) => {
     setSelectedTeam(team);
+    setNameError(false);
     setFormData({
       name: team.name,
       description: team.description,
@@ -207,12 +210,32 @@ const TeamsSection = () => {
   const executeAction = async () => {
     try {
       setFormLoading(true);
+      setNameError(false);
       if (confirmConfig.type === "delete") {
         await executeDelete();
       } else {
         await executeSave();
       }
       setConfirmConfig((prev) => ({ ...prev, isOpen: false }));
+    } catch (error: any) {
+      console.error("Error en la operación:", error);
+
+      const statusCode =
+        error.response?.status ||
+        error.status ||
+        (error.message?.includes("400") ? 400 : null);
+      const serverMessage = error.response?.data?.message || "";
+      const isDuplicate =
+        serverMessage.toLowerCase().includes("existe") ||
+        serverMessage.toLowerCase().includes("equipo") ||
+        serverMessage.toLowerCase().includes("team");
+
+      if (statusCode === 400 || statusCode === 409 || isDuplicate) {
+        setNameError(true);
+        setConfirmConfig((prev) => ({ ...prev, isOpen: false }));
+      } else {
+        alert("Hubo un error al procesar la solicitud.");
+      }
     } finally {
       setFormLoading(false);
     }
@@ -282,12 +305,22 @@ const TeamsSection = () => {
               id="teamName"
               required
               value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
+              onChange={(e) => {
+                setNameError(false); // <-- Limpiar error al escribir
+                setFormData({ ...formData, name: e.target.value });
+              }}
               placeholder="Escribe aquí el nombre del equipo"
-              className="w-full px-4 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm"
+              className={`w-full px-4 py-2 border rounded-xl text-sm outline-none transition-all focus:ring-2 ${
+                nameError
+                  ? "bg-red-50 border-red-500 focus:ring-2 focus:ring-red-500 text-red-900 font-semibold"
+                  : "bg-gray-50 border-gray-200 focus:ring-indigo-500"
+              }`}
             />
+            {nameError && (
+              <p className="text-red-500 text-[10px] font-bold uppercase ml-1 mt-1">
+                Ya existe un equipo registrado con este nombre en el club
+              </p>
+            )}
           </div>
           <div>
             <label

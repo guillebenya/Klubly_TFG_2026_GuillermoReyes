@@ -2,6 +2,7 @@ package com.klubly.modules.identity.controller;
 
 import com.klubly.common.security.JwtTokenProvider;
 import com.klubly.core.exception.ResourceNotFoundException;
+import com.klubly.core.exception.BadRequestException;
 import com.klubly.modules.identity.dto.JwtAuthResponse;
 import com.klubly.modules.identity.dto.LoginDto;
 import com.klubly.modules.identity.dto.RegisterDTO;
@@ -67,23 +68,31 @@ public class AuthController {
     @PostMapping("/register")
     @Transactional
     public ResponseEntity<Void> register(@RequestBody RegisterDTO registerDTO) {
-        // Creamos la instancia de la entidad y mapeamos los datos del DTO
-        User user = new User();
-        user.setUsername(registerDTO.username());
-        user.setEmail(registerDTO.email());
-        user.setPassword(passwordEncoder.encode(registerDTO.password()));
-        user.setFirstName(registerDTO.firstName());
-        user.setLastName(registerDTO.lastName());
-        user.setPhone(registerDTO.phone());
-        user.setAvatarURL(registerDTO.avatarURL());
-        user.setIsPending(true);
-        
-        // Seguridad: Siempre inactivo y siempre rol de Socio
-        user.setActive(false);
-        user.setRole(roleRepository.findById(3L)
-            .orElseThrow(() -> new ResourceNotFoundException("Error: Rol por defecto no encontrado")));
-
-        userRepository.save(user);
-        return ResponseEntity.ok().build();
+    
+    if (userRepository.existsByUsernameAndDeletedAtIsNull(registerDTO.username())) {
+        throw new BadRequestException("El nombre de usuario ya existe");
     }
+    if (userRepository.existsByEmailAndDeletedAtIsNull(registerDTO.email())) {
+        throw new BadRequestException("El correo electrónico ya existe");
+    }
+
+    // Creamos la instancia de la entidad y mapeamos los datos del DTO
+    User user = new User();
+    user.setUsername(registerDTO.username());
+    user.setEmail(registerDTO.email());
+    user.setPassword(passwordEncoder.encode(registerDTO.password()));
+    user.setFirstName(registerDTO.firstName());
+    user.setLastName(registerDTO.lastName());
+    user.setPhone(registerDTO.phone());
+    user.setAvatarURL(registerDTO.avatarURL());
+    user.setIsPending(true);
+    
+    // Seguridad: Siempre inactivo y siempre rol de Socio
+    user.setActive(false);
+    user.setRole(roleRepository.findById(3L)
+        .orElseThrow(() -> new ResourceNotFoundException("Error: Rol por defecto no encontrado")));
+
+    userRepository.save(user);
+    return ResponseEntity.ok().build();
+}
 }

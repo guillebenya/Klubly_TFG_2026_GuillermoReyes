@@ -9,6 +9,7 @@ interface ItemFormProps {
   onSubmit: (data: any) => void;
   onCancel: () => void;
   loading?: boolean;
+  serverError?: string | null;
 }
 
 const FieldLabel = ({
@@ -43,10 +44,12 @@ const ItemForm = ({
   onSubmit,
   onCancel,
   loading,
+  serverError = null,
 }: ItemFormProps) => {
   const currentUser = authService.getCurrentUser();
   const isAdmin = currentUser?.roleName === "ADMIN";
 
+  const [nameError, setNameError] = useState(false);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loadingCategories, setLoadingCategories] = useState(true);
 
@@ -94,6 +97,20 @@ const ItemForm = ({
     }
   }, [initialData]);
 
+  useEffect(() => {
+    if (serverError) {
+      const msg = serverError.toLowerCase();
+      // Comprobamos si el mensaje habla del nombre o del artículo
+      if (
+        msg.includes("name") ||
+        msg.includes("nombre") ||
+        msg.includes("artículo")
+      ) {
+        setNameError(true);
+      }
+    }
+  }, [serverError]);
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
@@ -101,6 +118,7 @@ const ItemForm = ({
   ) => {
     const { name, value, type } = e.target;
     const val = type === "number" ? Number.parseInt(value) || 0 : value;
+    if (name === "name") setNameError(false);
     setFormData((prev) => ({ ...prev, [name]: val }));
   };
 
@@ -137,11 +155,19 @@ const ItemForm = ({
               onChange={handleChange}
               disabled={lockForStaff}
               className={`w-full pl-10 pr-4 py-2.5 border rounded-xl outline-none transition-all text-sm font-semibold
-                ${lockForStaff ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed" : "bg-gray-50 border-gray-200 focus:ring-2 focus:ring-indigo-500"}`}
+        ${lockForStaff ? "bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed" : ""}
+        ${!lockForStaff && nameError ? "bg-red-50 border-red-500 focus:ring-2 focus:ring-red-500 text-red-900" : ""}
+        ${!lockForStaff && !nameError ? "bg-gray-50 border-gray-200 focus:ring-2 focus:ring-indigo-500" : ""}`}
               placeholder="Ej: Balón de Baloncesto Molten G7"
               required
             />
           </div>
+          {/* MENSAJE DE ADVERTENCIA EN ROJO */}
+          {nameError && (
+            <p className="text-red-500 text-[10px] font-bold uppercase ml-1 mt-1">
+              Ya existe un artículo registrado con este nombre en el almacén
+            </p>
+          )}
         </div>
 
         {/* Categoría */}

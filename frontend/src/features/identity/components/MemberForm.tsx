@@ -26,6 +26,7 @@ interface MemberFormProps {
   onCancel: () => void;
   loading?: boolean;
   isRegistration?: boolean; // Prop para modo registro público
+  serverError?: string | null;
 }
 
 //Componentes fuera de MemberForm para reducir complejidad
@@ -154,6 +155,7 @@ const MemberForm = ({
   onCancel,
   loading,
   isRegistration = false,
+  serverError = null,
 }: MemberFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showRepeatPassword, setShowRepeatPassword] = useState(false);
@@ -162,6 +164,8 @@ const MemberForm = ({
   const [phoneError, setPhoneError] = useState(false);
   const [emailError, setEmailError] = useState(false);
   const [passwordMinError, setPasswordMinError] = useState(false);
+  const [usernameExistsError, setUsernameExistsError] = useState(false);
+  const [emailExistsError, setEmailExistsError] = useState(false);
 
   const [roles, setRoles] = useState<Role[]>([]);
   const [loadingRoles, setLoadingRoles] = useState(true);
@@ -225,6 +229,18 @@ const MemberForm = ({
     }
   }, [initialData]);
 
+  useEffect(() => {
+    if (serverError) {
+      const msg = serverError.toLowerCase();
+      if (msg.includes("username") || msg.includes("usuario")) {
+        setUsernameExistsError(true);
+      }
+      if (msg.includes("email") || msg.includes("correo")) {
+        setEmailExistsError(true);
+      }
+    }
+  }, [serverError]);
+
   const parseInputValue = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>,
   ) => {
@@ -245,6 +261,12 @@ const MemberForm = ({
       setPhoneError(false);
     }
 
+    if (e.target.name === "username") setUsernameExistsError(false);
+    if (e.target.name === "email") {
+      setEmailError(false);
+      setEmailExistsError(false);
+    }
+
     setFormData((prev) => ({ ...prev, [e.target.name]: value }));
     if (e.target.name === "password") setPasswordError(false);
   };
@@ -258,7 +280,7 @@ const MemberForm = ({
     return true;
   };
 
-  const handleSubmit = (e: React.SyntheticEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.SyntheticEvent<HTMLFormElement>) => {
     e.preventDefault();
 
     //Validación formato email
@@ -295,7 +317,36 @@ const MemberForm = ({
       isPending: initialData?.isPending ? false : formData.isPending,
     };
 
-    onSubmit(submissionData);
+    try {
+      // Apagamos errores previos antes de intentar
+      setUsernameExistsError(false);
+      setEmailExistsError(false);
+
+      // Esperamos a que el componente padre (Page) ejecute la llamada a la API
+      await onSubmit(submissionData);
+    } catch (error: any) {
+      // Capturamos el error devuelto por tu interceptor de Axios
+      if (
+        error.response &&
+        (error.response.status === 409 || error.response.status === 400)
+      ) {
+        const serverMessage = error.response.data?.message || "";
+
+        // Heurística semántica: analizamos qué campo ha fallado según el mensaje del backend
+        if (
+          serverMessage.toLowerCase().includes("username") ||
+          serverMessage.toLowerCase().includes("usuario")
+        ) {
+          setUsernameExistsError(true);
+        }
+        if (
+          serverMessage.toLowerCase().includes("email") ||
+          serverMessage.toLowerCase().includes("correo")
+        ) {
+          setEmailExistsError(true);
+        }
+      }
+    }
   };
 
   return (
@@ -320,6 +371,11 @@ const MemberForm = ({
               required
             />
           </div>
+          {usernameExistsError && (
+            <p className="text-red-500 text-[10px] font-bold uppercase ml-1 mt-1">
+              Este nombre de usuario ya está registrado en el club
+            </p>
+          )}
         </div>
 
         <div className="space-y-1">
@@ -349,6 +405,11 @@ const MemberForm = ({
           {emailError && (
             <p className="text-red-500 text-[10px] font-bold uppercase ml-1">
               El correo debe incluir un dominio válido (ej: usuario@dominio.com)
+            </p>
+          )}
+          {emailExistsError && (
+            <p className="text-red-500 text-[10px] font-bold uppercase ml-1 mt-1">
+              Este correo electrónico ya está asociado a otro socio
             </p>
           )}
         </div>

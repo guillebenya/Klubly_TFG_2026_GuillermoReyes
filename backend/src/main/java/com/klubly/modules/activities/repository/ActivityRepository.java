@@ -16,6 +16,8 @@ public interface ActivityRepository extends JpaRepository<Activity, Long> {
 
     Optional<Activity> findByIdAndDeletedAtIsNull(Long id);
 
+    boolean existsByNameIgnoreCaseAndStartDateBetweenAndDeletedAtIsNull(String name, LocalDateTime start, LocalDateTime end);
+
     // Listar activas
     List<Activity> findByDeletedAtIsNullOrderByStartDateAsc();
 

@@ -72,16 +72,17 @@ const RolesSectionHeader = ({
 );
 
 const RolesSection = () => {
-  // --- ESTADOS DE DATOS ---
+  // ESTADOS DE DATOS
   const [roles, setRoles] = useState<Role[]>([]);
   const [loading, setLoading] = useState(true);
   const [formLoading, setFormLoading] = useState(false);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [isHistoryMode, setIsHistoryMode] = useState(false);
 
-  // --- ESTADOS DE MODALES ---
+  // ESTADOS DE MODALES
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isViewOpen, setIsViewOpen] = useState(false);
+  const [nameError, setNameError] = useState(false);
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
     type: "save" | "delete";
@@ -96,7 +97,7 @@ const RolesSection = () => {
     desc: "",
   });
 
-  // --- ESTADO DEL FORMULARIO ---
+  // ESTADO DEL FORMULARIO
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -110,7 +111,6 @@ const RolesSection = () => {
   const fetchRoles = async () => {
     try {
       setLoading(true);
-      // <--- LÓGICA DE CARGA SEGÚN EL MODO
       const resp = isHistoryMode
         ? await roleService.getDeletedHistory()
         : await roleService.getAll();
@@ -123,7 +123,7 @@ const RolesSection = () => {
     }
   };
 
-  // --- HANDLERS DE ACCIÓN ---
+  // HANDLERS DE ACCIÓN
 
   const handleView = (role: Role) => {
     setSelectedRole(role);
@@ -132,12 +132,14 @@ const RolesSection = () => {
 
   const handleAddNew = () => {
     setSelectedRole(null);
+    setNameError(false);
     setFormData({ name: "", description: "", active: true });
     setIsFormOpen(true);
   };
 
   const handleEdit = (role: Role) => {
     setSelectedRole(role);
+    setNameError(false);
     setFormData({
       name: role.name,
       description: role.description,
@@ -180,15 +182,32 @@ const RolesSection = () => {
   const executeAction = async () => {
     try {
       setFormLoading(true);
+      setNameError(false); // Reseteamos antes de enviar
       if (confirmConfig.type === "delete") {
         await executeDelete();
       } else {
         await executeSave();
       }
       setConfirmConfig((prev) => ({ ...prev, isOpen: false }));
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error en la operación:", error);
-      alert("Hubo un error al procesar la solicitud.");
+
+      const statusCode =
+        error.response?.status ||
+        error.status ||
+        (error.message?.includes("400") ? 400 : null);
+      const serverMessage = error.response?.data?.message || "";
+      const isDuplicate =
+        serverMessage.toLowerCase().includes("existe") ||
+        serverMessage.toLowerCase().includes("rol") ||
+        serverMessage.toLowerCase().includes("name");
+
+      if (statusCode === 400 || statusCode === 409 || isDuplicate) {
+        setNameError(true); // Encendemos el error en la interfaz
+        setConfirmConfig((prev) => ({ ...prev, isOpen: false })); // Cerramos cartel, mantenemos formulario
+      } else {
+        alert("Hubo un error al procesar la solicitud.");
+      }
     } finally {
       setFormLoading(false);
     }
@@ -266,12 +285,22 @@ const RolesSection = () => {
               id="roleName"
               required
               value={formData.name}
-              onChange={(e) =>
-                setFormData({ ...formData, name: e.target.value })
-              }
+              onChange={(e) => {
+                setNameError(false); // <-- Limpiar error al escribir
+                setFormData({ ...formData, name: e.target.value });
+              }}
               placeholder="Ej: ENTRENADOR_AYUDANTE"
-              className="w-full px-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-indigo-500 outline-none text-sm transition-all"
+              className={`w-full px-4 py-2.5 border rounded-xl focus:ring-2 outline-none text-sm transition-all ${
+                nameError
+                  ? "bg-red-50 border-red-500 focus:ring-2 focus:ring-red-500 text-red-900 font-semibold"
+                  : "bg-gray-50 border-gray-200 focus:ring-indigo-500"
+              }`}
             />
+            {nameError && (
+              <p className="text-red-500 text-[10px] font-bold uppercase ml-1 mt-1">
+                Ya existe un rol registrado con este nombre en el sistema
+              </p>
+            )}
           </div>
 
           <div className="space-y-1">

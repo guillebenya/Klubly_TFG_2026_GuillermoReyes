@@ -53,6 +53,11 @@ public class RoleService {
     @Transactional
     public RoleDTO createRole(RoleDTO roleDTO) {
         checkAdminRole();
+
+        if (roleRepository.existsByNameAndDeletedAtIsNull(roleDTO.getName())) {
+            throw new BadRequestException("El nombre de rol ya existe");
+        }
+
         Role role = new Role();
         role.setName(roleDTO.getName());
         role.setDescription(roleDTO.getDescription());
@@ -69,6 +74,10 @@ public class RoleService {
                 .filter(t -> t.getDeletedAt() == null)
                 .orElseThrow(() -> new ResourceNotFoundException(ROLE_NOT_FOUND_MSG));
 
+        if (!role.getName().equals(roleDTO.getName()) &&
+                roleRepository.existsByNameAndDeletedAtIsNull(roleDTO.getName())) {
+            throw new BadRequestException("El nombre de rol ya existe");
+        }
         role.setName(roleDTO.getName());
         role.setDescription(roleDTO.getDescription());
         if (roleDTO.getActive() != null) {

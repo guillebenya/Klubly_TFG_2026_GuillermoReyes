@@ -33,23 +33,24 @@ import {
 import { authService } from "../../auth/services/auth.service";
 
 const InventoryPage = () => {
-  // --- SEGURIDAD ---
+  // SEGURIDAD
   const currentUser = authService.getCurrentUser();
   const isAdmin = currentUser?.roleName === "ADMIN";
 
-  // --- ESTADOS DE DATOS ---
+  // ESTADOS DE DATOS
   const [items, setItems] = useState<Item[]>([]);
   const [categories, setCategories] = useState<Category[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState("");
   const [isHistoryMode, setIsHistoryMode] = useState(false);
 
-  // --- ESTADOS PARA MODALES ---
+  // ESTADOS PARA MODALES
   const [selectedItem, setSelectedItem] = useState<Item | null>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
+  const [serverError, setServerError] = useState<string | null>(null);
 
   // ESTADO DE FILTROS
   const [activeFilters, setActiveFilters] = useState({
@@ -110,11 +111,13 @@ const InventoryPage = () => {
   };
 
   const handleAddNew = () => {
+    setServerError(null);
     setSelectedItem(null);
     setIsFormOpen(true);
   };
 
   const handleEdit = (item: Item) => {
+    setServerError(null);
     setSelectedItem(item);
     setIsFormOpen(true);
   };
@@ -135,6 +138,7 @@ const InventoryPage = () => {
   const executeAction = async () => {
     try {
       setFormLoading(true);
+      setServerError(null); // <-- Limpiamos errores antes de la petición
 
       if (confirmConfig.type === "delete") {
         await itemService.delete(confirmConfig.data);
@@ -163,11 +167,35 @@ const InventoryPage = () => {
         }
       }
 
-      // Cerramos el diálogo de confirmación tras el éxito
       setConfirmConfig({ ...confirmConfig, isOpen: false });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error al ejecutar la acción:", error);
-      alert("Error al procesar la solicitud.");
+
+      //Extraemos el código de estado buscando en todas las propiedades posibles de Axios
+      const statusCode =
+        error.response?.status ||
+        error.status ||
+        (error.message?.includes("400") ? 400 : null);
+
+      // Comprobamos si es nuestro error controlado de validación (400 o 409)
+      if (statusCode === 400 || statusCode === 409) {
+        let serverMessage = "El nombre de artículo ya existe";
+
+        if (error.response?.data) {
+          if (typeof error.response.data === "object") {
+            serverMessage = error.response.data.message || serverMessage;
+          } else if (typeof error.response.data === "string") {
+            serverMessage = error.response.data;
+          }
+        }
+
+        //Enviamos el mensaje al formulario y cerramos el diálogo de confirmación
+        setServerError(serverMessage);
+        setConfirmConfig((prev) => ({ ...prev, isOpen: false }));
+      } else {
+        // Solo saltará el alert ante caídas reales del servidor o errores de red (500, 404, etc.)
+        alert("Error al procesar la solicitud.");
+      }
     } finally {
       setFormLoading(false);
     }
@@ -371,6 +399,7 @@ const InventoryPage = () => {
           onSubmit={handleSaveTrigger}
           onCancel={() => setIsFormOpen(false)}
           loading={formLoading}
+          serverError={serverError}
         />
       </Modal>
 

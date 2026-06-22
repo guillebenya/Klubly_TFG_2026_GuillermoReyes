@@ -91,10 +91,10 @@ const getSortedActivities = (activities: Activity[]) => {
 
     // Clasificación en 5 niveles de prioridad (Tiers)
     const getGroupScore = (act: Activity, start: number, end: number) => {
-      if (!act.active) return end < nowTime ? 1 : 2;    // Inactivas pasadas (1) o futuras/presentes (2)
-      if (nowTime > end) return 3;                      // 3. Activas Finalizadas
-      if (nowTime >= start && nowTime <= end) return 5; // 5. Activas EN CURSO 
-      return 4;                                         // 4. Activas Próximas
+      if (!act.active) return end < nowTime ? 1 : 2; // Inactivas pasadas (1) o futuras/presentes (2)
+      if (nowTime > end) return 3; // 3. Activas Finalizadas
+      if (nowTime >= start && nowTime <= end) return 5; // 5. Activas EN CURSO
+      return 4; // 4. Activas Próximas
     };
 
     const scoreA = getGroupScore(a, startA, endA);
@@ -130,6 +130,7 @@ const ActivityPage = () => {
   const [selectedActivity, setSelectedActivity] = useState<Activity | null>(
     null,
   );
+  const [serverError, setServerError] = useState<string | null>(null);
   const [isViewOpen, setIsViewOpen] = useState(false);
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -222,6 +223,8 @@ const ActivityPage = () => {
   const executeAction = async () => {
     try {
       setFormLoading(true);
+      setServerError(null); // Limpiamos errores previos
+
       if (confirmConfig.type === "delete") {
         await activityService.delete(confirmConfig.data);
         setSuccessConfig({
@@ -241,8 +244,27 @@ const ActivityPage = () => {
         });
       }
       setConfirmConfig({ ...confirmConfig, isOpen: false });
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error al procesar:", error);
+
+      const statusCode =
+        error.response?.status ||
+        error.status ||
+        (error.message?.includes("400") ? 400 : null);
+
+      if (statusCode === 400 || statusCode === 409) {
+        let msg = "Conflicto de datos en la actividad";
+        if (error.response?.data) {
+          msg =
+            typeof error.response.data === "object"
+              ? error.response.data.message
+              : error.response.data;
+        }
+        setServerError(msg);
+        setConfirmConfig({ ...confirmConfig, isOpen: false }); // Cerramos confirmación para volver al modal
+      } else {
+        alert("Hubo un error al procesar la solicitud.");
+      }
     } finally {
       setFormLoading(false);
     }
@@ -373,7 +395,9 @@ const ActivityPage = () => {
                           })
                       : undefined
                   }
-                  isMember={isMember && new Date(activity.startDate) > new Date()}
+                  isMember={
+                    isMember && new Date(activity.startDate) > new Date()
+                  }
                   onRefresh={fetchActivities}
                 />
               );
@@ -433,6 +457,7 @@ const ActivityPage = () => {
           }
           onCancel={() => setIsFormOpen(false)}
           loading={formLoading}
+          serverError={serverError}
         />
       </Modal>
 

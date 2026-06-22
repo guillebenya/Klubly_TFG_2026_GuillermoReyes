@@ -57,10 +57,12 @@ const filterMembers = (
     const UISelectedStates = [];
     if (activeFilters.status.includes(true)) UISelectedStates.push("ACTIVO");
     if (activeFilters.status.includes(false)) UISelectedStates.push("INACTIVO");
-    if (activeFilters.isPending.includes(true)) UISelectedStates.push("PENDIENTE");
+    if (activeFilters.isPending.includes(true))
+      UISelectedStates.push("PENDIENTE");
 
     const matchesStatusGroup =
-      UISelectedStates.length === 0 || UISelectedStates.includes(memberActualState);
+      UISelectedStates.length === 0 ||
+      UISelectedStates.includes(memberActualState);
 
     const matchesTeam =
       activeFilters.teams.length === 0 ||
@@ -139,6 +141,7 @@ const MembersPage = () => {
   const [isTeamsOpen, setIsTeamsOpen] = useState(false);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [allTeams, setAllTeams] = useState<any[]>([]);
+  const [serverError, setServerError] = useState<string | null>(null);
   const [activeFilters, setActiveFilters] = useState({
     roles: [] as string[],
     status: [] as boolean[],
@@ -230,15 +233,24 @@ const MembersPage = () => {
   const executeAction = async () => {
     try {
       setFormLoading(true);
+      setServerError(null);
       if (confirmConfig.type === "delete") {
         await executeDelete();
       } else {
         await executeSave();
       }
       setConfirmConfig((prev) => ({ ...prev, isOpen: false }));
-    } catch (error) {
+    } catch (error: any) {
       console.error("Error en la operación:", error);
-      alert("Hubo un error al procesar la solicitud.");
+      if (
+        error.response &&
+        (error.response.status === 409 || error.response.status === 400)
+      ) {
+        setServerError(error.response.data?.message || "Conflicto de datos");
+        setConfirmConfig((prev) => ({ ...prev, isOpen: false }));
+      } else {
+        alert("Hubo un error al procesar la solicitud.");
+      }
     } finally {
       setFormLoading(false);
     }
@@ -250,11 +262,13 @@ const MembersPage = () => {
   };
 
   const handleAddNew = () => {
+    setServerError(null);
     setSelectedMember(null);
     setIsFormOpen(true);
   };
 
   const handleEdit = (member: any) => {
+    setServerError(null);
     setSelectedMember(member);
     setIsFormOpen(true);
   };
@@ -457,6 +471,7 @@ const MembersPage = () => {
           initialData={selectedMember}
           onSubmit={handleSaveTrigger}
           onCancel={() => setIsFormOpen(false)}
+          serverError={serverError}
         />
       </Modal>
 

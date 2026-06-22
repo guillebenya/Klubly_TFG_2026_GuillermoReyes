@@ -10,6 +10,7 @@ interface ActivityFormProps {
   onSubmit: (data: any) => void;
   onCancel: () => void;
   loading?: boolean;
+  serverError?: string | null;
 }
 
 const ActivityForm: React.FC<ActivityFormProps> = ({
@@ -17,6 +18,7 @@ const ActivityForm: React.FC<ActivityFormProps> = ({
   onSubmit,
   onCancel,
   loading,
+  serverError = null,
 }) => {
   const currentUser = authService.getCurrentUser();
   const isAdmin = currentUser?.roleName === "ADMIN";
@@ -57,12 +59,39 @@ const ActivityForm: React.FC<ActivityFormProps> = ({
     loadTeams();
   }, [currentUser?.id, isAdmin]);
 
+  useEffect(() => {
+    if (serverError) {
+      const msg = serverError.toLowerCase();
+      if (
+        msg.includes("fecha") ||
+        msg.includes("existe") ||
+        msg.includes("actividad") ||
+        msg.includes("programada")
+      ) {
+        setErrors((prev) => ({
+          ...prev,
+          name: "Ya existe una actividad con este nombre en la misma fecha y hora de inicio",
+          startDate:
+            "Revisa que no se solape con el mismo nombre de otra actividad activa",
+        }));
+      }
+    }
+  }, [serverError]);
+
   const handleChange = (
     e: React.ChangeEvent<
       HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement
     >,
   ) => {
     const { name, value } = e.target;
+    if (name === "name" || name === "startDate") {
+      setErrors((prev) => {
+        const newErrors = { ...prev };
+        delete newErrors.name;
+        delete newErrors.startDate;
+        return newErrors;
+      });
+    }
     setFormData((prev) => ({
       ...prev,
       [name]: name === "capacity" ? Number.parseInt(value) || 0 : value,

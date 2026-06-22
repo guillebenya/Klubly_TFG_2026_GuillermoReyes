@@ -107,17 +107,36 @@ public class ActivityService {
 
         validateDates(dto.getStartDate(), dto.getEndDate());
 
+        // 1. Limpiamos el texto de espacios en blanco al inicio y al final
+        String cleanedName = dto.getName() != null ? dto.getName().trim() : "";
+
+        // 2. Rango de tiempo de un minuto alrededor de la fecha elegida
+        LocalDateTime targetStart = dto.getStartDate().withSecond(0).withNano(0);
+        LocalDateTime rangeStart = targetStart.minusSeconds(30);
+        LocalDateTime rangeEnd = targetStart.plusSeconds(30);
+
+        log.info("[DEBUG CRÍTICO] Buscando duplicado exacto para Name (Limpio)='{}' entre '{}' y '{}'", cleanedName, rangeStart, rangeEnd);
+
+        // 3. Buscamos ignorando mayúsculas/minúsculas con el nombre trimeado
+        boolean exists = activityRepository.existsByNameIgnoreCaseAndStartDateBetweenAndDeletedAtIsNull(cleanedName, rangeStart, rangeEnd);
+        log.info("[DEBUG CRÍTICO] ¿Encontrado en DB?: {}", exists);
+
+        if (exists) {
+            throw new BadRequestException("Ya existe una actividad con ese nombre programada para esa fecha exacta");
+        }
+
         Activity activity = new Activity();
         mapDtoToEntity(dto, activity);
+        // Nos aseguramos de guardar la entidad con el nombre limpio también
+        activity.setName(cleanedName); 
 
-        Activity saved = activityRepository.save(activity);
-        log.info("Actividad creada: {}", saved.getName());
-        return convertToDTO(saved, user.getId()); // Pasamos el ID
+        Activity saved = activityRepository.saveAndFlush(activity); 
+        return convertToDTO(saved, user.getId());
     }
 
     @Transactional
     public ActivityDTO updateActivity(Long id, ActivityDTO dto) {
-        User user = getCurrentUser(); // Obtenemos el user actual
+        User user = getCurrentUser(); 
         checkStaffOrAdminRole();
 
         Activity activity = activityRepository.findByIdAndDeletedAtIsNull(id)
@@ -125,9 +144,24 @@ public class ActivityService {
 
         validateDates(dto.getStartDate(), dto.getEndDate());
         
+        LocalDateTime targetStart = dto.getStartDate().withSecond(0).withNano(0);
+        LocalDateTime currentStartClean = activity.getStartDate().withSecond(0).withNano(0);
+        
+        // Comparamos si el nombre o la fecha han cambiado significativamente
+        boolean hasChanged = !activity.getName().equals(dto.getName()) || !currentStartClean.equals(targetStart);
+        
+        if (hasChanged) {
+            LocalDateTime rangeStart = targetStart.minusSeconds(30);
+            LocalDateTime rangeEnd = targetStart.plusSeconds(30);
+            
+            if (activityRepository.existsByNameIgnoreCaseAndStartDateBetweenAndDeletedAtIsNull(dto.getName(), rangeStart, rangeEnd)) {
+                throw new BadRequestException("Ya existe una actividad con ese nombre programada para esa fecha exacta");
+            }
+        }
+        
         mapDtoToEntity(dto, activity);
 
-        Activity saved = activityRepository.save(activity);
+        Activity saved = activityRepository.saveAndFlush(activity); 
         return convertToDTO(saved, user.getId()); 
     }
 
@@ -171,8 +205,12 @@ public class ActivityService {
     private void mapDtoToEntity(ActivityDTO dto, Activity entity) {
         entity.setName(dto.getName());
         entity.setDescription(dto.getDescription());
-        entity.setStartDate(dto.getStartDate());
-        entity.setEndDate(dto.getEndDate());
+        if (dto.getStartDate() != null) {
+            entity.setStartDate(dto.getStartDate().withSecond(0).withNano(0));
+        }
+        if (dto.getEndDate() != null) {
+            entity.setEndDate(dto.getEndDate().withSecond(0).withNano(0));
+        }
         entity.setCapacity(dto.getCapacity());
         entity.setLocation(dto.getLocation());
         entity.setActive(dto.getActive() == null || dto.getActive());

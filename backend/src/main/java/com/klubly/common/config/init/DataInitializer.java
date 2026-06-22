@@ -532,8 +532,8 @@ public class DataInitializer implements CommandLineRunner {
         Activity act = new Activity();
         act.setName("Asamblea General del Club");
         act.setDescription("Reunión anual para todos los socios en el salón de actos.");
-        act.setStartDate(LocalDateTime.now().plusDays(10).withHour(18).withMinute(0));
-        act.setEndDate(LocalDateTime.now().plusDays(10).withHour(20).withMinute(0));
+        act.setStartDate(LocalDateTime.now().plusDays(10).withHour(18).withMinute(0).withSecond(0).withNano(0));
+        act.setEndDate(LocalDateTime.now().plusDays(10).withHour(20).withMinute(0).withSecond(0).withNano(0));
         act.setCapacity(100);
         act.setLocation("Sede Social - Salón Principal");
         act.setActive(true);
@@ -546,8 +546,8 @@ public class DataInitializer implements CommandLineRunner {
         Activity act = new Activity();
         act.setName("Entrenamiento Táctico Avanzado");
         act.setDescription("Sesión a puerta cerrada para preparar el derbi.");
-        act.setStartDate(LocalDateTime.now().plusDays(2).withHour(19).withMinute(30));
-        act.setEndDate(LocalDateTime.now().plusDays(2).withHour(21).withMinute(0));
+        act.setStartDate(LocalDateTime.now().plusDays(2).withHour(19).withMinute(30).withSecond(0).withNano(0));
+        act.setEndDate(LocalDateTime.now().plusDays(2).withHour(21).withMinute(0).withSecond(0).withNano(0));
         act.setCapacity(20);
         act.setLocation("Campo de Entrenamiento 1");
         act.setActive(true);
@@ -562,8 +562,8 @@ public class DataInitializer implements CommandLineRunner {
         Activity act = new Activity();
         act.setName("Torneo de Navidad");
         act.setDescription("Evento finalizado.");
-        act.setStartDate(LocalDateTime.now().minusDays(30));
-        act.setEndDate(LocalDateTime.now().minusDays(30).plusHours(4));
+        act.setStartDate(LocalDateTime.now().minusDays(30).withSecond(0).withNano(0));
+        act.setEndDate(LocalDateTime.now().minusDays(30).plusHours(4).withSecond(0).withNano(0));
         act.setCapacity(50);
         act.setLocation("Pabellón Municipal");
         act.setActive(true);
@@ -574,8 +574,8 @@ public class DataInitializer implements CommandLineRunner {
         Activity act = new Activity();
         act.setName("Torneo Benéfico Cruz Roja");
         act.setDescription("Evento en curso.");
-        act.setStartDate(LocalDateTime.now().minusHours(1));
-        act.setEndDate(LocalDateTime.now().plusHours(7));
+        act.setStartDate(LocalDateTime.now().minusHours(1).withSecond(0).withNano(0));
+        act.setEndDate(LocalDateTime.now().plusHours(7).withSecond(0).withNano(0));
         act.setCapacity(30);
         act.setLocation("Pabellón Centro Ciudad");
         act.setActive(true);
@@ -586,8 +586,8 @@ public class DataInitializer implements CommandLineRunner {
         Activity act = new Activity();
         act.setName("Taller de Nutrición Deportiva");
         act.setDescription("Charla exclusiva sobre suplementación. Plazas muy limitadas.");
-        act.setStartDate(LocalDateTime.now().plusDays(5).withHour(17).withMinute(0));
-        act.setEndDate(LocalDateTime.now().plusDays(5).withHour(18).withMinute(30));
+        act.setStartDate(LocalDateTime.now().plusDays(5).withHour(17).withMinute(0).withSecond(0).withNano(0));
+        act.setEndDate(LocalDateTime.now().plusDays(5).withHour(18).withMinute(30).withSecond(0).withNano(0));
         act.setCapacity(1);
         act.setLocation("Sala de Juntas");
         act.setActive(true);
@@ -601,8 +601,8 @@ public class DataInitializer implements CommandLineRunner {
         Activity act = new Activity();
         act.setName("Campus de Verano 2023");
         act.setDescription("Esta actividad fue eliminada del sistema.");
-        act.setStartDate(LocalDateTime.now().minusYears(1));
-        act.setEndDate(LocalDateTime.now().minusYears(1).plusDays(7));
+        act.setStartDate(LocalDateTime.now().minusYears(1).withSecond(0).withNano(0));
+        act.setEndDate(LocalDateTime.now().minusYears(1).plusDays(7).withSecond(0).withNano(0));
         act.setCapacity(50);
         act.setLocation("Instalaciones Municipales");
         act.setActive(false);
@@ -615,8 +615,8 @@ public class DataInitializer implements CommandLineRunner {
         Activity act = new Activity();
         act.setName("Sesión Fotográfica Oficial (Inactiva)");
         act.setDescription("Fotos oficiales de la plantilla suspendidas temporalmente por el club.");
-        act.setStartDate(LocalDateTime.now().plusDays(15).withHour(10).withMinute(0));
-        act.setEndDate(LocalDateTime.now().plusDays(15).withHour(13).withMinute(0));
+        act.setStartDate(LocalDateTime.now().plusDays(15).withHour(10).withMinute(0).withSecond(0).withNano(0));
+        act.setEndDate(LocalDateTime.now().plusDays(15).withHour(13).withMinute(0).withSecond(0).withNano(0));
         act.setCapacity(30);
         act.setLocation("Estudio Fotográfico / Césped Principal");
         act.setActive(false);

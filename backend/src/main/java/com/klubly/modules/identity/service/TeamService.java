@@ -2,6 +2,7 @@ package com.klubly.modules.identity.service;
 
 import com.klubly.core.exception.ResourceNotFoundException;
 import com.klubly.core.exception.UnauthorizedException;
+import com.klubly.core.exception.BadRequestException;
 import com.klubly.modules.identity.dto.TeamDTO;
 import com.klubly.modules.identity.entity.Team;
 import com.klubly.modules.identity.repository.AffiliationRepository;
@@ -52,6 +53,9 @@ public class TeamService {
     @Transactional
     public TeamDTO createTeam(TeamDTO teamDTO) {
         checkAdminRole();
+        if (teamRepository.existsByNameAndDeletedAtIsNull(teamDTO.getName())) {
+            throw new BadRequestException("El nombre de equipo ya existe");
+        }
         Team team = new Team();
         team.setName(teamDTO.getName());
         team.setDescription(teamDTO.getDescription());
@@ -68,6 +72,10 @@ public class TeamService {
                 .filter(t -> t.getDeletedAt() == null)
                 .orElseThrow(() -> new ResourceNotFoundException(TEAM_NOT_FOUND_MSG));
 
+        if (!team.getName().equals(teamDTO.getName()) &&
+                teamRepository.existsByNameAndDeletedAtIsNull(teamDTO.getName())) {
+            throw new BadRequestException("El nombre de equipo ya existe");
+        }
         team.setName(teamDTO.getName());
         team.setDescription(teamDTO.getDescription());
         if (teamDTO.getActive() != null) {
